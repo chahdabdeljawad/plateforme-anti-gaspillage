@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../components/product_card.dart';
+/*import 'package:google_fonts/google_fonts.dart';
+import '../components/product_card.dart';*/
 import '../components/navbar.dart';
 
 class HomePage extends StatelessWidget {
@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const CustomNavbar();
-    return Scaffold(
+   /* return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -26,10 +26,10 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-    );
+    );*/
   }
 
-  // 🔹 Header
+ /* // 🔹 Header
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -99,5 +99,5 @@ class HomePage extends StatelessWidget {
         ],
       ),
     );
-  }
+  }*/
 }
