@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../components/product_card.dart';
+import '../components/navbar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return const CustomNavbar();
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(

@@ -1,0 +1,7 @@
+[33m99c7819[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: pull origin main --rebase (start): checkout 99c7819835214f2264432a362e52744c552a734a
+[33m8361ee6[m[33m ([m[1;32mmain[m[33m)[m HEAD@{1}: commit: Add homepage and product card components; update app structure and dependencies
+[33mf270fe3[m HEAD@{2}: rebase (finish): returning to refs/heads/main
+[33mf270fe3[m HEAD@{3}: rebase (continue): pushing project
+[33m271a98b[m HEAD@{4}: pull origin main --rebase (start): checkout 271a98b5ab5b918a71a08d68c42de08838018b57
+[33m99c7819[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{5}: Branch: renamed refs/heads/master to refs/heads/main
+[33m99c7819[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{7}: commit (initial): pushing project
