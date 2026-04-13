@@ -8,7 +8,7 @@ class DisabledPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text("Welcome to the Disabled Page!"),
+      child: Text("Welcome to the Home Page!"),
     );
   }
 }

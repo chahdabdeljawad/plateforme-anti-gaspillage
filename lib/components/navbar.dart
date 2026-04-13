@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/homepage.dart';
 import '../screens/profilpage.dart';
 import '../screens/about.dart';
-import '../screens/disabledpage.dart';
+import '../screens/categoriespage.dart';
 
 
 class CustomNavbar extends StatelessWidget {
@@ -18,18 +18,18 @@ class CustomNavbar extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(text: "Home"),
+              Tab(text: "categories"),
+              Tab(text: "about"),
               Tab(text: "Profile"),
-              Tab(text: "Contact"),
-              Tab(text: "Disabled"),
             ],
           ),
         ),
           body: TabBarView(
             children: [
                     HomePage(),
-                    ProfilePage(),
+                    CategoriesPage(),
                     AboutPage(),
-                    DisabledPage(),
+                    ProfilePage(),
                     ],
         ),
       ),
