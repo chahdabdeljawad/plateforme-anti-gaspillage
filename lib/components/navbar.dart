@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import '../screens/homepage.dart';
+import '../screens/profilpage.dart';
+import '../screens/about.dart';
+import '../screens/disabledpage.dart';
+
 
 class CustomNavbar extends StatelessWidget {
   const CustomNavbar({super.key});
@@ -19,13 +24,13 @@ class CustomNavbar extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
-          children: [
-            Center(child: Text("Home Page")),
-            Center(child: Text("Profile Page")),
-            Center(child: Text("Contact Page")),
-            Center(child: Text("Disabled Page")),
-          ],
+          body: TabBarView(
+            children: [
+                    HomePage(),
+                    ProfilePage(),
+                    AboutPage(),
+                    DisabledPage(),
+                    ],
         ),
       ),
     );

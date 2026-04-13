@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'authentification/login.dart';
 import 'authentification/registre.dart';
 import 'screens/homepage.dart'; 
+import 'components/navbar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegistrePage(),
-        '/home': (context) => HomePage(),
+        '/home': (context) => CustomNavbar(),
       },
     );
   }
