@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/footer.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,7 +10,6 @@ class HomePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             // =======================
             // SECTION 1 - HERO
             // =======================
@@ -20,18 +20,16 @@ class HomePage extends StatelessWidget {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/hero.jpg"), // 👈 replace with video later
+                      image: AssetImage("assets/hero.jpg"),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-
                 Container(
                   height: 500,
                   width: double.infinity,
                   color: Colors.black.withOpacity(0.4),
                 ),
-
                 SizedBox(
                   height: 500,
                   child: Center(
@@ -48,7 +46,6 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
-
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
@@ -66,7 +63,6 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 40),
 
             // =======================
@@ -85,7 +81,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20),
-
                   Text(
                     "Our app is the world's largest marketplace for surplus food. We help users rescue good food from going to waste, offering great value for money at local stores, cafes and restaurants.",
                     textAlign: TextAlign.center,
@@ -94,75 +89,108 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 40),
 
             // =======================
-            // SECTION 3 - FEATURES
+            // SECTION 3 - WHY USE (TOO GOOD TO GO STYLE)
             // =======================
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 children: [
                   const Text(
                     "WHY USE",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.teal,
+                      letterSpacing: 1,
                     ),
                   ),
-                  const SizedBox(height: 10),
-
-                  const Text(
-                    "Too Good To Go",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.redAccent,
+                  const SizedBox(height: 8),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      children: [
+                        const TextSpan(text: "Too Good To Go"),
+                        TextSpan(
+                          text: " ✨",
+                          style: TextStyle(
+                            color: Colors.amber[700],
+                            fontSize: 28,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 60,
+                    height: 4,
+                    color: Colors.green[700],
+                  ),
                   const SizedBox(height: 30),
 
-                  GridView.count(
+                  // Grid of TGTG-style benefit cards
+                  GridView.builder(
                     shrinkWrap: true,
-                    crossAxisCount: 2,
                     physics: const NeverScrollableScrollPhysics(),
-                    children: const [
-                      FeatureBox(
-                        title: "Save Money",
-                        icon: Icons.shopping_bag,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.9, // adjust card height
+                    ),
+                    itemCount: _benefits.length,
+                    itemBuilder: (context, index) {
+                      final benefit = _benefits[index];
+                      return _buildBenefitCard(benefit);
+                    },
+                  ),
+                  const SizedBox(height: 30),
+
+                  // CTA Button
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add your action (e.g., navigate to map)
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 14,
                       ),
-                      FeatureBox(
-                        title: "Fight Waste",
-                        icon: Icons.eco,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
                       ),
-                      FeatureBox(
-                        title: "Local Food",
-                        icon: Icons.store,
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "Find food near me →",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
-                      FeatureBox(
-                        title: "Great Deals",
-                        icon: Icons.local_offer,
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
 
             // =======================
-            // SECTION 4 - HOW TO USE
+            // SECTION 4 - HOW TO USE (unchanged)
             // =======================
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-
-                  // LEFT TEXT
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +203,6 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 20),
-
                         Text("1. Download the app"),
                         Text("2. Find nearby stores"),
                         Text("3. Reserve your food bag"),
@@ -183,10 +210,7 @@ class HomePage extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 20),
-
-                  // RIGHT IMAGE
                   Expanded(
                     child: Container(
                       height: 200,
@@ -201,8 +225,76 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 40),
+            const AppFooter(),  
+          ],
+        ),
+      ),
+    );
+  }
+
+  // List of benefits (icons, titles, descriptions)
+  final List<_Benefit> _benefits = const [
+    _Benefit(
+      icon: '🍽️',
+      title: 'ENJOY GOOD FOOD AT ½ PRICE OR LESS',
+      description: 'Surprise bags from local spots at a fraction of the cost.',
+    ),
+    _Benefit(
+      icon: '📍',
+      title: 'RESCUE FOOD NEAR YOU',
+      description: 'Discover unsold meals that would otherwise go to waste.',
+    ),
+    _Benefit(
+      icon: '🌱',
+      title: 'HELP THE ENVIRONMENT BY REDUCING FOOD WASTE',
+      description: 'Every rescued meal lowers CO₂ emissions and saves water.',
+    ),
+    _Benefit(
+      icon: '🍰',
+      title: 'TRY SOMETHING NEW FROM LOCAL CAFES, BAKERIES OR RESTAURANTS',
+      description: 'Explore hidden gems and surprise your taste buds.',
+    ),
+  ];
+
+  Widget _buildBenefitCard(_Benefit benefit) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black12,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              benefit.icon,
+              style: const TextStyle(fontSize: 40),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              benefit.title,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                height: 1.2,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              benefit.description,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+                height: 1.3,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
@@ -210,33 +302,15 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// =======================
-// FEATURE BOX WIDGET
-// =======================
-class FeatureBox extends StatelessWidget {
+// Helper class for benefit data
+class _Benefit {
+  final String icon;
   final String title;
-  final IconData icon;
+  final String description;
 
-  const FeatureBox({
-    super.key,
-    required this.title,
+  const _Benefit({
     required this.icon,
+    required this.title,
+    required this.description,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(10),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: Colors.green),
-            const SizedBox(height: 10),
-            Text(title),
-          ],
-        ),
-      ),
-    );
-  }
-}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+}
