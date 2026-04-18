@@ -173,13 +173,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
   // 🍽️ AUTRES CATEGORIES
   Widget _buildSmallCategoriesGrid(BuildContext context) {
     final List<Map<String, String>> categories = [
-      {'icon': '🍽️', 'title': 'Restaurants'},
-      {'icon': '🥖', 'title': 'Boulangeries'},
-      {'icon': '🍰', 'title': 'Pâtisseries'},
-      {'icon': '🐟', 'title': 'Poissonneries'},
-      {'icon': '🧀', 'title': 'Fromageries'},
-      {'icon': '🥬', 'title': 'Primeurs'},
-      {'icon': '🏪', 'title': 'Petits commerces'},
+      {'title': 'Restaurants', 'image': 'assets/images/res.png'},
+      {'title': 'Boulangeries', 'image': 'assets/images/boulangerie.png'},
+      {'title': 'Pâtisseries', 'image': 'assets/images/wittamer.png'},
+      {'title': 'Poissonneries', 'image': 'assets/images/pois.png'},
+      {'title': 'Fromageries', 'image': 'assets/images/fromage.png'},
+      {'title': 'Primeurs', 'image': 'assets/images/legume.png'},
+      {
+        'title': 'Petits commerces',
+        'image': 'assets/images/petits_commerces.png',
+      },
     ];
 
     final filtered = categories
@@ -191,10 +194,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: filtered.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        crossAxisSpacing: 6,
-        mainAxisSpacing: 6,
-        childAspectRatio: 1.2,
+        crossAxisCount: 5, 
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 1,
       ),
       itemBuilder: (context, index) {
         final cat = filtered[index];
@@ -202,22 +205,37 @@ class _CategoriesPageState extends State<CategoriesPage> {
         return GestureDetector(
           onTap: () => _navigateToCategory(context, cat['title']!),
           child: Container(
-            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              image: DecorationImage(
+                image: AssetImage(cat['image']!),
+                fit: BoxFit.cover,
+                onError: (_, __) {
+                  print("Image not found: ${cat['image']}");
+                },
+              ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(cat['icon']!, style: const TextStyle(fontSize: 28)),
-                const SizedBox(height: 10),
-                Text(
-                  cat['title']!,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-              ],
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  cat['title']!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
             ),
           ),
         );
@@ -225,12 +243,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
- void _navigateToCategory(BuildContext context, String categoryName) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => CategoryDetailsPage(categoryName: categoryName),
-    ),
-  );
-}
+  void _navigateToCategory(BuildContext context, String categoryName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoryDetailsPage(categoryName: categoryName),
+      ),
+    );
+  }
 }

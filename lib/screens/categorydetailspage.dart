@@ -8,59 +8,177 @@ class CategoryDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    // 🔥 DATA حسب catégorie
+    // 🔥 DATA REALISTE (Tunisie)
     final Map<String, List<Map<String, String>>> data = {
+
       'Carrefour': [
-        {'name': 'Pack lait', 'price': '6 DT', 'promo': '-20%', 'emoji': '🥛'},
-        {'name': 'Riz', 'price': '3 DT', 'promo': '-15%', 'emoji': '🍚'},
-        {'name': 'Huile', 'price': '8 DT', 'promo': '-10%', 'emoji': '🛢️'},
-        {'name': 'Pâtes', 'price': '2 DT', 'promo': '-5%', 'emoji': '🍝'},
+        {
+          'name': 'Lait Délice 1L',
+          'price': '1.400 DT',
+          'promo': '1.100 DT',
+          'image': 'assets/images/products/lait.png'
+        },
+        {
+          'name': 'Huile Cristal 1L',
+          'price': '8.500 DT',
+          'promo': '7.200 DT',
+          'image': 'assets/images/products/huile.png'
+        },
+        {
+          'name': 'Pâtes Warda',
+          'price': '1.200 DT',
+          'promo': '0.950 DT',
+          'image': 'assets/images/products/pates.png'
+        },
       ],
 
       'MG': [
-        {'name': 'Yaourt', 'price': '1 DT', 'promo': '-30%', 'emoji': '🍶'},
-        {'name': 'Jus', 'price': '2.5 DT', 'promo': '-25%', 'emoji': '🧃'},
-        {'name': 'Fromage', 'price': '5 DT', 'promo': '-15%', 'emoji': '🧀'},
+        {
+          'name': 'Yaourt Vitalait',
+          'price': '0.700 DT',
+          'promo': '0.500 DT',
+          'image': 'assets/images/products/yaourt.png'
+        },
+        {
+          'name': 'Jus Boga',
+          'price': '2.200 DT',
+          'promo': '1.800 DT',
+          'image': 'assets/images/products/jus.png'
+        },
       ],
 
       'Monoprix': [
-        {'name': 'Panier légumes', 'price': '5 DT', 'promo': '-50%', 'emoji': '🥬'},
-        {'name': 'Sandwich', 'price': '3 DT', 'promo': '-40%', 'emoji': '🥪'},
-        {'name': 'Salade', 'price': '4 DT', 'promo': '-35%', 'emoji': '🥗'},
-        {'name': 'Poulet rôti', 'price': '12 DT', 'promo': '-20%', 'emoji': '🍗'},
+        {
+          'name': 'Sandwich Thon',
+          'price': '5 DT',
+          'promo': '3.5 DT',
+          'image': 'assets/images/products/sandwich.png'
+        },
+        {
+          'name': 'Salade Fraîche',
+          'price': '6 DT',
+          'promo': '4 DT',
+          'image': 'assets/images/products/salade.png'
+        },
       ],
 
       'Aziza': [
-        {'name': 'Biscuits', 'price': '1.5 DT', 'promo': '-20%', 'emoji': '🍪'},
-        {'name': 'Chocolat', 'price': '2 DT', 'promo': '-15%', 'emoji': '🍫'},
-        {'name': 'Bonbons', 'price': '1 DT', 'promo': '-10%', 'emoji': '🍬'},
+        {
+          'name': 'Biscuits Saida',
+          'price': '1.800 DT',
+          'promo': '1.200 DT',
+          'image': 'assets/images/products/biscuit.png'
+        },
+        {
+          'name': 'Chocolat Said',
+          'price': '2.500 DT',
+          'promo': '1.900 DT',
+          'image': 'assets/images/products/choco.png'
+        },
       ],
 
       // 🍽️ AUTRES
+
       'Restaurants': [
-        {'name': 'Pizza', 'price': '8 DT', 'promo': '-30%', 'emoji': '🍕'},
-        {'name': 'Burger', 'price': '7 DT', 'promo': '-25%', 'emoji': '🍔'},
-        {'name': 'Tacos', 'price': '6 DT', 'promo': '-20%', 'emoji': '🌮'},
+        {
+          'name': 'Pizza Escalope',
+          'price': '12 DT',
+          'promo': '8 DT',
+          'image': 'assets/images/products/pizzaa.png'
+        },
+        {
+          'name': 'Burger + Frites',
+          'price': '10 DT',
+          'promo': '7 DT',
+          'image': 'assets/images/products/burgeer.png'
+        },
+        {
+          'name': 'Tacos',
+          'price': '9 DT',
+          'promo': '6.5 DT',
+          'image': 'assets/images/products/tac.png'
+        },
       ],
 
       'Boulangeries': [
-        {'name': 'Pain', 'price': '0.5 DT', 'promo': '-20%', 'emoji': '🥖'},
-        {'name': 'Croissant', 'price': '1 DT', 'promo': '-15%', 'emoji': '🥐'},
+        {
+          'name': 'Baguette',
+          'price': '0.500 DT',
+          'promo': '0.350 DT',
+          'image': 'assets/images/products/pain.png'
+        },
+        {
+          'name': 'Croissant',
+          'price': '1.200 DT',
+          'promo': '0.900 DT',
+          'image': 'assets/images/products/croi.png'
+        },
       ],
 
       'Pâtisseries': [
-        {'name': 'Gâteau', 'price': '6 DT', 'promo': '-40%', 'emoji': '🍰'},
-        {'name': 'Tarte', 'price': '5 DT', 'promo': '-30%', 'emoji': '🥧'},
+        {
+          'name': 'Gâteau',
+          'price': '18 DT',
+          'promo': '12 DT',
+          'image': 'assets/images/products/gateauu.png'
+        },
+        {
+          'name': 'Tarte fruits',
+          'price': '9 DT',
+          'promo': '5 DT',
+          'image': 'assets/images/products/tarte.png'
+        },
+      ],
+
+      'Poissonneries': [
+        {
+          'name': 'Dorade 1kg',
+          'price': '28 DT',
+          'promo': '22 DT',
+          'image': 'assets/images/products/dorade.png'
+        },
+      ],
+
+      'Fromageries': [
+        {
+          'name': 'Fromage frais',
+          'price': '6 DT',
+          'promo': '4.5 DT',
+          'image': 'assets/images/products/fromaage.png'
+        },
+      ],
+
+      'Primeurs': [
+        {
+          'name': 'Panier légumes',
+          'price': '10 DT',
+          'promo': '7 DT',
+          'image': 'assets/images/products/legumes.png'
+        },
+        {
+          'name': 'Fruits mix',
+          'price': '12 DT',
+          'promo': '9 DT',
+          'image': 'assets/images/products/fruit.png'
+        },
       ],
 
       'Petits commerces': [
-        {'name': 'Lait local', 'price': '1.2 DT', 'promo': '-10%', 'emoji': '🥛'},
-        {'name': 'Œufs', 'price': '3 DT', 'promo': '-15%', 'emoji': '🥚'},
-        {'name': 'Café', 'price': '1 DT', 'promo': '-5%', 'emoji': '☕'},
+        {
+          'name': 'Café Express',
+          'price': '1.200 DT',
+          'promo': '1 DT',
+          'image': 'assets/images/products/cafe.png'
+        },
+        {
+          'name': 'Œufs (6)',
+          'price': '3.5 DT',
+          'promo': '2.8 DT',
+          'image': 'assets/images/products/oeufs.png'
+        },
       ],
     };
 
-    // ✅ نجيب produits حسب catégorie
     final products = data[categoryName] ?? [];
 
     return Scaffold(
@@ -68,81 +186,87 @@ class CategoryDetailsPage extends StatelessWidget {
         title: Text(categoryName),
         backgroundColor: const Color(0xFF1D9E75),
       ),
+
       body: products.isEmpty
           ? const Center(child: Text("Aucun produit disponible"))
           : GridView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: products.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: 5,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
                 childAspectRatio: 1,
               ),
+
               itemBuilder: (context, index) {
                 final item = products[index];
 
                 return Container(
-                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: const Color(0xFFE0E0E0), width: 0.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      )
-                    ],
+                    borderRadius: BorderRadius.circular(15),
+                    image: DecorationImage(
+                      image: AssetImage(item['image']!),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(item['emoji']!,
-                          style: const TextStyle(fontSize: 30)),
 
-                      const SizedBox(height: 8),
-
-                      Text(
-                        item['name']!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.8)
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
+                    ),
 
-                      const SizedBox(height: 4),
+                    padding: const EdgeInsets.all(10),
 
-                      Text(
-                        item['price']!,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
-                      const SizedBox(height: 6),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          item['promo']!,
+                        Text(
+                          item['name']!,
                           style: const TextStyle(
-                            color: Colors.green,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 11,
+                            fontSize: 14,
                           ),
                         ),
-                      ),
-                    ],
+
+                        const SizedBox(height: 4),
+
+                        Row(
+                          children: [
+                            Text(
+                              item['price']!,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                decoration: TextDecoration.lineThrough,
+                                fontSize: 12,
+                              ),
+                            ),
+
+                            const SizedBox(width: 6),
+
+                            Text(
+                              item['promo']!,
+                              style: const TextStyle(
+                                color: Colors.greenAccent,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
