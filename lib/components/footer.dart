@@ -6,7 +6,7 @@ class AppFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey[50],
+      color: const Color(0xFF1B5E20),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -18,6 +18,7 @@ class AppFooter extends StatelessWidget {
               fontSize: 28,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
+              color: Colors.white, 
             ),
           ),
           const SizedBox(height: 4),
@@ -26,21 +27,18 @@ class AppFooter extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w400,
-              color: Colors.black87,
+              color: Colors.white70, 
             ),
           ),
           const SizedBox(height: 32),
 
-          // Footer columns (responsive grid)
           LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 800) {
-                // Mobile: wrap into two rows
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _buildFooterColumn("FEATURES", [
@@ -58,7 +56,6 @@ class AppFooter extends StatelessWidget {
                     ),
                     const SizedBox(height: 32),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _buildFooterColumn("COMMUNITY", [
@@ -78,9 +75,7 @@ class AppFooter extends StatelessWidget {
                   ],
                 );
               } else {
-                // Desktop: all columns in one row
                 return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildFooterColumn("FEATURES", [
@@ -114,17 +109,15 @@ class AppFooter extends StatelessWidget {
 
           const SizedBox(height: 48),
 
-          // Divider
-          const Divider(color: Colors.black12, thickness: 1),
+          const Divider(color: Colors.white24, thickness: 1), 
 
           const SizedBox(height: 24),
 
-          // Bottom text (typography + copyright)
           const Text(
             "The text of this website is composed in ABC Arizona, a sans-to-serif variable font courtesy of ABC Dinamo. Cyrillic text set in Accia by Mint Type.",
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: Colors.white70, 
               height: 1.4,
             ),
           ),
@@ -133,7 +126,7 @@ class AppFooter extends StatelessWidget {
             "© 2026 Glyphs. All rights reserved.",
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: Colors.white70, 
             ),
           ),
         ],
@@ -151,7 +144,7 @@ class AppFooter extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
-            color: Colors.black87,
+            color: Colors.white, 
           ),
         ),
         const SizedBox(height: 12),
@@ -162,7 +155,7 @@ class AppFooter extends StatelessWidget {
               item,
               style: const TextStyle(
                 fontSize: 14,
-                color: Colors.black54,
+                color: Colors.white70, 
               ),
             ),
           ),

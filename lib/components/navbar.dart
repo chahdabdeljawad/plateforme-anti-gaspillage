@@ -1,9 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../screens/homepage.dart';
 import '../screens/profilpage.dart';
 import '../screens/about.dart';
 import '../screens/categoriespage.dart';
-
 
 class CustomNavbar extends StatelessWidget {
   const CustomNavbar({super.key});
@@ -13,24 +13,52 @@ class CustomNavbar extends StatelessWidget {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text("My App"),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: "Home"),
-              Tab(text: "categories"),
-              Tab(text: "about"),
-              Tab(text: "Profile"),
-            ],
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(90),
+          child: ClipRRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: AppBar(
+                elevation: 0,
+                backgroundColor: Colors.black.withOpacity(0.3),
+
+                title: const Text(
+                  "ZeroGaspi",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                centerTitle: true,
+
+                bottom: const TabBar(
+                  indicatorColor: Colors.white,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white70,
+                  labelStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  tabs: [
+                    Tab(text: "Home"),
+                    Tab(text: "Categories"),
+                    Tab(text: "About"),
+                    Tab(text: "Profile"),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-          body: TabBarView(
-            children: [
-                    HomePage(),
-                    CategoriesPage(),
-                    AboutPage(),
-                    ProfilePage(),
-                    ],
+
+        body: const TabBarView(
+          children: [
+            HomePage(),
+            CategoriesPage(),
+            AboutPage(),
+            ProfilePage(),
+          ],
         ),
       ),
     );
