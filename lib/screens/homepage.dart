@@ -12,7 +12,6 @@ class HomePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             // =======================
             // HERO
             // =======================
@@ -31,7 +30,7 @@ class HomePage extends StatelessWidget {
                 Container(
                   height: 750,
                   width: double.infinity,
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withValues(alpha: 0.4),
                 ),
                 SizedBox(
                   height: 750,
@@ -79,10 +78,7 @@ class HomePage extends StatelessWidget {
                   Text(
                     "ZeroGaspi is a social impact company on a mission to inspire and empower everyone to fight food waste together.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),
                   Text(
@@ -103,7 +99,6 @@ class HomePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-
                   const Text(
                     "WHY USE",
                     style: TextStyle(
@@ -118,10 +113,10 @@ class HomePage extends StatelessWidget {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:
-                          MediaQuery.of(context).size.width > 600 ? 4 : 2,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width > 600
+                          ? 4
+                          : 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
                       childAspectRatio: 0.9,
@@ -163,11 +158,7 @@ class HomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  const Text(
-                    "HOW IT WORKS",
-                    style: HomePageStyle.aboutTitle,
-                  ),
+                  const Text("HOW IT WORKS", style: HomePageStyle.aboutTitle),
 
                   const SizedBox(height: 20),
 
@@ -229,23 +220,17 @@ class HomePage extends StatelessWidget {
   // =======================
   Widget _buildBenefitCard(_Benefit benefit) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(benefit.icon,
-                style: const TextStyle(fontSize: 40)),
+            Text(benefit.icon, style: const TextStyle(fontSize: 40)),
             const SizedBox(height: 10),
             Text(
               benefit.title,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -289,10 +274,7 @@ Widget _buildSlide(String image, String text) {
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [
-                Colors.black.withOpacity(0.6),
-                Colors.transparent,
-              ],
+              colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent],
             ),
           ),
         ),

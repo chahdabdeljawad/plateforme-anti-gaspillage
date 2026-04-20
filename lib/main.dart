@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'authentification/login.dart';
 import 'authentification/registre.dart';
-import 'screens/homepage.dart'; 
 import 'components/navbar.dart';
 
 void main() {
@@ -21,9 +20,7 @@ class MyApp extends StatelessWidget {
         primaryColor: const Color(0xFF00A082), // 💚 main green
         scaffoldBackgroundColor: const Color(0xFFF7F7F7),
 
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(fontSize: 16),
-        ),
+        textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 16)),
 
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
@@ -40,7 +37,7 @@ class MyApp extends StatelessWidget {
 
       // 🔗 Routes (VERY IMPORTANT)
       routes: {
-        '/login': (context) => LoginPage(),
+        '/login': (context) => LoginPage(onLoginSuccess: (role) {}),
         '/register': (context) => RegistrePage(),
         '/home': (context) => CustomNavbar(),
       },

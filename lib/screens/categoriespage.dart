@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:zerogaspi/screens/categorydetailspage.dart';
-import '../components/navbar.dart';
-import 'categorydetailspage.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -148,7 +146,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 6,
                   offset: const Offset(0, 3),
                 ),
@@ -159,7 +157,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 brand['logo']!,
                 height: brand['name'] == 'Monoprix' ? 150 : 100,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) {
+                errorBuilder: (_, _, _) {
                   return const Icon(Icons.store, size: 35);
                 },
               ),
@@ -194,7 +192,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: filtered.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5, 
+        crossAxisCount: 5,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
         childAspectRatio: 1,
@@ -210,8 +208,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
               image: DecorationImage(
                 image: AssetImage(cat['image']!),
                 fit: BoxFit.cover,
-                onError: (_, __) {
-                  print("Image not found: ${cat['image']}");
+                onError: (_, _) {
+                  debugPrint("Image not found: ${cat['image']}");
                 },
               ),
             ),
@@ -219,7 +217,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.7),
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),

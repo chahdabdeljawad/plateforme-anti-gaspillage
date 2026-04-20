@@ -7,28 +7,26 @@ class CategoryDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     // 🔥 DATA REALISTE (Tunisie)
     final Map<String, List<Map<String, String>>> data = {
-
       'Carrefour': [
         {
           'name': 'Lait Délice 1L',
           'price': '1.400 DT',
           'promo': '1.100 DT',
-          'image': 'assets/images/products/lait.png'
+          'image': 'assets/images/products/lait.png',
         },
         {
           'name': 'Huile Cristal 1L',
           'price': '8.500 DT',
           'promo': '7.200 DT',
-          'image': 'assets/images/products/huile.png'
+          'image': 'assets/images/products/huile.png',
         },
         {
           'name': 'Pâtes Warda',
           'price': '1.200 DT',
           'promo': '0.950 DT',
-          'image': 'assets/images/products/pates.png'
+          'image': 'assets/images/products/pates.png',
         },
       ],
 
@@ -37,13 +35,13 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Yaourt Vitalait',
           'price': '0.700 DT',
           'promo': '0.500 DT',
-          'image': 'assets/images/products/yaourt.png'
+          'image': 'assets/images/products/yaourt.png',
         },
         {
           'name': 'Jus Boga',
           'price': '2.200 DT',
           'promo': '1.800 DT',
-          'image': 'assets/images/products/jus.png'
+          'image': 'assets/images/products/jus.png',
         },
       ],
 
@@ -52,13 +50,13 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Sandwich Thon',
           'price': '5 DT',
           'promo': '3.5 DT',
-          'image': 'assets/images/products/sandwich.png'
+          'image': 'assets/images/products/sandwich.png',
         },
         {
           'name': 'Salade Fraîche',
           'price': '6 DT',
           'promo': '4 DT',
-          'image': 'assets/images/products/salade.png'
+          'image': 'assets/images/products/salade.png',
         },
       ],
 
@@ -67,36 +65,35 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Biscuits Saida',
           'price': '1.800 DT',
           'promo': '1.200 DT',
-          'image': 'assets/images/products/biscuit.png'
+          'image': 'assets/images/products/biscuit.png',
         },
         {
           'name': 'Chocolat Said',
           'price': '2.500 DT',
           'promo': '1.900 DT',
-          'image': 'assets/images/products/choco.png'
+          'image': 'assets/images/products/choco.png',
         },
       ],
 
       // 🍽️ AUTRES
-
       'Restaurants': [
         {
           'name': 'Pizza Escalope',
           'price': '12 DT',
           'promo': '8 DT',
-          'image': 'assets/images/products/pizzaa.png'
+          'image': 'assets/images/products/pizzaa.png',
         },
         {
           'name': 'Burger + Frites',
           'price': '10 DT',
           'promo': '7 DT',
-          'image': 'assets/images/products/burgeer.png'
+          'image': 'assets/images/products/burgeer.png',
         },
         {
           'name': 'Tacos',
           'price': '9 DT',
           'promo': '6.5 DT',
-          'image': 'assets/images/products/tac.png'
+          'image': 'assets/images/products/tac.png',
         },
       ],
 
@@ -105,13 +102,13 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Baguette',
           'price': '0.500 DT',
           'promo': '0.350 DT',
-          'image': 'assets/images/products/pain.png'
+          'image': 'assets/images/products/pain.png',
         },
         {
           'name': 'Croissant',
           'price': '1.200 DT',
           'promo': '0.900 DT',
-          'image': 'assets/images/products/croi.png'
+          'image': 'assets/images/products/croi.png',
         },
       ],
 
@@ -120,13 +117,13 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Gâteau',
           'price': '18 DT',
           'promo': '12 DT',
-          'image': 'assets/images/products/gateauu.png'
+          'image': 'assets/images/products/gateauu.png',
         },
         {
           'name': 'Tarte fruits',
           'price': '9 DT',
           'promo': '5 DT',
-          'image': 'assets/images/products/tarte.png'
+          'image': 'assets/images/products/tarte.png',
         },
       ],
 
@@ -135,7 +132,7 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Dorade 1kg',
           'price': '28 DT',
           'promo': '22 DT',
-          'image': 'assets/images/products/dorade.png'
+          'image': 'assets/images/products/dorade.png',
         },
       ],
 
@@ -144,7 +141,7 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Fromage frais',
           'price': '6 DT',
           'promo': '4.5 DT',
-          'image': 'assets/images/products/fromaage.png'
+          'image': 'assets/images/products/fromaage.png',
         },
       ],
 
@@ -153,13 +150,13 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Panier légumes',
           'price': '10 DT',
           'promo': '7 DT',
-          'image': 'assets/images/products/legumes.png'
+          'image': 'assets/images/products/legumes.png',
         },
         {
           'name': 'Fruits mix',
           'price': '12 DT',
           'promo': '9 DT',
-          'image': 'assets/images/products/fruit.png'
+          'image': 'assets/images/products/fruit.png',
         },
       ],
 
@@ -168,13 +165,13 @@ class CategoryDetailsPage extends StatelessWidget {
           'name': 'Café Express',
           'price': '1.200 DT',
           'promo': '1 DT',
-          'image': 'assets/images/products/cafe.png'
+          'image': 'assets/images/products/cafe.png',
         },
         {
           'name': 'Œufs (6)',
           'price': '3.5 DT',
           'promo': '2.8 DT',
-          'image': 'assets/images/products/oeufs.png'
+          'image': 'assets/images/products/oeufs.png',
         },
       ],
     };
@@ -217,7 +214,7 @@ class CategoryDetailsPage extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.8)
+                          Colors.black.withValues(alpha: 0.8),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -230,7 +227,6 @@ class CategoryDetailsPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         Text(
                           item['name']!,
                           style: const TextStyle(

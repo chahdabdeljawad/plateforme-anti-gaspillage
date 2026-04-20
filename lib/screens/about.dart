@@ -18,7 +18,9 @@ class AboutPage extends StatelessWidget {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/about_hero.jpg"), // Add your own image or remove if not available
+                      image: AssetImage(
+                        "assets/about_hero.jpg",
+                      ), // Add your own image or remove if not available
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -26,7 +28,7 @@ class AboutPage extends StatelessWidget {
                 Container(
                   height: 280,
                   width: double.infinity,
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                 ),
                 const Center(
                   child: Column(
@@ -43,10 +45,7 @@ class AboutPage extends StatelessWidget {
                       SizedBox(height: 10),
                       Text(
                         "Fighting food waste together",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white70,
-                        ),
+                        style: TextStyle(fontSize: 18, color: Colors.white70),
                       ),
                     ],
                   ),
@@ -118,10 +117,7 @@ class AboutPage extends StatelessWidget {
                   const SizedBox(height: 10),
                   const Text(
                     "Started in 2016, now a global movement",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -155,9 +151,17 @@ class AboutPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildStepCard("1", "Rescue", "Unsold food is listed on the app"),
+                      _buildStepCard(
+                        "1",
+                        "Rescue",
+                        "Unsold food is listed on the app",
+                      ),
                       _buildStepCard("2", "Order", "Users buy a Surprise Bag"),
-                      _buildStepCard("3", "Pick up", "Collect & enjoy delicious food"),
+                      _buildStepCard(
+                        "3",
+                        "Pick up",
+                        "Collect & enjoy delicious food",
+                      ),
                     ],
                   ),
                 ],
@@ -209,7 +213,7 @@ class AboutPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -230,10 +234,7 @@ class AboutPage extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 5),
             Text(
