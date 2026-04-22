@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/footer.dart';
 
 class ProfilePage extends StatelessWidget {
   final String role;
@@ -69,9 +70,12 @@ class StoreProfile extends StatelessWidget {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/home',
+                  (route) => false,
+                );
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: Text("Logout"),
             ),
           ),
@@ -128,12 +132,16 @@ class ClientProfile extends StatelessWidget {
         Center(
           child: ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/home',
+                (route) => false,
+              );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: Text("Logout"),
           ),
         ),
+        const AppFooter(),
       ],
     );
   }

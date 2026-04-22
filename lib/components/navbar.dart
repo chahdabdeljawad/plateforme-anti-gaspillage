@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../lang.dart';
 import '../screens/homepage.dart';
 import '../screens/profilpage.dart';
 import '../screens/about.dart';
@@ -25,59 +26,62 @@ class _CustomNavbarState extends State<CustomNavbar> {
     });
   }
 
-  void logout() {
-    setState(() {
-      isLoggedIn = false;
-      userRole = 'Client';
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final lang = Provider.of<Lang>(context);
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        extendBodyBehindAppBar: true,
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(90),
+          preferredSize: const Size.fromHeight(95),
           child: ClipRRect(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
               child: AppBar(
                 elevation: 0,
-                backgroundColor: Colors.black.withValues(alpha: 0.3),
+                backgroundColor: Colors.transparent,
                 title: const Text(
                   "ZeroGaspi",
                   style: TextStyle(
-                    color: Colors.white,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
-                centerTitle: true,
-                bottom: const TabBar(
-                  indicatorColor: Colors.white,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.white70,
+                actions: [
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.language, color: Colors.black),
+                    onSelected: (value) => lang.changeLang(value),
+                    itemBuilder: (context) => const [
+                      PopupMenuItem(value: "fr", child: Text("Français")),
+                      PopupMenuItem(value: "en", child: Text("English")),
+                      PopupMenuItem(value: "ar", child: Text("العربية")),
+                    ],
+                  ),
+                ],
+                bottom: TabBar(
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.black54,
+                  indicatorColor: Colors.black,
                   tabs: [
-                    Tab(text: "Home"),
-                    Tab(text: "Categories"),
-                    Tab(text: "About"),
-                    Tab(text: "Profile"),
+                    Tab(text: lang.t("home")),
+                    Tab(text: lang.t("categories")),
+                    Tab(text: lang.t("about")),
+                    Tab(text: lang.t("profile")),
                   ],
                 ),
               ),
             ),
           ),
         ),
-
         body: TabBarView(
           children: [
-            HomePage(),
-            CategoriesPage(),
-            AboutPage(),
-
+            const HomePage(),
+            const CategoriesPage(),
+            const AboutPage(),
             isLoggedIn
-                ? ProfilePage(role: userRole, onLogout: logout)
+                ? ProfilePage(role: userRole, onLogout: () {})
                 : LoginPage(onLoginSuccess: loginSuccess),
           ],
         ),

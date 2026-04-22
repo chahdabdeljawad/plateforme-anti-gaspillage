@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/footer.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -242,6 +243,7 @@ class AboutPage extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12),
             ),
+            const AppFooter(),
           ],
         ),
       ),

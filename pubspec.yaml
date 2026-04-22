@@ -32,7 +32,11 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^6.1.0
-
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  video_player: ^2.9.2
+  provider: ^6.0.5
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -54,15 +58,30 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: true
+
   assets:
     - assets/images/
     - assets/images/products/
-    - assets/hero.jpg
-    - assets/howto.jpg
+    - assets/backgroundgaspi.png
+    - assets/hero_animation.mp4
+    - assets/how1.png
+    - assets/how2.png
+    - assets/how3.png
+    - assets/how4.png
+    - assets/benefit1.png
+    - assets/benefit2.png
+    - assets/benefit3.png
+    - assets/benefit4.png
+  fonts:
+    - family: PlayfairDisplay
+      fonts:
+        - asset: assets/fonts/PlayfairDisplay-Regular.ttf
+        - asset: assets/fonts/PlayfairDisplay-Bold.ttf
+          weight: 700
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
-  uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:

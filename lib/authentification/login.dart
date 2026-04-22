@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'registre.dart';
+import '../style/authantification/login_style.dart';
+import '../components/footer.dart';
 
 class LoginPage extends StatefulWidget {
-    final Function(String) onLoginSuccess;
+  final Function(String) onLoginSuccess;
 
   const LoginPage({super.key, required this.onLoginSuccess});
 
@@ -15,98 +17,119 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-void _login() {
-  if (_formKey.currentState!.validate()) {
-    String user = _userController.text.trim();
-    String password = _passwordController.text;
+  void _login() {
+    if (_formKey.currentState!.validate()) {
+      String user = _userController.text.trim();
+      String password = _passwordController.text;
 
-    // 👤 CLIENT ACCOUNT
-    if ((user == 'test@example.com' || user == '1234567890') &&
-        password == '1234') {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Client Login Successful!')),
-      );
-
-      widget.onLoginSuccess('Client');
-    }
-
-    // 🏪 STORE ACCOUNT
-    else if (user == 'store@example.com' && password == '1234') {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Store Login Successful!')),
-      );
-
-      widget.onLoginSuccess('Store');
-    }
-
-    // ❌ WRONG LOGIN
-    else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Invalid email/number or password')),
-      );
+      if ((user == 'test@example.com' || user == '1234567890') &&
+          password == '1234') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Client Login Successful!')),
+        );
+        widget.onLoginSuccess('Client');
+      } else if (user == 'store@example.com' && password == '1234') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Store Login Successful!')),
+        );
+        widget.onLoginSuccess('Store');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid email/number or password')),
+        );
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+      backgroundColor: LoginStyle.background,
+
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                controller: _userController,
-                decoration: const InputDecoration(
-                  labelText: 'Email or Phone Number',
-                  border: OutlineInputBorder(),
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: LoginStyle.cardDecoration,
+
+                child: Form(
+                  key: _formKey,
+
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.eco, size: 60, color: LoginStyle.primaryGreen),
+
+                      const SizedBox(height: 10),
+
+                      const Text("Welcome Back", style: LoginStyle.title),
+
+                      const SizedBox(height: 6),
+
+                      Text(
+                        "Login to continue saving food 🌱",
+                        style: LoginStyle.subtitle,
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      TextFormField(
+                        controller: _userController,
+                        decoration: LoginStyle.inputDecoration(
+                          "Email or Phone Number",
+                          Icons.person_outline,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: LoginStyle.inputDecoration(
+                          "Password",
+                          Icons.lock_outline,
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      ElevatedButton(
+                        onPressed: _login,
+                        style: LoginStyle.buttonStyle,
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => RegistrePage()),
+                          );
+                        },
+                        child: Text(
+                          "Don't have an account? Sign up",
+                          style: TextStyle(color: LoginStyle.primaryGreen),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty
-                        ? 'Enter email or phone'
-                        : null,
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty
-                        ? 'Enter password'
-                        : null,
-              ),
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text('Login'),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 30),
 
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RegistrePage(),
-                    ),
-                  );
-                },
-                child: const Text("Don't have an account? Sign Up"),
-              ),
+              const AppFooter(), // ✅ NOW IT WORKS
             ],
           ),
         ),
