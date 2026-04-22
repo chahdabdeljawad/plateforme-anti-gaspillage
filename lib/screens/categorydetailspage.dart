@@ -362,7 +362,7 @@ class CategoryDetailsPage extends StatelessWidget {
                       image: DecorationImage(
                         image: AssetImage(item['image'] ?? ''),
                         fit: BoxFit.cover,
-                        onError: (_, __) {},
+                        onError: (_,_) {},
                       ),
                     ),
                     child: Container(

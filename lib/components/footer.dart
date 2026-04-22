@@ -6,14 +6,14 @@ class AppFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF1B5E20),
+      color: const Color(0xFF0A3B2A),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Top section: brand and tagline
           const Text(
-            "GLYPHS",
+            "ZERTOGASPI",
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -23,7 +23,7 @@ class AppFooter extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           const Text(
-            "Make Things You Love",
+            "DONT WASTE FOOD",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w400,

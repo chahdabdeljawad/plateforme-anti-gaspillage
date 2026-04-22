@@ -6,7 +6,7 @@ class HomePageStyle {
   // =======================
   static const Color primaryGreen = Colors.green;
 
-  static final Color overlay = Colors.black.withOpacity(0.4);
+  static final Color overlay = Colors.black.withValues(alpha: 0.4);
 
   // =======================
   // TEXT STYLES
@@ -36,9 +36,7 @@ class HomePageStyle {
     fontWeight: FontWeight.bold,
   );
 
-  static const TextStyle aboutText = TextStyle(
-    fontSize: 16,
-  );
+  static const TextStyle aboutText = TextStyle(fontSize: 16);
 
   static const TextStyle benefitTitle = TextStyle(
     fontSize: 15,
@@ -65,9 +63,7 @@ class HomePageStyle {
     backgroundColor: Colors.green,
     foregroundColor: Colors.white,
     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(40),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
     elevation: 0,
   );
 

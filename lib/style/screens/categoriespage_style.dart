@@ -48,7 +48,7 @@ class CategoriesStyle {
     borderRadius: BorderRadius.circular(16),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withOpacity(0.06),
+        color: Colors.black.withValues(alpha:0.06),
         blurRadius: 8,
         offset: const Offset(0, 3),
       ),
@@ -60,7 +60,7 @@ class CategoriesStyle {
     borderRadius: BorderRadius.circular(20),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withOpacity(0.08),
+        color: Colors.black.withValues(alpha:0.08),
         blurRadius: 10,
         offset: const Offset(0, 4),
       ),
@@ -71,7 +71,7 @@ class CategoriesStyle {
   static BoxDecoration gradientOverlay = BoxDecoration(
     gradient: LinearGradient(
       colors: [
-        Colors.black.withOpacity(0.7),
+        Colors.black.withValues(alpha:0.7),
         Colors.transparent,
       ],
       begin: Alignment.bottomCenter,
