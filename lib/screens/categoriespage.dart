@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zerogaspi/screens/categorydetailspage.dart';
+import '../style/screens/categoriespage_style.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});

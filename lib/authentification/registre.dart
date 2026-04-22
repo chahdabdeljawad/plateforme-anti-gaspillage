@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class RegistrePage extends StatefulWidget {
   const RegistrePage({super.key});
@@ -10,91 +11,126 @@ class RegistrePage extends StatefulWidget {
 class _RegistrePageState extends State<RegistrePage> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmController = TextEditingController();
 
-  String _role = 'Client';
+  String role = "client";
+  bool isLoading = false;
 
-  void _signup() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Signup Successful!')));
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      Navigator.pop(context); // 🔥 go back to login
+    if (passwordController.text != confirmController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords do not match ❌")),
+      );
+      return;
     }
+
+    setState(() => isLoading = true);
+
+    final result = await ApiService.register(
+      nameController.text.trim(),
+      emailController.text.trim(),
+      passwordController.text,
+      role,
+    );
+
+    setState(() => isLoading = false);
+
+    if (result["success"]) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Signup Successful ✅")),
+      );
+
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result["message"])),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Signup Page')),
-      body: SingleChildScrollView(
+      appBar: AppBar(title: const Text('Signup')),
+      body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
               TextFormField(
-                controller: _fullNameController,
+                controller: nameController,
                 decoration: const InputDecoration(
                   labelText: 'Full Name',
                   border: OutlineInputBorder(),
                 ),
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Enter name' : null,
               ),
               const SizedBox(height: 16),
 
               TextFormField(
-                controller: _emailController,
+                controller: emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
+                validator: (v) =>
+                    v != null && v.contains("@")
+                        ? null
+                        : "Invalid email",
               ),
               const SizedBox(height: 16),
 
               TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _passwordController,
+                controller: passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Enter password' : null,
               ),
               const SizedBox(height: 16),
 
               TextFormField(
-                controller: _confirmPasswordController,
+                controller: confirmController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Confirm Password',
                   border: OutlineInputBorder(),
                 ),
+                validator: (v) =>
+                    v == null || v.isEmpty
+                        ? 'Confirm password'
+                        : null,
               ),
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                initialValue: _role,
-                items: ['Client', 'Deliver']
-                    .map(
-                      (role) =>
-                          DropdownMenuItem(value: role, child: Text(role)),
-                    )
+                value: role,
+                items: ["client", "store"]
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
                     .toList(),
-                onChanged: (value) => setState(() => _role = value!),
+                onChanged: (val) => setState(() => role = val!),
                 decoration: const InputDecoration(
                   labelText: 'Role',
                   border: OutlineInputBorder(),
@@ -102,7 +138,12 @@ class _RegistrePageState extends State<RegistrePage> {
               ),
               const SizedBox(height: 24),
 
-              ElevatedButton(onPressed: _signup, child: const Text('Sign Up')),
+              isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _register,
+                      child: const Text("Sign Up"),
+                    )
             ],
           ),
         ),

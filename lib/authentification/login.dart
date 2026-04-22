@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 import 'registre.dart';
 
 class LoginPage extends StatefulWidget {
-    final Function(String) onLoginSuccess;
+  final Function(String) onLoginSuccess;
 
   const LoginPage({super.key, required this.onLoginSuccess});
 
@@ -12,87 +14,90 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _userController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-void _login() {
-  if (_formKey.currentState!.validate()) {
-    String user = _userController.text.trim();
-    String password = _passwordController.text;
+  bool isLoading = false;
 
-    // 👤 CLIENT ACCOUNT
-    if ((user == 'test@example.com' || user == '1234567890') &&
-        password == '1234') {
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
+
+    final result = await ApiService.login(
+      emailController.text.trim(),
+      passwordController.text,
+    );
+
+    setState(() => isLoading = false);
+
+    if (result["success"]) {
+      final data = result["data"];
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("token", data["token"]);
+
+      String role = data["user"]["role"];
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Client Login Successful!')),
+        const SnackBar(content: Text("Login Successful ✅")),
       );
 
-      widget.onLoginSuccess('Client');
-    }
-
-    // 🏪 STORE ACCOUNT
-    else if (user == 'store@example.com' && password == '1234') {
-
+      widget.onLoginSuccess(role);
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Store Login Successful!')),
-      );
-
-      widget.onLoginSuccess('Store');
-    }
-
-    // ❌ WRONG LOGIN
-    else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Invalid email/number or password')),
+        SnackBar(content: Text(result["message"])),
       );
     }
   }
-}
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
-                controller: _userController,
+                controller: emailController,
                 decoration: const InputDecoration(
-                  labelText: 'Email or Phone Number',
+                  labelText: "Email",
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty
-                        ? 'Enter email or phone'
-                        : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Enter email" : null,
               ),
               const SizedBox(height: 16),
 
               TextFormField(
-                controller: _passwordController,
+                controller: passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
-                  labelText: 'Password',
+                  labelText: "Password",
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty
-                        ? 'Enter password'
-                        : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Enter password" : null,
               ),
               const SizedBox(height: 24),
 
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text('Login'),
-              ),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _login,
+                      child: const Text("Login"),
+                    ),
 
               const SizedBox(height: 16),
 
@@ -101,12 +106,12 @@ void _login() {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => RegistrePage(),
+                      builder: (_) => const RegistrePage(),
                     ),
                   );
                 },
                 child: const Text("Don't have an account? Sign Up"),
-              ),
+              )
             ],
           ),
         ),
