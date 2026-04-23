@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => isLoading = true);
 
     final result = await ApiService.login(
-      emailController.text.trim(),
+      emailController.text.trim().toLowerCase(), // 🔥 FIX
       passwordController.text,
     );
 
@@ -36,18 +36,20 @@ class _LoginPageState extends State<LoginPage> {
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("token", data["token"]);
+      await prefs.setString("role", data["user"]["role"]); // 🔥 مهم
+      await prefs.setString("email", data["user"]["email"]); // (اختياري)
 
       String role = data["user"]["role"];
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Login Successful ✅")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Login Successful ✅")));
 
       widget.onLoginSuccess(role);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"])),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result["message"])));
     }
   }
 
@@ -75,8 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                   labelText: "Email",
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Enter email" : null,
+                validator: (v) => v == null || v.isEmpty ? "Enter email" : null,
               ),
               const SizedBox(height: 16),
 
@@ -105,13 +106,11 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const RegistrePage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const RegistrePage()),
                   );
                 },
                 child: const Text("Don't have an account? Sign Up"),
-              )
+              ),
             ],
           ),
         ),

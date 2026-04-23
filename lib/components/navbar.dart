@@ -77,7 +77,7 @@ class _CustomNavbarState extends State<CustomNavbar> {
             AboutPage(),
 
             isLoggedIn
-                ? ProfilePage(role: userRole, onLogout: logout)
+                ? ProfilePage(onLogout: logout)
                 : LoginPage(onLoginSuccess: loginSuccess),
           ],
         ),

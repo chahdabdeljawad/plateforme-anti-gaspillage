@@ -23,9 +23,9 @@ class _RegistrePageState extends State<RegistrePage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (passwordController.text != confirmController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match ❌")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Passwords do not match ❌")));
       return;
     }
 
@@ -33,7 +33,7 @@ class _RegistrePageState extends State<RegistrePage> {
 
     final result = await ApiService.register(
       nameController.text.trim(),
-      emailController.text.trim(),
+      emailController.text.trim().toLowerCase(), // 🔥 FIX
       passwordController.text,
       role,
     );
@@ -41,15 +41,15 @@ class _RegistrePageState extends State<RegistrePage> {
     setState(() => isLoading = false);
 
     if (result["success"]) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Signup Successful ✅")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Signup Successful ✅")));
 
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"])),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result["message"])));
     }
   }
 
@@ -78,8 +78,7 @@ class _RegistrePageState extends State<RegistrePage> {
                   labelText: 'Full Name',
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Enter name' : null,
+                validator: (v) => v == null || v.isEmpty ? 'Enter name' : null,
               ),
               const SizedBox(height: 16),
 
@@ -90,9 +89,7 @@ class _RegistrePageState extends State<RegistrePage> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) =>
-                    v != null && v.contains("@")
-                        ? null
-                        : "Invalid email",
+                    v != null && v.contains("@") ? null : "Invalid email",
               ),
               const SizedBox(height: 16),
 
@@ -116,19 +113,14 @@ class _RegistrePageState extends State<RegistrePage> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) =>
-                    v == null || v.isEmpty
-                        ? 'Confirm password'
-                        : null,
+                    v == null || v.isEmpty ? 'Confirm password' : null,
               ),
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
                 value: role,
                 items: ["client", "store"]
-                    .map((e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(e),
-                        ))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (val) => setState(() => role = val!),
                 decoration: const InputDecoration(
@@ -143,7 +135,7 @@ class _RegistrePageState extends State<RegistrePage> {
                   : ElevatedButton(
                       onPressed: _register,
                       child: const Text("Sign Up"),
-                    )
+                    ),
             ],
           ),
         ),

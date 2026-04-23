@@ -70,4 +70,26 @@ class ApiService {
       return {"success": false, "message": "Server error"};
     }
   }
+
+  static Future<Map<String, dynamic>> getProfile(String token) async {
+  try {
+    final response = await http.get(
+      Uri.parse("$baseUrl/auth/me"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return {"success": true, "data": data};
+    } else {
+      return {"success": false};
+    }
+  } catch (e) {
+    return {"success": false};
+  }
+}
 }
