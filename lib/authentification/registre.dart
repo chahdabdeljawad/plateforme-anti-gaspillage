@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../style/authantification/login_style.dart';
 
 class RegistrePage extends StatefulWidget {
   const RegistrePage({super.key});
@@ -25,7 +24,6 @@ class _RegistrePageState extends State<RegistrePage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Signup Successful!')));
-
       Navigator.pop(context);
     }
   }
@@ -33,95 +31,99 @@ class _RegistrePageState extends State<RegistrePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: LoginStyle.background,
-
+      backgroundColor: const Color(0xFFF5F0E6), // beige background
       appBar: AppBar(
-        backgroundColor: LoginStyle.primaryGreen,
-        title: const Text("Create Account"),
+        title: const Text(
+          "Create Account",
+          style: TextStyle(
+            fontFamily: 'PlayfairDisplay',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: const Color(0xFF0A3B2A),
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-
         child: Container(
-          padding: const EdgeInsets.all(22),
-          decoration: LoginStyle.cardDecoration,
-
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: Form(
             key: _formKey,
-
             child: Column(
               children: [
-                Icon(
-                  Icons.person_add_alt_1,
-                  size: 60,
-                  color: LoginStyle.primaryGreen,
+                const Text(
+                  "Join Us ",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'PlayfairDisplay',
+                    color: Color(0xFF0A3B2A),
+                  ),
                 ),
-
-                const SizedBox(height: 10),
-
-                const Text("Join Us 🌱", style: LoginStyle.title),
-
                 const SizedBox(height: 20),
-
-                // 👤 FULL NAME
+                // Full Name
                 TextFormField(
                   controller: _fullNameController,
-                  decoration: LoginStyle.inputDecoration(
-                    "Full Name",
-                    Icons.person,
-                  ),
+                  decoration: _inputDecoration("Full Name"),
+                  validator: (value) =>
+                      value!.isEmpty ? "Full name required" : null,
                 ),
-
                 const SizedBox(height: 16),
-
-                // 📧 EMAIL
+                // Email
                 TextFormField(
                   controller: _emailController,
-                  decoration: LoginStyle.inputDecoration(
-                    "Email",
-                    Icons.email_outlined,
-                  ),
+                  decoration: _inputDecoration("Email"),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) =>
+                      value!.isEmpty ? "Email required" : null,
                 ),
-
                 const SizedBox(height: 16),
-
-                // 📱 PHONE
+                // Phone
                 TextFormField(
                   controller: _phoneController,
-                  decoration: LoginStyle.inputDecoration("Phone", Icons.phone),
+                  decoration: _inputDecoration("Phone"),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) =>
+                      value!.isEmpty ? "Phone number required" : null,
                 ),
-
                 const SizedBox(height: 16),
-
-                // 🔒 PASSWORD
+                // Password
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: LoginStyle.inputDecoration(
-                    "Password",
-                    Icons.lock_outline,
-                  ),
+                  decoration: _inputDecoration("Password"),
+                  validator: (value) =>
+                      value!.length < 4 ? "Password too short" : null,
                 ),
-
                 const SizedBox(height: 16),
-
-                // 🔒 CONFIRM PASSWORD
+                // Confirm Password
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: true,
-                  decoration: LoginStyle.inputDecoration(
-                    "Confirm Password",
-                    Icons.lock_outline,
-                  ),
+                  decoration: _inputDecoration("Confirm Password"),
+                  validator: (value) {
+                    if (value != _passwordController.text) {
+                      return "Passwords do not match";
+                    }
+                    return null;
+                  },
                 ),
-
                 const SizedBox(height: 16),
-
-                // 👥 ROLE SELECT
+                // Role dropdown
                 DropdownButtonFormField<String>(
-                  initialValue: _role,
+                  value: _role,
                   items: const [
                     DropdownMenuItem(value: 'Client', child: Text('Client')),
                     DropdownMenuItem(value: 'Deliver', child: Text('Deliver')),
@@ -132,28 +134,49 @@ class _RegistrePageState extends State<RegistrePage> {
                       _role = value!;
                     });
                   },
-                  decoration: LoginStyle.inputDecoration(
-                    "Role",
-                    Icons.work_outline,
-                  ),
+                  decoration: _inputDecoration("Role"),
                 ),
-
-                const SizedBox(height: 25),
-
-                // 🔘 SIGN UP BUTTON
+                const SizedBox(height: 30),
+                // Sign Up button
                 ElevatedButton(
                   onPressed: _signup,
-                  style: LoginStyle.buttonStyle,
-                  child: const Text(
-                    "Sign Up",
-                    style: TextStyle(color: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A3B2A),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 0,
                   ),
+                  child: const Text("Sign Up", style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: const BorderSide(color: Color(0xFF0A3B2A), width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
     );
   }
 }

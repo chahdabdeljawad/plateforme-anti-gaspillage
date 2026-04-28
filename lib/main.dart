@@ -15,7 +15,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Use Consumer to safely access the Lang provider
     return Consumer<Lang>(
       builder: (context, lang, child) {
         return MaterialApp(

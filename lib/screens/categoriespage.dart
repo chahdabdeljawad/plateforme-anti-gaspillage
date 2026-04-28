@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:zerogaspi/screens/categorydetailspage.dart';
+import 'package:provider/provider.dart';
+import '../components/footer.dart';
+import '../lang.dart';
+import 'categorydetailspage.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -13,105 +16,128 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppBar(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    final lang = Provider.of<Lang>(context);
+    final isRtl = lang.current == "ar";
+
+    return Directionality(
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F0E6),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Header with search bar + change maps button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
                   children: [
-                    _buildSectionLabel('Grandes surfaces'),
-                    const SizedBox(height: 10),
-                    _buildGrandesSurfacesGrid(context),
-
-                    const SizedBox(height: 20),
-
-                    _buildSectionLabel('Autres commerces'),
-                    const SizedBox(height: 10),
-                    _buildSmallCategoriesGrid(context),
+                    // Search bar (compact, left)
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value.toLowerCase();
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText: lang.t("search_hint"),
+                            prefixIcon: const Icon(Icons.search, size: 18),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Change maps button
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 42,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  lang.t("change_maps_placeholder"),
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.map, size: 16),
+                          label: Text(lang.t("change_maps")),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0A3B2A),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              // Scrollable content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionTitle(lang.t("large_stores")),
+                      const SizedBox(height: 12),
+                      _buildLargeStoresGrid(lang),
+                      const SizedBox(height: 32),
+                      _buildSectionTitle(lang.t("other_stores")),
+                      const SizedBox(height: 12),
+                      _buildSmallCategoriesGrid(lang),
+                      const SizedBox(height: 40),
+                      const AppFooter(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // 🔍 APPBAR + SEARCH
-  Widget _buildAppBar() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 14,
-                backgroundColor: const Color(0xFF1D9E75),
-                child: const Text('Z', style: TextStyle(color: Colors.white)),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Catégories',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    'Trouve les meilleures offres',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          TextField(
-            onChanged: (value) {
-              setState(() {
-                searchQuery = value.toLowerCase();
-              });
-            },
-            decoration: InputDecoration(
-              hintText: 'Rechercher...',
-              prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: const Color(0xFFF5F5F5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionLabel(String label) {
+  Widget _buildSectionTitle(String title) {
     return Text(
-      label.toUpperCase(),
+      title.toUpperCase(),
       style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: Colors.grey,
+        fontFamily: 'PlayfairDisplay',
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF0A3B2A),
+        letterSpacing: 1.2,
       ),
     );
   }
 
-  // 🛒 GRANDES SURFACES (LOGOS ONLY + MONOPRIX BIGGER)
-  Widget _buildGrandesSurfacesGrid(BuildContext context) {
+  // Large stores grid – 4 columns, NO border radius, sharp corners
+  Widget _buildLargeStoresGrid(Lang lang) {
     final List<Map<String, String?>> brands = [
       {'name': 'Carrefour', 'logo': 'assets/images/carrefour.png'},
       {'name': 'MG', 'logo': 'assets/images/mg.png'},
@@ -123,44 +149,30 @@ class _CategoriesPageState extends State<CategoriesPage> {
         .where((b) => (b['name'] as String).toLowerCase().contains(searchQuery))
         .toList();
 
+    if (filtered.isEmpty) {
+      return Center(child: Text(lang.t("no_results")));
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: filtered.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        crossAxisSpacing: 6,
-        mainAxisSpacing: 6,
-        childAspectRatio: 1.3,
+        crossAxisCount: 4,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.0,
       ),
       itemBuilder: (context, index) {
         final brand = filtered[index];
-
-        return GestureDetector(
-          onTap: () => _navigateToCategory(context, brand['name'] as String),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE0E0E0), width: 0.5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Image.asset(
-                brand['logo']!,
-                height: brand['name'] == 'Monoprix' ? 150 : 100,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) {
-                  return const Icon(Icons.store, size: 35);
-                },
-              ),
+        return _buildCard(
+          onTap: () => _navigateToCategory(context, brand['name']!),
+          child: Center(
+            child: Image.asset(
+              brand['logo']!,
+              height: brand['name'] == 'Monoprix' ? 100 : 80, // increased sizes
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) => const Icon(Icons.store, size: 35),
             ),
           ),
         );
@@ -168,8 +180,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  // 🍽️ AUTRES CATEGORIES
-  Widget _buildSmallCategoriesGrid(BuildContext context) {
+  // Other categories grid – 4 columns, sharp corners
+  Widget _buildSmallCategoriesGrid(Lang lang) {
     final List<Map<String, String>> categories = [
       {'title': 'Restaurants', 'image': 'assets/images/res.png'},
       {'title': 'Boulangeries', 'image': 'assets/images/boulangerie.png'},
@@ -187,60 +199,87 @@ class _CategoriesPageState extends State<CategoriesPage> {
         .where((c) => c['title']!.toLowerCase().contains(searchQuery))
         .toList();
 
+    if (filtered.isEmpty) {
+      return Center(child: Text(lang.t("no_results")));
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: filtered.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 1,
+        crossAxisCount: 4,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.0,
       ),
       itemBuilder: (context, index) {
         final cat = filtered[index];
-
-        return GestureDetector(
+        return _buildCard(
           onTap: () => _navigateToCategory(context, cat['title']!),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: AssetImage(cat['image']!),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Image – sharp corners
+              Image.asset(
+                cat['image']!,
                 fit: BoxFit.cover,
-                onError: (_, _) {
-                  debugPrint("Image not found: ${cat['image']}");
-                },
+                errorBuilder: (_, _, _) =>
+                    const Icon(Icons.image_not_supported, size: 35),
               ),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.7),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              padding: const EdgeInsets.all(8),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  cat['title']!,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
+              // Gradient overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.7),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
               ),
-            ),
+              // Title
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Text(
+                    cat['title']!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
+    );
+  }
+
+  // Card with ZERO border radius, only subtle shadow
+  Widget _buildCard({required VoidCallback onTap, required Widget child}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.zero, // explicitly no radius
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: child,
+      ),
     );
   }
 

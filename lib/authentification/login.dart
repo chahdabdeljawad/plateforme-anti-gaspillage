@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'registre.dart';
-import '../style/authantification/login_style.dart';
 import '../components/footer.dart';
 
 class LoginPage extends StatefulWidget {
@@ -44,72 +43,136 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: LoginStyle.background,
-
+      backgroundColor: const Color(0xFFF5F0E6), // beige background
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.all(22),
-                decoration: LoginStyle.cardDecoration,
-
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Form(
                   key: _formKey,
-
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.eco, size: 60, color: LoginStyle.primaryGreen),
-
-                      const SizedBox(height: 10),
-
-                      const Text("Welcome Back", style: LoginStyle.title),
-
-                      const SizedBox(height: 6),
-
-                      Text(
-                        "Login to continue saving food 🌱",
-                        style: LoginStyle.subtitle,
-                        textAlign: TextAlign.center,
-                      ),
-
-                      const SizedBox(height: 25),
-
-                      TextFormField(
-                        controller: _userController,
-                        decoration: LoginStyle.inputDecoration(
-                          "Email or Phone Number",
-                          Icons.person_outline,
+                      const Text(
+                        "Welcome Back",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'PlayfairDisplay',
+                          color: Color(0xFF0A3B2A),
                         ),
                       ),
-
+                      const SizedBox(height: 6),
+                      const Text(
+                        "Login to continue saving food ",
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 30),
+                      // Email/Phone field
+                      TextFormField(
+                        controller: _userController,
+                        decoration: InputDecoration(
+                          labelText: "Email or Phone Number",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0A3B2A),
+                              width: 1.5,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter email or phone";
+                          }
+                          return null;
+                        },
+                      ),
                       const SizedBox(height: 16),
-
+                      // Password field
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
-                        decoration: LoginStyle.inputDecoration(
-                          "Password",
-                          Icons.lock_outline,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0A3B2A),
+                              width: 1.5,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter password";
+                          }
+                          return null;
+                        },
                       ),
-
-                      const SizedBox(height: 25),
-
+                      const SizedBox(height: 30),
+                      // Login button
                       ElevatedButton(
                         onPressed: _login,
-                        style: LoginStyle.buttonStyle,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0A3B2A),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 0,
+                        ),
                         child: const Text(
                           "Login",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
-
                       const SizedBox(height: 15),
-
+                      // Sign up link
                       TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -119,17 +182,18 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         child: Text(
                           "Don't have an account? Sign up",
-                          style: TextStyle(color: LoginStyle.primaryGreen),
+                          style: TextStyle(
+                            color: const Color(0xFF0A3B2A),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
-
-              const AppFooter(), // ✅ NOW IT WORKS
+              const AppFooter(),
             ],
           ),
         ),

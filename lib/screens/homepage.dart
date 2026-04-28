@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
       fit: StackFit.expand,
       children: [
         Image.asset(image, fit: BoxFit.cover),
-        Container(color: Colors.black.withOpacity(0.25)),
+        Container(color: Colors.black.withValues(alpha: 0.25)),
         _animatedWords(text: text, alignment: position),
       ],
     );
@@ -169,10 +169,7 @@ class _HomePageState extends State<HomePage> {
                     lang.t(b.titleKey),
                     style: baseText.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    lang.t(b.descriptionKey),
-                    style: TextStyle(color: Colors.grey[700]),
-                  ),
+                  // ❌ description removed
                 ],
               );
             },
@@ -199,7 +196,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Positioned.fill(
-              child: Container(color: Colors.black.withOpacity(0.15)),
+              child: Container(color: Colors.black.withValues(alpha: 0.15)),
             ),
             SingleChildScrollView(
               child: Column(
@@ -223,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Container(
                         height: 900,
-                        color: Colors.black.withOpacity(0.4),
+                        color: Colors.black.withValues(alpha: 0.4),
                       ),
                       SizedBox(
                         height: 900,

@@ -17,25 +17,26 @@ class MapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F0E6), // beige background
       appBar: AppBar(
-        title: Text(storeName),
-        backgroundColor: Colors.green,
-      ),
-
-      body: FlutterMap(
-        options: MapOptions(
-          initialCenter: LatLng(lat, lng), //  dynamique
-          initialZoom: 15,
+        title: Text(
+          storeName,
+          style: const TextStyle(fontFamily: 'PlayfairDisplay'),
         ),
+        backgroundColor: const Color(0xFF0A3B2A), // dark green
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: FlutterMap(
+        options: MapOptions(initialCenter: LatLng(lat, lng), initialZoom: 15),
         children: [
           TileLayer(
             urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
           ),
-
           MarkerLayer(
             markers: [
               Marker(
-                point: LatLng(lat, lng), // dynamique
+                point: LatLng(lat, lng),
                 width: 40,
                 height: 40,
                 child: const Icon(
