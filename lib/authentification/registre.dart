@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class RegistrePage extends StatefulWidget {
   const RegistrePage({super.key});
@@ -10,27 +11,66 @@ class RegistrePage extends StatefulWidget {
 class _RegistrePageState extends State<RegistrePage> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmController = TextEditingController();
 
-  String _role = 'Client';
+  String role = "client";
+  bool isLoading = false;
 
-  void _signup() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (passwordController.text != confirmController.text) {
       ScaffoldMessenger.of(
         context,
+<<<<<<< HEAD
       ).showSnackBar(const SnackBar(content: Text('Signup Successful!')));
       Navigator.pop(context);
+=======
+      ).showSnackBar(const SnackBar(content: Text("Passwords do not match ❌")));
+      return;
+>>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
     }
+
+    setState(() => isLoading = true);
+
+    final result = await ApiService.register(
+      nameController.text.trim(),
+      emailController.text.trim().toLowerCase(), // 🔥 FIX
+      passwordController.text,
+      role,
+    );
+
+    setState(() => isLoading = false);
+
+    if (result["success"]) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Signup Successful ✅")));
+
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result["message"])));
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: const Color(0xFFF5F0E6), // beige background
       appBar: AppBar(
         title: const Text(
@@ -57,6 +97,79 @@ class _RegistrePageState extends State<RegistrePage> {
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
+=======
+      appBar: AppBar(title: const Text('Signup')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null || v.isEmpty ? 'Enter name' : null,
+              ),
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    v != null && v.contains("@") ? null : "Invalid email",
+              ),
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Enter password' : null,
+              ),
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: confirmController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Password',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Confirm password' : null,
+              ),
+              const SizedBox(height: 16),
+
+              DropdownButtonFormField<String>(
+                value: role,
+                items: ["client", "store"]
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (val) => setState(() => role = val!),
+                decoration: const InputDecoration(
+                  labelText: 'Role',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _register,
+                      child: const Text("Sign Up"),
+                    ),
+>>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
             ],
           ),
           child: Form(

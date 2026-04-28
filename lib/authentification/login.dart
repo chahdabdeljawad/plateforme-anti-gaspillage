@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 import 'registre.dart';
 import '../components/footer.dart';
 
@@ -13,9 +15,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _userController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
+<<<<<<< HEAD
   void _login() {
     if (_formKey.currentState!.validate()) {
       String user = _userController.text.trim();
@@ -39,16 +42,69 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
+=======
+  bool isLoading = false;
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
+
+    final result = await ApiService.login(
+      emailController.text.trim().toLowerCase(), // 🔥 FIX
+      passwordController.text,
+    );
+
+    setState(() => isLoading = false);
+
+    if (result["success"]) {
+      final data = result["data"];
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("token", data["token"]);
+      await prefs.setString("role", data["user"]["role"]); // 🔥 مهم
+      await prefs.setString("email", data["user"]["email"]); // (اختياري)
+
+      String role = data["user"]["role"];
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Login Successful ✅")));
+
+      widget.onLoginSuccess(role);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result["message"])));
+    }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+>>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: const Color(0xFFF5F0E6), // beige background
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
+=======
+      appBar: AppBar(title: const Text('Login')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+>>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
           child: Column(
             children: [
+<<<<<<< HEAD
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -191,6 +247,47 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
+=======
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null || v.isEmpty ? "Enter email" : null,
+              ),
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    v == null || v.isEmpty ? "Enter password" : null,
+              ),
+              const SizedBox(height: 24),
+
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _login,
+                      child: const Text("Login"),
+                    ),
+
+              const SizedBox(height: 16),
+
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegistrePage()),
+                  );
+                },
+                child: const Text("Don't have an account? Sign Up"),
+>>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
               ),
               const SizedBox(height: 30),
               const AppFooter(),

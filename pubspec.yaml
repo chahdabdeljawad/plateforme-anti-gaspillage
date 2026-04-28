@@ -8,19 +8,27 @@ environment:
   sdk: ^3.11.4
 
 dependencies:
-  http: 1.6.0
   flutter:
     sdk: flutter
+
+  http: 1.6.0
   google_fonts: ^6.1.0
+
   flutter_localizations:
     sdk: flutter
   intl: any
   video_player: ^2.9.2
   provider: ^6.0.5
-  cupertino_icons: ^1.0.8
-  carousel_slider: ^5.0.0
+
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
+  geolocator: ^10.0.0
+  geocoding: ^2.1.0
+
+  carousel_slider: ^5.0.0
+  shared_preferences: ^2.2.2
+
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:

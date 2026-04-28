@@ -1,20 +1,32 @@
+require('dotenv').config();
+
 const express = require("express");
-const cors = require("cors");
+const cors = require("./src/config/cors");
+const pool = require('./src/config/db');
 
 const app = express();
-app.use(cors());
+
+// Middleware
+app.use(cors);
 app.use(express.json());
 
+// DB connection test
+pool.connect()
+  .then(() => console.log('✅ PostgreSQL connected'))
+  .catch(err => console.error('❌ DB error:', err));
+
+// Routes
+const authRoutes = require("./src/routes/authRoutes");
+app.use("/api/auth", authRoutes);
+
+// Test route
 app.get("/", (req, res) => {
-  res.send("Backend is working 🚀");
+  res.send("ZeroGaspi Backend 🚀");
 });
 
-// Example API
-app.get("/api/message", (req, res) => {
-  res.json({ message: "Hello from Node.js backend!" });
-});
+// Port
+const PORT = process.env.PORT || 5000;
 
-const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
