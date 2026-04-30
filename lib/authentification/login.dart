@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'registre.dart';
+import 'loginadmin.dart';
 
 class LoginPage extends StatefulWidget {
   final Function(String) onLoginSuccess;
@@ -110,6 +111,20 @@ class _LoginPageState extends State<LoginPage> {
                   );
                 },
                 child: const Text("Don't have an account? Sign Up"),
+              ),
+
+              const SizedBox(height: 10),
+
+              // ADMIN BUTTON
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginAdminPage()),
+                  );
+                },
+                child: const Text("Login as Admin"),
               ),
             ],
           ),

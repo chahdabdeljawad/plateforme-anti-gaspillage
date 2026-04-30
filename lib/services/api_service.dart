@@ -92,4 +92,70 @@ class ApiService {
     return {"success": false};
   }
 }
+
+// 📦 GET ALL PRODUCTS
+static Future<Map<String, dynamic>> getProducts() async {
+  try {
+    final response = await http.get(
+      Uri.parse("$baseUrl/products"),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return {"success": true, "products": data["products"]};
+    } else {
+      return {"success": false};
+    }
+  } catch (e) {
+    return {"success": false};
+  }
+}
+
+// ➕ ADD PRODUCT (STORE ONLY)
+static Future<Map<String, dynamic>> addProduct(
+    String token,
+    String name,
+    String price,
+    String description,
+    String category) async {
+
+  try {
+    final response = await http.post(
+      Uri.parse("$baseUrl/products"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+      body: jsonEncode({
+        "name": name,
+        "price": price,
+        "description": description,
+        "category": category
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 201) {
+      return {"success": true};
+    } else {
+      return {"success": false, "message": data["message"]};
+    }
+  } catch (e) {
+    return {"success": false};
+  }
+}
+
+// 🗑️ DELETE PRODUCT
+static Future<bool> deleteProduct(String token, int id) async {
+  final response = await http.delete(
+    Uri.parse("$baseUrl/products/$id"),
+    headers: {
+      "Authorization": "Bearer $token"
+    },
+  );
+
+  return response.statusCode == 200;
+}
 }

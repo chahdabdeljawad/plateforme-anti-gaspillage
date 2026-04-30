@@ -9,15 +9,26 @@ const app = express();
 // Middleware
 app.use(cors);
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 
 // DB connection test
 pool.connect()
   .then(() => console.log('✅ PostgreSQL connected'))
   .catch(err => console.error('❌ DB error:', err));
 
-// Routes
+// Routes 
+
+// auth
 const authRoutes = require("./src/routes/authRoutes");
 app.use("/api/auth", authRoutes);
+
+// admin
+const adminRoutes = require('./src/routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
+
+// PRODUCTS
+const productRoutes = require("./src/routes/productRoutes");
+app.use("/api/products", productRoutes);
 
 // Test route
 app.get("/", (req, res) => {
