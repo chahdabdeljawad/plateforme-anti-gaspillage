@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
+
 import 'package:provider/provider.dart';
 import '../components/footer.dart';
 import '../lang.dart';
 import 'categorydetailspage.dart';
-=======
-import 'package:zerogaspi/screens/categorydetailspage.dart';
-import '../style/screens/categoriespage_style.dart';
->>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});

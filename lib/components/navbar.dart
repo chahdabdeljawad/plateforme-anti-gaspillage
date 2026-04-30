@@ -26,6 +26,13 @@ class _CustomNavbarState extends State<CustomNavbar> {
     });
   }
 
+  void logout() {
+    setState(() {
+      isLoggedIn = false;
+      userRole = 'Client';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
@@ -81,11 +88,7 @@ class _CustomNavbarState extends State<CustomNavbar> {
             const CategoriesPage(),
             const AboutPage(),
             isLoggedIn
-<<<<<<< HEAD
-                ? ProfilePage(role: userRole, onLogout: () {})
-=======
-                ? ProfilePage(onLogout: logout)
->>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
+                ? ProfilePage(role: userRole, onLogout: logout)
                 : LoginPage(onLoginSuccess: loginSuccess),
           ],
         ),

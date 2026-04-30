@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import '../components/footer.dart';
-=======
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
->>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
 
 class ProfilePage extends StatefulWidget {
+  final String role;
   final VoidCallback onLogout;
 
-  const ProfilePage({super.key, required this.onLogout});
+  const ProfilePage({super.key, required this.role, required this.onLogout});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -31,7 +28,12 @@ class _ProfilePageState extends State<ProfilePage> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
 
-    final result = await ApiService.getProfile(token!);
+    if (token == null) {
+      setState(() => isLoading = false);
+      return;
+    }
+
+    final result = await ApiService.getProfile(token);
 
     if (result["success"]) {
       final user = result["data"]["user"];
@@ -42,6 +44,8 @@ class _ProfilePageState extends State<ProfilePage> {
         role = user["role"];
         isLoading = false;
       });
+    } else {
+      setState(() => isLoading = false);
     }
   }
 
@@ -55,82 +59,52 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // 👤 IMAGE
+          // 👤 Avatar
           CircleAvatar(
             radius: 60,
             backgroundImage: AssetImage(
-              role == "store"
-                  ? 'assets/how1.jpg'
-                  : 'assets/how4.jpg',
+              role == "store" ? 'assets/how1.png' : 'assets/how4.png',
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // 👤 NAME
+          // 👤 Name
           Text(
             name,
-            style: const TextStyle(
-                fontSize: 22, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
 
           const SizedBox(height: 8),
 
-          // 📧 EMAIL
+          // 📧 Email
           Text(email),
 
           const SizedBox(height: 8),
 
-          // 🎭 ROLE
-          Text(
-            role.toUpperCase(),
-            style: const TextStyle(color: Colors.grey),
-          ),
+          // 🎭 Role
+          Text(role.toUpperCase(), style: const TextStyle(color: Colors.grey)),
 
           const SizedBox(height: 20),
 
-          // ⭐ STORE UI
+          // 🏪 STORE UI
           if (role == "store") ...[
-            const Text("My Store",
-                style: TextStyle(fontSize: 18)),
-
+            const Text("My Store", style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
 
-<<<<<<< HEAD
-          ListTile(
-            leading: Image.asset('assets/how3.jpg', width: 50),
-            title: Text("Product 2"),
-          ),
-          SizedBox(height: 20),
-
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/home',
-                  (route) => false,
-                );
-              },
-              child: Text("Logout"),
-=======
             ListTile(
-              leading: Image.asset('assets/how2.jpg', width: 50),
+              leading: Image.asset('assets/how2.png', width: 50),
               title: const Text("Product 1"),
->>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
             ),
-
             ListTile(
-              leading: Image.asset('assets/how3.jpg', width: 50),
+              leading: Image.asset('assets/how3.png', width: 50),
               title: const Text("Product 2"),
             ),
           ],
 
-          // 💬 CLIENT UI
+          // 👤 CLIENT UI
           if (role == "client") ...[
-            const Text("Comments",
-                style: TextStyle(fontSize: 18)),
-
+            const Text("Comments", style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
 
             ListTile(
@@ -145,81 +119,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
           const SizedBox(height: 30),
 
-          // 🚪 LOGOUT
+          // 🚪 Logout
           ElevatedButton(
             onPressed: widget.onLogout,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text("Logout"),
-          )
+          ),
         ],
       ),
     );
   }
 }
-
-<<<<<<< HEAD
-class ClientProfile extends StatelessWidget {
-  final List<String> comments = const [
-    "Great person 👍",
-    "Very kind!",
-    "Trusted client 💯",
-  ];
-
-  const ClientProfile({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: 20),
-
-        CircleAvatar(
-          radius: 60,
-          backgroundImage: AssetImage('assets/how4.jpg'),
-        ),
-
-        SizedBox(height: 10),
-
-        Text(
-          "Client Name",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-
-        SizedBox(height: 20),
-
-        Text("Comments", style: TextStyle(fontSize: 18)),
-
-        Expanded(
-          child: ListView.builder(
-            itemCount: comments.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: Icon(Icons.comment),
-                title: Text(comments[index]),
-              );
-            },
-          ),
-        ),
-        SizedBox(height: 20),
-
-        Center(
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/home',
-                (route) => false,
-              );
-            },
-            child: Text("Logout"),
-          ),
-        ),
-        const AppFooter(),
-      ],
-    );
-  }
-}
-=======
->>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc

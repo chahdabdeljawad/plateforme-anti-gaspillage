@@ -113,6 +113,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  fixnum:
+    dependency: transitive
+    description:
+      name: fixnum
+      sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -149,8 +157,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-<<<<<<< HEAD
-=======
   geocoding:
     dependency: "direct main"
     description:
@@ -231,7 +237,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.5"
->>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
   glob:
     dependency: transitive
     description:
@@ -536,7 +541,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
-<<<<<<< HEAD
   record_use:
     dependency: transitive
     description:
@@ -545,7 +549,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
-=======
   shared_preferences:
     dependency: "direct main"
     description:
@@ -602,7 +605,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
->>>>>>> 37fb43df02eb5bf293820a257a8a83de675a95bc
   sky_engine:
     dependency: transitive
     description: flutter
@@ -672,6 +674,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: "1fef9e8e11e2991bb773070d4656b7bd5d850967a2456cfc83cf47925ba79489"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.3"
   vector_math:
     dependency: transitive
     description:
@@ -708,10 +718,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_platform_interface
-      sha256: "57c5d73173f76d801129d0531c2774052c5a7c11ccb962f1830630decd9f24ec"
+      sha256: "16eaed5268c571c31840dc58ef8da5f0cd4db2a98490c3b8f1cf70122546c6e0"
       url: "https://pub.dev"
     source: hosted
-    version: "6.6.0"
+    version: "6.7.0"
   video_player_web:
     dependency: transitive
     description:
@@ -724,10 +734,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "046d3928e16fa4dc46e8350415661755ab759d9fc97fc21b5ab295f71e4f0499"
+      sha256: "0016aef94fc66495ac78af5859181e3f3bf2026bd8eecc72b9565601e19ab360"
       url: "https://pub.dev"
     source: hosted
-    version: "15.1.0"
+    version: "15.2.0"
   web:
     dependency: transitive
     description:

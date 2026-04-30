@@ -132,6 +132,21 @@ class Lang extends ChangeNotifier {
       "reservation_success_msg":
           "Votre réservation a été enregistrée avec succès.",
       "ok": "OK",
+
+      // auth
+      "login": "Connexion",
+      "signup": "S'inscrire",
+      "welcome_back": "Bon retour",
+      "login_subtitle": "Connectez-vous pour continuer à sauver la nourriture",
+      "email": "Email",
+      "password": "Mot de passe",
+      "no_account": "Vous n'avez pas de compte ? S'inscrire",
+
+      "create_account": "Créer un compte",
+      "join_us": "Rejoignez-nous",
+      "full_name": "Nom complet",
+      "confirm_password": "Confirmer le mot de passe",
+      "role": "Rôle",
     },
     "en": {
       // Navbar
@@ -252,6 +267,21 @@ class Lang extends ChangeNotifier {
       "reservation_success_msg":
           "Your reservation has been successfully recorded.",
       "ok": "OK",
+
+      // auth
+      "login": "Login",
+      "signup": "Sign up",
+      "welcome_back": "Welcome Back",
+      "login_subtitle": "Login to continue saving food",
+      "email": "Email",
+      "password": "Password",
+      "no_account": "Don't have an account? Sign up",
+
+      "create_account": "Create Account",
+      "join_us": "Join Us",
+      "full_name": "Full Name",
+      "confirm_password": "Confirm Password",
+      "role": "Role",
     },
     "ar": {
       // Navbar
@@ -371,6 +401,21 @@ class Lang extends ChangeNotifier {
       "reservation_success_title": "تم تأكيد الحجز ✅",
       "reservation_success_msg": "تم تسجيل حجزك بنجاح.",
       "ok": "موافق",
+
+      // auth
+      "login": "تسجيل الدخول",
+      "signup": "إنشاء حساب",
+      "welcome_back": "مرحباً بعودتك",
+      "login_subtitle": "سجّل الدخول للمتابعة في إنقاذ الطعام",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "no_account": "ليس لديك حساب؟ إنشاء حساب",
+
+      "create_account": "إنشاء حساب",
+      "join_us": "انضم إلينا",
+      "full_name": "الاسم الكامل",
+      "confirm_password": "تأكيد كلمة المرور",
+      "role": "الدور",
     },
   };
 
