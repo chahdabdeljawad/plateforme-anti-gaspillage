@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // ← added
 import 'reservationpage.dart';
+import '../components/footer.dart';
+import '../lang.dart'; // ← added
 
 class CategoryDetailsPage extends StatelessWidget {
   final String categoryName;
@@ -8,7 +11,10 @@ class CategoryDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// STORES kébili
+    final lang = Provider.of<Lang>(context); // ← added
+    final isRtl = lang.current == "ar"; // ← added
+
+    /// STORES kébili (unchanged)
     final Map<String, Map<String, dynamic>> stores = {
       'Carrefour': {'lat': 33.705, 'lng': 8.969, 'name': 'Carrefour Kébili'},
       'MG': {'lat': 33.707, 'lng': 8.971, 'name': 'MG Kébili'},
@@ -35,7 +41,7 @@ class CategoryDetailsPage extends StatelessWidget {
       },
     };
 
-    /// PRODUITS
+    /// PRODUITS (unchanged)
     final Map<String, List<Map<String, String>>> data = {
       'Carrefour': [
         {
@@ -60,7 +66,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '17:30',
         },
       ],
-
       'MG': [
         {
           'name': 'Yaourt Vitalait',
@@ -77,7 +82,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '19:30',
         },
       ],
-
       'Monoprix': [
         {
           'name': 'Sandwich Thon',
@@ -94,7 +98,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '17:00',
         },
       ],
-
       'Aziza': [
         {
           'name': 'Biscuits Saida',
@@ -111,8 +114,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '16:30',
         },
       ],
-
-      // 🍽️ AUTRES
       'Restaurants': [
         {
           'name': 'Pizza Escalope',
@@ -136,7 +137,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '18:00',
         },
       ],
-
       'Boulangeries': [
         {
           'name': 'Baguette',
@@ -160,7 +160,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '17:30',
         },
       ],
-
       'Pâtisseries': [
         {
           'name': 'Gâteau',
@@ -198,7 +197,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '17:30',
         },
       ],
-
       'Poissonneries': [
         {
           'name': 'Dorade 1kg',
@@ -229,7 +227,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '16:30',
         },
       ],
-
       'Fromageries': [
         {
           'name': 'Fromage frais',
@@ -274,7 +271,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '16:30',
         },
       ],
-
       'Primeurs': [
         {
           'name': 'Panier légumes',
@@ -291,7 +287,6 @@ class CategoryDetailsPage extends StatelessWidget {
           'time': '17:30',
         },
       ],
-
       'Petits commerces': [
         {
           'name': 'Café Express',
@@ -312,119 +307,154 @@ class CategoryDetailsPage extends StatelessWidget {
 
     final products = data[categoryName] ?? [];
     final store = stores[categoryName];
+
     if (store == null) {
-      return const Center(child: Text("Store not found"));
+      return Directionality(
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr, // ← added
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF5F0E6),
+          body: Center(child: Text(lang.t("store_not_found"))), // ← translated
+        ),
+      );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(categoryName),
-        backgroundColor: const Color(0xFF1D9E75),
-      ),
-
-      body: products.isEmpty
-          ? const Center(child: Text("Aucun produit disponible"))
-          : GridView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: products.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 1,
+    return Directionality(
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr, // ← added
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F0E6),
+        appBar: AppBar(
+          title: Text(
+            categoryName,
+            style: const TextStyle(fontFamily: 'PlayfairDisplay'),
+          ),
+          backgroundColor: const Color(0xFF0A3B2A),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: products.isEmpty
+            ? Center(child: Text(lang.t("no_products"))) // ← translated
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: products.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.8,
+                          ),
+                      itemBuilder: (context, index) {
+                        final item = products[index];
+                        return _buildProductCard(
+                          context: context,
+                          item: item,
+                          store: store,
+                        );
+                      },
+                    ),
+                    const AppFooter(),
+                  ],
+                ),
               ),
+      ),
+    );
+  }
 
-              itemBuilder: (context, index) {
-                final item = products[index];
-
-                return InkWell(
-                  borderRadius: BorderRadius.circular(15),
-
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ReservationPage(
-                          productName: item['name']!,
-                          price: item['promo']!,
-                          image: item['image']!,
-                          lat: store['lat'],
-                          lng: store['lng'],
-                          storeName: store['name'],
-                          time: item['time'] ?? "18:00",
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      image: DecorationImage(
-                        image: AssetImage(item['image'] ?? ''),
-                        fit: BoxFit.cover,
-                        onError: (_,_) {},
-                      ),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.8),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-
-                      padding: const EdgeInsets.all(10),
-
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item['name']!,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-
-                          const SizedBox(height: 4),
-
-                          Row(
-                            children: [
-                              Text(
-                                item['price']!,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  decoration: TextDecoration.lineThrough,
-                                  fontSize: 12,
-                                ),
-                              ),
-
-                              const SizedBox(width: 6),
-
-                              Text(
-                                item['promo']!,
-                                style: const TextStyle(
-                                  color: Colors.greenAccent,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
+  Widget _buildProductCard({
+    required BuildContext context,
+    required Map<String, String> item,
+    required Map<String, dynamic> store,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReservationPage(
+              productName: item['name']!,
+              price: item['promo']!,
+              image: item['image']!,
+              lat: store['lat'],
+              lng: store['lng'],
+              storeName: store['name'],
+              time: item['time'] ?? "18:00",
             ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.zero,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Image.asset(
+                item['image'] ?? '',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                errorBuilder: (_, _, _) =>
+                    const Icon(Icons.image_not_supported),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item['name']!,
+                    style: const TextStyle(
+                      fontFamily: 'PlayfairDisplay',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Color(0xFF0A3B2A),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        item['price']!,
+                        style: const TextStyle(
+                          decoration: TextDecoration.lineThrough,
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        item['promo']!,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

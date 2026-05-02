@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'registre.dart';
+import '../lang.dart';
 import 'loginadmin.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => isLoading = true);
 
     final result = await ApiService.login(
-      emailController.text.trim().toLowerCase(), // 🔥 FIX
+      emailController.text.trim().toLowerCase(),
       passwordController.text,
     );
 
@@ -37,14 +39,14 @@ class _LoginPageState extends State<LoginPage> {
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("token", data["token"]);
-      await prefs.setString("role", data["user"]["role"]); // 🔥 مهم
-      await prefs.setString("email", data["user"]["email"]); // (اختياري)
+      await prefs.setString("role", data["user"]["role"]);
+      await prefs.setString("email", data["user"]["email"]);
 
       String role = data["user"]["role"];
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Login Successful ✅")));
+      ).showSnackBar(SnackBar(content: Text("Login Successful ✅")));
 
       widget.onLoginSuccess(role);
     } else {
@@ -63,68 +65,172 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Provider.of<Lang>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
+      backgroundColor: const Color(0xFFF5F0E6),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) => v == null || v.isEmpty ? "Enter email" : null,
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Enter password" : null,
-              ),
-              const SizedBox(height: 24),
-
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _login,
-                      child: const Text("Login"),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
                     ),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        lang.t("welcome_back"),
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'PlayfairDisplay',
+                          color: Color(0xFF0A3B2A),
+                        ),
+                      ),
 
-              const SizedBox(height: 16),
+                      const SizedBox(height: 6),
 
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RegistrePage()),
-                  );
-                },
-                child: const Text("Don't have an account? Sign Up"),
-              ),
+                      Text(
+                        lang.t("login_subtitle"),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
 
-              const SizedBox(height: 10),
+                      const SizedBox(height: 30),
 
-              // ADMIN BUTTON
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginAdminPage()),
-                  );
-                },
-                child: const Text("Login as Admin"),
+                      // EMAIL
+                      TextFormField(
+                        controller: emailController,
+                        decoration: InputDecoration(
+                          labelText: lang.t("email"),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0A3B2A),
+                              width: 1.5,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return lang.t("required_field");
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // PASSWORD
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: lang.t("password"),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0A3B2A),
+                              width: 1.5,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return lang.t("required_field");
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // BUTTON
+                      isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: _login,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0A3B2A),
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              child: Text(lang.t("login")),
+                            ),
+                     
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const RegistrePage(),
+                            ),
+                          );
+                        },
+                        child: const Text("Don't have an account? Sign Up"),
+                      ),
+
+                       const SizedBox(height: 10),
+
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LoginAdminPage(),
+                            ),
+                          );
+                        },
+                        child: const Text("Login as Admin"),
+                      ),
+                      const SizedBox(height: 15),
+
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

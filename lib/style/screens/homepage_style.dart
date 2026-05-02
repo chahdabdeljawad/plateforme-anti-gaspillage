@@ -4,7 +4,7 @@ class HomePageStyle {
   // =======================
   // COLORS
   // =======================
-  static const Color primaryGreen = Colors.green;
+  static const Color primaryGreen = Color.fromARGB(255, 30, 70, 32);
 
   static final Color overlay = Colors.black.withValues(alpha: 0.4);
 
