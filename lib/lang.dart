@@ -60,6 +60,10 @@ class Lang extends ChangeNotifier {
       "large_stores": "Grandes surfaces",
       "other_stores": "Autres commerces",
       "no_results": "Aucun résultat",
+      "showing_near": "Magasins près de",
+      "change": "Changer",
+      "no_location_selected": "Aucune position sélectionnée",
+      "select_location": "Choisir un emplacement",
 
       // Benefits
       "benefit1_title": "Produits frais à prix réduit",
@@ -133,7 +137,7 @@ class Lang extends ChangeNotifier {
           "Votre réservation a été enregistrée avec succès.",
       "ok": "OK",
 
-      // auth
+      // Auth (registration)
       "login": "Connexion",
       "signup": "S'inscrire",
       "welcome_back": "Bon retour",
@@ -141,12 +145,43 @@ class Lang extends ChangeNotifier {
       "email": "Email",
       "password": "Mot de passe",
       "no_account": "Vous n'avez pas de compte ? S'inscrire",
-
       "create_account": "Créer un compte",
       "join_us": "Rejoignez-nous",
       "full_name": "Nom complet",
       "confirm_password": "Confirmer le mot de passe",
       "role": "Rôle",
+      "phone": "Téléphone",
+      "store_category": "Catégorie de magasin",
+      "store_location": "Emplacement du magasin",
+      "location_required": "Emplacement requis",
+      "custom_category": "Nom de catégorie",
+      "client": "Client",
+      "store": "Magasin",
+
+      // Location picker page
+      "choose_your_location": "Choisissez votre position",
+      "search_city_placeholder": "Rechercher une ville ou un lieu...",
+      "use_current_location": "Utiliser ma position actuelle",
+      "confirm_location": "Confirmer la position",
+      "enter_manually": "Saisir manuellement",
+      "location_name_hint": "ex: Tunis, La Marsa...",
+      "error_location_services":
+          "Les services de localisation sont désactivés. Veuillez les activer.",
+      "error_permission_denied":
+          "Permission de localisation refusée définitivement.",
+      "error_geocoding": "Impossible de déterminer le nom de l'emplacement.",
+      "search_no_results": "Aucun lieu trouvé pour",
+      "search_error": "Erreur de recherche",
+      "check_internet": "Vérifiez votre connexion internet.",
+
+      "category_restaurant": "Restaurant",
+      "category_supermarket": "Supermarché",
+      "category_bakery": "Boulangerie",
+      "category_cafe": "Café",
+      "category_butcher": "Boucherie",
+      "category_fishmonger": "Poissonnerie",
+      "category_greengrocer": "Primeur",
+      "category_other": "Autre",
     },
     "en": {
       // Navbar
@@ -195,6 +230,10 @@ class Lang extends ChangeNotifier {
       "large_stores": "Large stores",
       "other_stores": "Other shops",
       "no_results": "No results",
+      "showing_near": "Showing stores near",
+      "change": "Change",
+      "no_location_selected": "No location selected",
+      "select_location": "Select location",
 
       // Benefits
       "benefit1_title": "Fresh food at reduced prices",
@@ -268,7 +307,7 @@ class Lang extends ChangeNotifier {
           "Your reservation has been successfully recorded.",
       "ok": "OK",
 
-      // auth
+      // Auth (registration)
       "login": "Login",
       "signup": "Sign up",
       "welcome_back": "Welcome Back",
@@ -276,12 +315,43 @@ class Lang extends ChangeNotifier {
       "email": "Email",
       "password": "Password",
       "no_account": "Don't have an account? Sign up",
-
       "create_account": "Create Account",
       "join_us": "Join Us",
       "full_name": "Full Name",
       "confirm_password": "Confirm Password",
       "role": "Role",
+      "phone": "Phone",
+      "store_category": "Store category",
+      "store_location": "Store location",
+      "location_required": "Location required",
+      "custom_category": "Category name",
+      "client": "Client",
+      "store": "Store",
+
+      // Location picker page
+      "choose_your_location": "Choose your location",
+      "search_city_placeholder": "Search city or place...",
+      "use_current_location": "Use my current location",
+      "confirm_location": "Confirm location",
+      "enter_manually": "Enter manually",
+      "location_name_hint": "e.g., Tunis, La Marsa...",
+      "error_location_services":
+          "Location services are disabled. Please enable them.",
+      "error_permission_denied": "Location permission denied permanently.",
+      "error_geocoding": "Could not determine location name.",
+      "search_no_results": "No places found for",
+      "search_error": "Search error",
+      "check_internet": "Please check your internet connection.",
+
+      // Store categories (display labels)
+      "category_restaurant": "Restaurant",
+      "category_supermarket": "Supermarket",
+      "category_bakery": "Bakery",
+      "category_cafe": "Café",
+      "category_butcher": "Butcher",
+      "category_fishmonger": "Fishmonger",
+      "category_greengrocer": "Greengrocer",
+      "category_other": "Other",
     },
     "ar": {
       // Navbar
@@ -330,6 +400,10 @@ class Lang extends ChangeNotifier {
       "large_stores": "المساحات الكبرى",
       "other_stores": "محلات أخرى",
       "no_results": "لا نتائج",
+      "showing_near": "المتاجر القريبة من",
+      "change": "تغيير",
+      "no_location_selected": "لم يتم اختيار موقع",
+      "select_location": "اختر موقعاً",
 
       // Benefits
       "benefit1_title": "طعام طازج بأسعار مخفضة",
@@ -402,7 +476,7 @@ class Lang extends ChangeNotifier {
       "reservation_success_msg": "تم تسجيل حجزك بنجاح.",
       "ok": "موافق",
 
-      // auth
+      // Auth (registration)
       "login": "تسجيل الدخول",
       "signup": "إنشاء حساب",
       "welcome_back": "مرحباً بعودتك",
@@ -410,12 +484,41 @@ class Lang extends ChangeNotifier {
       "email": "البريد الإلكتروني",
       "password": "كلمة المرور",
       "no_account": "ليس لديك حساب؟ إنشاء حساب",
-
       "create_account": "إنشاء حساب",
       "join_us": "انضم إلينا",
       "full_name": "الاسم الكامل",
       "confirm_password": "تأكيد كلمة المرور",
       "role": "الدور",
+      "phone": "الهاتف",
+      "store_category": "فئة المتجر",
+      "store_location": "موقع المتجر",
+      "location_required": "الموقع مطلوب",
+      "custom_category": "اسم الفئة",
+      "client": "عميل",
+      "store": "متجر",
+
+      // Location picker page
+      "choose_your_location": "اختر موقعك",
+      "search_city_placeholder": "ابحث عن مدينة أو مكان...",
+      "use_current_location": "استخدم موقعي الحالي",
+      "confirm_location": "تأكيد الموقع",
+      "enter_manually": "إدخال يدوي",
+      "location_name_hint": "مثال: تونس، المرسى...",
+      "error_location_services": "خدمات الموقع معطلة. يرجى تفعيلها.",
+      "error_permission_denied": "صلاحية الموقع مرفوضة نهائياً.",
+      "error_geocoding": "تعذر تحديد اسم الموقع.",
+      "search_no_results": "لم يتم العثور على أماكن لـ",
+      "search_error": "خطأ في البحث",
+      "check_internet": "يرجى التحقق من اتصال الإنترنت.",
+
+      "category_restaurant": "مطعم",
+      "category_supermarket": "سوبرماركت",
+      "category_bakery": "مخبز",
+      "category_cafe": "مقهى",
+      "category_butcher": "جزار",
+      "category_fishmonger": "سمك",
+      "category_greengrocer": "خضار وفواكه",
+      "category_other": "أخرى",
     },
   };
 
