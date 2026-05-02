@@ -13,15 +13,14 @@ class ApiService {
 
   // 🔐 LOGIN
   static Future<Map<String, dynamic>> login(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse("$baseUrl/auth/login"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-        }),
+        body: jsonEncode({"email": email, "password": password}),
       );
 
       final data = jsonDecode(response.body);
@@ -29,10 +28,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return {"success": true, "data": data};
       } else {
-        return {
-          "success": false,
-          "message": data["message"] ?? "Login failed"
-        };
+        return {"success": false, "message": data["message"] ?? "Login failed"};
       }
     } catch (e) {
       print("LOGIN ERROR: $e");
@@ -40,19 +36,52 @@ class ApiService {
     }
   }
 
-  // 📝 REGISTER
+  // 📝 REGISTER (updated with additional fields)
   static Future<Map<String, dynamic>> register(
-      String name, String email, String password, String role) async {
+    String name,
+    String email,
+    String password,
+    String role, {
+    String? phone,
+    String? storeCategory,
+    double? latitude,
+    double? longitude,
+    String? placeName,
+  }) async {
     try {
+      // Base request body (common to all roles)
+      final Map<String, dynamic> body = {
+        "name": name,
+        "email": email,
+        "password": password,
+        "role": role,
+      };
+
+      // Add phone if provided (required for both roles)
+      if (phone != null && phone.isNotEmpty) {
+        body["phone"] = phone;
+      }
+
+      // Add store-specific fields only when role is "store"
+      if (role == "store") {
+        if (storeCategory != null && storeCategory.isNotEmpty) {
+          body["storeCategory"] = storeCategory;
+        }
+        if (latitude != null) {
+          body["latitude"] = latitude;
+        }
+        if (longitude != null) {
+          body["longitude"] = longitude;
+        }
+        if (placeName != null && placeName.isNotEmpty) {
+          body["placeName"] = placeName;
+        }
+      }
+
       final response = await http.post(
         Uri.parse("$baseUrl/auth/register"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "name": name,
-          "email": email,
-          "password": password,
-          "role": role,
-        }),
+        body: jsonEncode(body),
       );
 
       final data = jsonDecode(response.body);
@@ -62,7 +91,7 @@ class ApiService {
       } else {
         return {
           "success": false,
-          "message": data["message"] ?? "Signup failed"
+          "message": data["message"] ?? "Signup failed",
         };
       }
     } catch (e) {
@@ -71,25 +100,26 @@ class ApiService {
     }
   }
 
+  // 👤 GET PROFILE
   static Future<Map<String, dynamic>> getProfile(String token) async {
-  try {
-    final response = await http.get(
-      Uri.parse("$baseUrl/auth/me"),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse("$baseUrl/auth/me"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
 
-    final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      return {"success": true, "data": data};
-    } else {
+      if (response.statusCode == 200) {
+        return {"success": true, "data": data};
+      } else {
+        return {"success": false};
+      }
+    } catch (e) {
       return {"success": false};
     }
-  } catch (e) {
-    return {"success": false};
   }
-}
 }

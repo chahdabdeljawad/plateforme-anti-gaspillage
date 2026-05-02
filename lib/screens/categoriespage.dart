@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
+import 'package:latlong2/latlong.dart';
 import '../components/footer.dart';
 import '../lang.dart';
+import '../providers/location_provider.dart';
+import 'location_picker_page.dart';
 import 'categorydetailspage.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -16,10 +18,72 @@ class _CategoriesPageState extends State<CategoriesPage> {
   String searchQuery = "";
 
   @override
+  void initState() {
+    super.initState();
+    // If no location is stored when the page loads, open the picker automatically
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locationProvider = Provider.of<LocationProvider>(
+        context,
+        listen: false,
+      );
+      if (!locationProvider.hasLocation) {
+        _openLocationPicker();
+      }
+    });
+  }
+
+  Future<void> _openLocationPicker() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(builder: (_) => const LocationPickerPage()),
+    );
+    if (result != null && result.containsKey('lat')) {
+      final locationProvider = Provider.of<LocationProvider>(
+        context,
+        listen: false,
+      );
+      locationProvider.setLocation(
+        LatLng(result['lat'], result['lng']),
+        result['name'],
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final locationProvider = Provider.of<LocationProvider>(context);
     final isRtl = lang.current == "ar";
 
+    // If still no location (user pressed back on picker), show a message + retry button
+    if (!locationProvider.hasLocation) {
+      return Directionality(
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF5F0E6),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.location_off, size: 80, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text(lang.t("no_location_selected")),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _openLocationPicker,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A3B2A),
+                  ),
+                  child: Text(lang.t("select_location")),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Location exists – show the normal categories page
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
@@ -27,12 +91,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
         body: SafeArea(
           child: Column(
             children: [
-              // Header with search bar + change maps button
+              // Header with search bar + change maps button (now opens location picker)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Row(
                   children: [
-                    // Search bar (compact, left)
+                    // Search bar
                     Expanded(
                       flex: 3,
                       child: Container(
@@ -66,20 +130,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // Change maps button
+                    // Change maps button – now opens location picker
                     Expanded(
                       flex: 2,
                       child: SizedBox(
                         height: 42,
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  lang.t("change_maps_placeholder"),
-                                ),
-                              ),
-                            );
+                          onPressed: () async {
+                            await _openLocationPicker();
                           },
                           icon: const Icon(Icons.map, size: 16),
                           label: Text(lang.t("change_maps")),
@@ -97,7 +155,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   ],
                 ),
               ),
-              // Scrollable content
+              // Scrollable content (original grids)
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
@@ -124,6 +182,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
+  // ---------------------- ALL ORIGINAL HELPER METHODS REMAIN IDENTICAL ----------------------
   Widget _buildSectionTitle(String title) {
     return Text(
       title.toUpperCase(),
@@ -137,7 +196,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  // Large stores grid – 4 columns, NO border radius, sharp corners
   Widget _buildLargeStoresGrid(Lang lang) {
     final List<Map<String, String?>> brands = [
       {'name': 'Carrefour', 'logo': 'assets/images/carrefour.png'},
@@ -171,7 +229,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
           child: Center(
             child: Image.asset(
               brand['logo']!,
-              height: brand['name'] == 'Monoprix' ? 100 : 80, // increased sizes
+              height: brand['name'] == 'Monoprix' ? 100 : 80,
               fit: BoxFit.contain,
               errorBuilder: (_, _, _) => const Icon(Icons.store, size: 35),
             ),
@@ -181,7 +239,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  // Other categories grid – 4 columns, sharp corners
   Widget _buildSmallCategoriesGrid(Lang lang) {
     final List<Map<String, String>> categories = [
       {'title': 'Restaurants', 'image': 'assets/images/res.png'},
@@ -221,14 +278,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Image – sharp corners
               Image.asset(
                 cat['image']!,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) =>
                     const Icon(Icons.image_not_supported, size: 35),
               ),
-              // Gradient overlay
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -241,7 +296,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   ),
                 ),
               ),
-              // Title
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Padding(
@@ -263,14 +317,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  // Card with ZERO border radius, only subtle shadow
   Widget _buildCard({required VoidCallback onTap, required Widget child}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.zero, // explicitly no radius
+          borderRadius: BorderRadius.zero,
           boxShadow: [
             BoxShadow(
               color: Colors.black12,

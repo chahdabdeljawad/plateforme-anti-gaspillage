@@ -5,9 +5,18 @@ import 'authentification/login.dart';
 import 'authentification/registre.dart';
 import 'components/navbar.dart';
 import 'lang.dart';
+import 'providers/location_provider.dart'; // add this import
 
 void main() {
-  runApp(ChangeNotifierProvider(create: (_) => Lang(), child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => Lang()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

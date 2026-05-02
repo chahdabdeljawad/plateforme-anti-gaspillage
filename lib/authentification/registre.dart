@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../services/api_service.dart';
 import '../lang.dart';
+import '../screens/location_picker_page.dart';
 
 class RegistrePage extends StatefulWidget {
   const RegistrePage({super.key});
@@ -18,9 +20,41 @@ class _RegistrePageState extends State<RegistrePage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmController = TextEditingController();
+  final phoneController = TextEditingController();
 
   String role = "client";
   bool isLoading = false;
+
+  // Store-specific fields – stored values remain English
+  final List<String> storeCategories = [
+    "Restaurant",
+    "Supermarket",
+    "Bakery",
+    "Café",
+    "Butcher",
+    "Fishmonger",
+    "Greengrocer",
+    "Other",
+  ];
+  String storeCategory = "Restaurant";
+  String customCategory = "";
+  bool isOtherCategory = false;
+
+  LatLng? storeLocation;
+  String? storePlaceName;
+
+  Future<void> _openLocationPicker() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(builder: (_) => const LocationPickerPage()),
+    );
+    if (result != null && result.containsKey('lat')) {
+      setState(() {
+        storeLocation = LatLng(result['lat'], result['lng']);
+        storePlaceName = result['name'];
+      });
+    }
+  }
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
@@ -32,6 +66,23 @@ class _RegistrePageState extends State<RegistrePage> {
       return;
     }
 
+    // Store role validation
+    if (role == "store") {
+      if (storeLocation == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please select your store location")),
+        );
+        return;
+      }
+      final finalCategory = isOtherCategory ? customCategory : storeCategory;
+      if (finalCategory.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please enter a store category")),
+        );
+        return;
+      }
+    }
+
     setState(() => isLoading = true);
 
     final result = await ApiService.register(
@@ -39,6 +90,13 @@ class _RegistrePageState extends State<RegistrePage> {
       emailController.text.trim().toLowerCase(),
       passwordController.text,
       role,
+      phone: phoneController.text.trim(),
+      storeCategory: role == "store"
+          ? (isOtherCategory ? customCategory : storeCategory)
+          : null,
+      latitude: role == "store" ? storeLocation?.latitude : null,
+      longitude: role == "store" ? storeLocation?.longitude : null,
+      placeName: role == "store" ? storePlaceName : null,
     );
 
     setState(() => isLoading = false);
@@ -47,7 +105,6 @@ class _RegistrePageState extends State<RegistrePage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Signup Successful ✅")));
-
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(
@@ -62,6 +119,7 @@ class _RegistrePageState extends State<RegistrePage> {
     emailController.dispose();
     passwordController.dispose();
     confirmController.dispose();
+    phoneController.dispose();
     super.dispose();
   }
 
@@ -71,7 +129,6 @@ class _RegistrePageState extends State<RegistrePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E6),
-
       appBar: AppBar(
         title: Text(
           lang.t("create_account"),
@@ -84,7 +141,6 @@ class _RegistrePageState extends State<RegistrePage> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Center(
@@ -114,10 +170,9 @@ class _RegistrePageState extends State<RegistrePage> {
                       color: Color(0xFF0A3B2A),
                     ),
                   ),
-
                   const SizedBox(height: 20),
 
-                  // FULL NAME
+                  // Full name
                   TextFormField(
                     controller: nameController,
                     decoration: _inputDecoration(lang.t("full_name")),
@@ -125,10 +180,9 @@ class _RegistrePageState extends State<RegistrePage> {
                         ? lang.t("required_field")
                         : null,
                   ),
-
                   const SizedBox(height: 16),
 
-                  // EMAIL
+                  // Email
                   TextFormField(
                     controller: emailController,
                     decoration: _inputDecoration(lang.t("email")),
@@ -137,10 +191,27 @@ class _RegistrePageState extends State<RegistrePage> {
                         ? lang.t("invalid_email")
                         : null,
                   ),
-
                   const SizedBox(height: 16),
 
-                  // PASSWORD
+                  // Phone (Tunisian validation)
+                  TextFormField(
+                    controller: phoneController,
+                    decoration: _inputDecoration(lang.t("phone")),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return lang.t("required_field");
+                      final regex = RegExp(
+                        r'^[2579][0-9]{7}$',
+                      ); // Tunisian: 8 digits starting with 2,5,7,9
+                      if (!regex.hasMatch(value))
+                        return "Invalid Tunisian phone number";
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Password
                   TextFormField(
                     controller: passwordController,
                     obscureText: true,
@@ -149,10 +220,9 @@ class _RegistrePageState extends State<RegistrePage> {
                         ? null
                         : lang.t("weak_password"),
                   ),
-
                   const SizedBox(height: 16),
 
-                  // CONFIRM PASSWORD
+                  // Confirm password
                   TextFormField(
                     controller: confirmController,
                     obscureText: true,
@@ -161,10 +231,9 @@ class _RegistrePageState extends State<RegistrePage> {
                         ? lang.t("required_field")
                         : null,
                   ),
-
                   const SizedBox(height: 16),
 
-                  // ROLE
+                  // Role dropdown – translated
                   DropdownButtonFormField<String>(
                     value: role,
                     items: [
@@ -181,9 +250,115 @@ class _RegistrePageState extends State<RegistrePage> {
                     decoration: _inputDecoration(lang.t("role")),
                   ),
 
+                  // Store-specific fields
+                  if (role == "store") ...[
+                    const SizedBox(height: 16),
+
+                    // Store category dropdown – DISPLAY TRANSLATED, VALUE ENGLISH
+                    DropdownButtonFormField<String>(
+                      value: storeCategory,
+                      items: storeCategories.map((cat) {
+                        // Map each English category to its translation key
+                        String translationKey;
+                        switch (cat) {
+                          case "Restaurant":
+                            translationKey = "category_restaurant";
+                            break;
+                          case "Supermarket":
+                            translationKey = "category_supermarket";
+                            break;
+                          case "Bakery":
+                            translationKey = "category_bakery";
+                            break;
+                          case "Café":
+                            translationKey = "category_cafe";
+                            break;
+                          case "Butcher":
+                            translationKey = "category_butcher";
+                            break;
+                          case "Fishmonger":
+                            translationKey = "category_fishmonger";
+                            break;
+                          case "Greengrocer":
+                            translationKey = "category_greengrocer";
+                            break;
+                          case "Other":
+                            translationKey = "category_other";
+                            break;
+                          default:
+                            translationKey = cat;
+                        }
+                        return DropdownMenuItem<String>(
+                          value: cat, // stored value stays English
+                          child: Text(
+                            lang.t(translationKey),
+                          ), // displayed translation
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          storeCategory = val!;
+                          isOtherCategory = (val == "Other");
+                          if (!isOtherCategory) customCategory = "";
+                        });
+                      },
+                      decoration: _inputDecoration(lang.t("store_category")),
+                    ),
+                    if (isOtherCategory) ...[
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        initialValue: customCategory,
+                        onChanged: (val) => customCategory = val,
+                        decoration: _inputDecoration(lang.t("custom_category")),
+                        validator: (value) => value == null || value.isEmpty
+                            ? lang.t("required_field")
+                            : null,
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+
+                    // Store location picker
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lang.t("store_location"),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton.icon(
+                          onPressed: _openLocationPicker,
+                          icon: const Icon(Icons.map),
+                          label: Text(
+                            storePlaceName == null
+                                ? lang.t("select_location")
+                                : storePlaceName!,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0A3B2A),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                        if (storeLocation == null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              lang.t("location_required"),
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+
                   const SizedBox(height: 30),
 
-                  // BUTTON
                   isLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
