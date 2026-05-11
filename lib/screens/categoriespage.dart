@@ -20,15 +20,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   void initState() {
     super.initState();
-    // If no location is stored when the page loads, open the picker automatically
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final locationProvider = Provider.of<LocationProvider>(
-        context,
-        listen: false,
-      );
-      if (!locationProvider.hasLocation) {
-        _openLocationPicker();
-      }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // ALWAYS open map first
+      await _openLocationPicker();
     });
   }
 
