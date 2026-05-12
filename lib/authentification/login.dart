@@ -5,7 +5,6 @@ import '../services/api_service.dart';
 import 'registre.dart';
 import '../lang.dart';
 import 'loginadmin.dart';
-import '../screens/addproductpage.dart';
 
 class LoginPage extends StatefulWidget {
   final Function(String) onLoginSuccess;
@@ -50,16 +49,6 @@ class _LoginPageState extends State<LoginPage> {
       ).showSnackBar(SnackBar(content: Text("Login Successful ✅")));
 
       widget.onLoginSuccess(role);
-
-      //widget.onLoginSuccess(role);
-      if (role == "store") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AddProductPage()),
-        );
-      } else {
-        widget.onLoginSuccess(role);
-      }
 
     } else {
       ScaffoldMessenger.of(

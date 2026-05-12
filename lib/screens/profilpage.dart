@@ -156,6 +156,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildStoreCard('assets/how3.png', "Product 2"),
               ],
 
+
+ElevatedButton.icon(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF0A3B2A),
+    foregroundColor: Colors.white,
+    minimumSize: const Size(double.infinity, 55),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+  ),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddProductPage(),
+      ),
+    );
+  },
+  icon: const Icon(Icons.add_business),
+  label: const Text(
+    "Add Product",
+    style: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
               // CLIENT SECTION
               if (safeRole == "client") ...[
                 _buildSectionTitle(lang.t("comments")),
@@ -292,32 +320,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 20),
 
-ElevatedButton.icon(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color(0xFF0A3B2A),
-    foregroundColor: Colors.white,
-    minimumSize: const Size(double.infinity, 55),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
-    ),
-  ),
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AddProductPage(),
-      ),
-    );
-  },
-  icon: const Icon(Icons.add_business),
-  label: const Text(
-    "Add Product",
-    style: TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
           ],
 
           // 👤 CLIENT UI
