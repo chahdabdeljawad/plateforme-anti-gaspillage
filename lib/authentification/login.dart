@@ -50,17 +50,7 @@ class _LoginPageState extends State<LoginPage> {
         context,
       ).showSnackBar(SnackBar(content: Text("Login Successful ✅")));
 
-      //widget.onLoginSuccess(role);
-      if (role == "store") {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const AddProductPage(),
-    ),
-  );
-} else {
-  widget.onLoginSuccess(role);
-}
+      widget.onLoginSuccess(role);
     } else {
       ScaffoldMessenger.of(
         context,

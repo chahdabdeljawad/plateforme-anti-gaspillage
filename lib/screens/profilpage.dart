@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../screens/addproductpage.dart';
 
 class ProfilePage extends StatefulWidget {
   final String role;
@@ -100,6 +101,34 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: Image.asset('assets/how3.png', width: 50),
               title: const Text("Product 2"),
             ),
+            const SizedBox(height: 20),
+
+ElevatedButton.icon(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF0A3B2A),
+    foregroundColor: Colors.white,
+    minimumSize: const Size(double.infinity, 55),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+  ),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddProductPage(),
+      ),
+    );
+  },
+  icon: const Icon(Icons.add_business),
+  label: const Text(
+    "Add Product",
+    style: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
           ],
 
           // 👤 CLIENT UI
