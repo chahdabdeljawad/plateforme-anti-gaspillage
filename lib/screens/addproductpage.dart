@@ -18,7 +18,11 @@ class _AddProductPageState extends State<AddProductPage> {
 
   File? selectedImage;
 
-  // نفس categories الموجودة في CategoriesPage
+  bool isLoading = false;
+
+  static const Color primaryColor = Color(0xFF0A3B2A);
+  static const Color backgroundColor = Color(0xFFF5F0E6);
+
   final List<String> categories = [
     "Carrefour",
     "MG",
@@ -38,9 +42,7 @@ class _AddProductPageState extends State<AddProductPage> {
   Future<void> pickImage() async {
     final picker = ImagePicker();
 
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final picked = await picker.pickImage(source: ImageSource.gallery);
 
     if (picked != null) {
       setState(() {
@@ -53,12 +55,19 @@ class _AddProductPageState extends State<AddProductPage> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
 
-    if (selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Choose a category")),
-      );
+    if (nameController.text.isEmpty ||
+        priceController.text.isEmpty ||
+        descController.text.isEmpty ||
+        selectedCategory == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
       return;
     }
+
+    setState(() {
+      isLoading = true;
+    });
 
     final result = await ApiService.addProduct(
       token!,
@@ -66,94 +75,275 @@ class _AddProductPageState extends State<AddProductPage> {
       priceController.text,
       descController.text,
       selectedCategory!,
-      // بعدين نزيد image في backend
     );
 
-    if (result["success"]) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Product added ✅")),
-      );
+    setState(() {
+      isLoading = false;
+    });
+
+    final bool success = result["success"] ?? false;
+
+    if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Product added ✅")));
+
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result["message"] ?? "Error")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result["message"] ?? "Error")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
+
       appBar: AppBar(
-        title: const Text("Add Product"),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: backgroundColor,
+
+        iconTheme: const IconThemeData(color: primaryColor),
+
+        title: const Text(
+          "Add Product",
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            fontFamily: 'PlayfairDisplay',
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: "Product name",
-              ),
+
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+
+          child: Container(
+            padding: const EdgeInsets.all(24),
+
+            decoration: BoxDecoration(
+              color: Colors.white,
+
+              borderRadius: BorderRadius.circular(30),
+
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
 
-            TextField(
-              controller: priceController,
-              decoration: const InputDecoration(
-                labelText: "Price",
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                const Center(
+                  child: CircleAvatar(
+                    radius: 45,
+                    backgroundColor: primaryColor,
+
+                    child: Icon(
+                      Icons.shopping_bag_rounded,
+                      color: Colors.white,
+                      size: 45,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                const Center(
+                  child: Text(
+                    "Create New Product",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'PlayfairDisplay',
+                      color: primaryColor,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 35),
+
+                // PRODUCT NAME
+                buildTextField(
+                  controller: nameController,
+                  label: "Product Name",
+                  icon: Icons.shopping_bag_outlined,
+                ),
+
+                const SizedBox(height: 20),
+
+                // PRICE
+                buildTextField(
+                  controller: priceController,
+                  label: "Price",
+                  icon: Icons.attach_money_rounded,
+                ),
+
+                const SizedBox(height: 20),
+
+                // DESCRIPTION
+                buildTextField(
+                  controller: descController,
+                  label: "Description",
+                  icon: Icons.description_outlined,
+                  maxLines: 4,
+                ),
+
+                const SizedBox(height: 20),
+
+                // CATEGORY
+                DropdownButtonFormField<String>(
+                  value: selectedCategory,
+
+                  decoration: InputDecoration(
+                    labelText: "Category",
+
+                    prefixIcon: const Icon(
+                      Icons.category_outlined,
+                      color: primaryColor,
+                    ),
+
+                    filled: true,
+                    fillColor: backgroundColor,
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+
+                  items: categories.map((cat) {
+                    return DropdownMenuItem(value: cat, child: Text(cat));
+                  }).toList(),
+
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 25),
+
+                // IMAGE BUTTON
+                SizedBox(
+                  width: double.infinity,
+
+                  child: ElevatedButton.icon(
+                    onPressed: pickImage,
+
+                    icon: const Icon(Icons.image_outlined),
+
+                    label: const Text("Choose Product Image"),
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: backgroundColor,
+                      foregroundColor: primaryColor,
+
+                      elevation: 0,
+
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // IMAGE PREVIEW
+                if (selectedImage != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+
+                    child: Image.file(
+                      selectedImage!,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+
+                const SizedBox(height: 35),
+
+                // ADD BUTTON
+                SizedBox(
+                  width: double.infinity,
+
+                  child: isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(color: primaryColor),
+                        )
+                      : ElevatedButton(
+                          onPressed: addProduct,
+
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            foregroundColor: Colors.white,
+
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+
+                          child: const Text(
+                            "Add Product",
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                ),
+              ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
 
-            TextField(
-              controller: descController,
-              decoration: const InputDecoration(
-                labelText: "Description",
-              ),
-            ),
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
 
-            const SizedBox(height: 20),
+      decoration: InputDecoration(
+        labelText: label,
 
-            DropdownButtonFormField<String>(
-              value: selectedCategory,
-              decoration: const InputDecoration(
-                labelText: "Category",
-              ),
-              items: categories.map((cat) {
-                return DropdownMenuItem(
-                  value: cat,
-                  child: Text(cat),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCategory = value;
-                });
-              },
-            ),
+        prefixIcon: Icon(icon, color: primaryColor),
 
-            const SizedBox(height: 20),
+        filled: true,
+        fillColor: backgroundColor,
 
-            ElevatedButton(
-              onPressed: pickImage,
-              child: const Text("Choose product image"),
-            ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide.none,
+        ),
 
-            const SizedBox(height: 10),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
 
-            if (selectedImage != null)
-              Image.file(
-                selectedImage!,
-                height: 150,
-              ),
-
-            const SizedBox(height: 30),
-
-            ElevatedButton(
-              onPressed: addProduct,
-              child: const Text("Add"),
-            ),
-          ],
+          borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
       ),
     );
