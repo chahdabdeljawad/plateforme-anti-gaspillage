@@ -182,6 +182,15 @@ class Lang extends ChangeNotifier {
       "category_fishmonger": "Poissonnerie",
       "category_greengrocer": "Primeur",
       "category_other": "Autre",
+
+      //profile
+      "my_store": "Mon magasin",
+      "comments": "Commentaires",
+      "logout": "Déconnexion",
+      "product_1": "Produit 1",
+      "product_2": "Produit 2",
+      "great_person": "Personne géniale 👍",
+      "trusted_client": "Client fiable 💯",
     },
     "en": {
       // Navbar
@@ -352,6 +361,15 @@ class Lang extends ChangeNotifier {
       "category_fishmonger": "Fishmonger",
       "category_greengrocer": "Greengrocer",
       "category_other": "Other",
+
+      //profil
+      "my_store": "My Store",
+      "comments": "Comments",
+      "logout": "Logout",
+      "product_1": "Product 1",
+      "product_2": "Product 2",
+      "great_person": "Great person 👍",
+      "trusted_client": "Trusted client 💯",
     },
     "ar": {
       // Navbar
@@ -519,6 +537,15 @@ class Lang extends ChangeNotifier {
       "category_fishmonger": "سمك",
       "category_greengrocer": "خضار وفواكه",
       "category_other": "أخرى",
+
+      //profil
+      "my_store": "متجري",
+      "comments": "التعليقات",
+      "logout": "تسجيل الخروج",
+      "product_1": "المنتج 1",
+      "product_2": "المنتج 2",
+      "great_person": "شخص رائع 👍",
+      "trusted_client": "عميل موثوق 💯",
     },
   };
 

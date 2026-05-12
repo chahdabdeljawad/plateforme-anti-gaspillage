@@ -7,7 +7,6 @@ import '../lang.dart';
 import 'loginadmin.dart';
 import '../screens/addproductpage.dart';
 
-
 class LoginPage extends StatefulWidget {
   final Function(String) onLoginSuccess;
 
@@ -51,6 +50,17 @@ class _LoginPageState extends State<LoginPage> {
       ).showSnackBar(SnackBar(content: Text("Login Successful ✅")));
 
       widget.onLoginSuccess(role);
+
+      //widget.onLoginSuccess(role);
+      if (role == "store") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AddProductPage()),
+        );
+      } else {
+        widget.onLoginSuccess(role);
+      }
+
     } else {
       ScaffoldMessenger.of(
         context,
@@ -199,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               child: Text(lang.t("login")),
                             ),
-                     
+
                       TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -212,11 +222,12 @@ class _LoginPageState extends State<LoginPage> {
                         child: const Text("Don't have an account? Sign Up"),
                       ),
 
-                       const SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: Color(0xFF0A3B2A),
+                          foregroundColor: Colors.white,
                         ),
                         onPressed: () {
                           Navigator.push(
@@ -229,7 +240,6 @@ class _LoginPageState extends State<LoginPage> {
                         child: const Text("Login as Admin"),
                       ),
                       const SizedBox(height: 15),
-
                     ],
                   ),
                 ),

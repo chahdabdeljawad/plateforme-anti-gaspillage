@@ -7,8 +7,6 @@ import '../components/footer.dart';
 import '../lang.dart';
 import '../providers/location_provider.dart';
 import 'location_picker_page.dart';
-import 'categorydetailspage.dart';
-
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});

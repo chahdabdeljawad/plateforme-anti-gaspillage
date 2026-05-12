@@ -16,22 +16,22 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;
+  bool obscurePassword = true;
 
-  //  baseUrl dynamique
+  // 🌐 Base URL
   String get baseUrl {
     if (kIsWeb) {
-      return "http://localhost:5000"; // 🌐 WEB
+      return "http://localhost:5000";
     } else {
-      return "http://192.168.1.5:5000"; // 📱 téléphone + emulator
+      return "http://192.168.1.5:5000";
     }
   }
 
   Future<void> loginAdmin() async {
-    //  validation
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Remplir tous les champs")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
       return;
     }
 
@@ -42,9 +42,7 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
     try {
       final response = await http.post(
         Uri.parse("$baseUrl/api/admin/login"),
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "email": emailController.text.trim(),
           "password": passwordController.text.trim(),
@@ -53,11 +51,11 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
 
       final data = jsonDecode(response.body);
 
-      print("RESPONSE: $data"); 
+      print("RESPONSE: $data");
 
-      if (data["success"] == true) {
+      if (data["success"] != null && data["success"] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login Admin réussi ✅")),
+          const SnackBar(content: Text("Admin login successful ✅")),
         );
 
         Navigator.pushReplacement(
@@ -70,10 +68,11 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
         );
       }
     } catch (e) {
-      print("ERROR: $e"); 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Erreur serveur ❌")),
-      );
+      print("ERROR: $e");
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Server error ❌")));
     }
 
     setState(() {
@@ -84,76 +83,191 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[50],
-      appBar: AppBar(
-        title: const Text("Admin Login"),
-        backgroundColor: Colors.green,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
+      backgroundColor: const Color(0xFFF5F0E6),
+
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+
+            child: Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(maxWidth: 450),
+
+              padding: const EdgeInsets.all(28),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+
+                borderRadius: BorderRadius.circular(30),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.admin_panel_settings,
-                      size: 80, color: Colors.green),
-                  const SizedBox(height: 20),
+                  // 👤 ADMIN ICON
+                  Container(
+                    padding: const EdgeInsets.all(18),
 
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0A3B2A),
+                      shape: BoxShape.circle,
+                    ),
+
+                    child: const Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.white,
+                      size: 55,
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  // TITLE
                   const Text(
                     "Admin Panel",
-                    style:
-                        TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'PlayfairDisplay',
+                      color: Color(0xFF0A3B2A),
+                    ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 8),
 
-                  // 📧 Email
+                  const Text(
+                    "Login to manage the platform",
+
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+
+                  const SizedBox(height: 35),
+
+                  // 📧 EMAIL FIELD
                   TextField(
                     controller: emailController,
-                    decoration: const InputDecoration(
-                      labelText: "Email",
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.email),
+
+                    decoration: InputDecoration(
+                      hintText: "Enter your email",
+
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        color: Color(0xFF0A3B2A),
+                      ),
+
+                      filled: true,
+                      fillColor: const Color(0xFFF8F8F8),
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+
+                        borderSide: const BorderSide(
+                          color: Color(0xFF0A3B2A),
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 18),
 
-                  // 🔒 Password
+                  // 🔒 PASSWORD FIELD
                   TextField(
                     controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: "Password",
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.lock),
+                    obscureText: obscurePassword,
+
+                    decoration: InputDecoration(
+                      hintText: "Enter your password",
+
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: Color(0xFF0A3B2A),
+                      ),
+
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: const Color(0xFF0A3B2A),
+                        ),
+
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                      ),
+
+                      filled: true,
+                      fillColor: const Color(0xFFF8F8F8),
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+
+                        borderSide: const BorderSide(
+                          color: Color(0xFF0A3B2A),
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
 
-                  //  Button
+                  // 🚀 LOGIN BUTTON
                   isLoading
-                      ? const CircularProgressIndicator()
+                      ? const CircularProgressIndicator(
+                          color: Color(0xFF0A3B2A),
+                        )
                       : SizedBox(
                           width: double.infinity,
+
                           child: ElevatedButton(
                             onPressed: loginAdmin,
+
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 15),
+                              backgroundColor: const Color(0xFF0A3B2A),
+
+                              foregroundColor: Colors.white,
+
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+
+                              elevation: 0,
                             ),
+
                             child: const Text(
                               "Login",
-                              style: TextStyle(fontSize: 16),
+
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
                             ),
                           ),
                         ),

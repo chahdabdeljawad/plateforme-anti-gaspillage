@@ -3,60 +3,114 @@ import 'package:flutter/material.dart';
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
 
+  static const Color primaryColor = Color(0xFF0A3B2A);
+  static const Color backgroundColor = Color(0xFFF5F0E6);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
+
       appBar: AppBar(
-        title: const Text("Admin Dashboard"),
-        backgroundColor: Colors.green,
+        elevation: 0,
+        backgroundColor: backgroundColor,
+        centerTitle: true,
+
+        title: const Text(
+          "Admin Dashboard",
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            fontFamily: 'PlayfairDisplay',
+          ),
+        ),
+
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          )
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.logout, color: primaryColor),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 15,
-          mainAxisSpacing: 15,
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
-            buildCard(
-              context,
-              "Clients",
-              Icons.people,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ClientsPage()),
-                );
-              },
+            const SizedBox(height: 10),
+
+            const Text(
+              "Welcome Admin 👋",
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'PlayfairDisplay',
+                color: primaryColor,
+              ),
             ),
-            buildCard(
-              context,
-              "Stores",
-              Icons.store,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const StoresPage()),
-                );
-              },
+
+            const SizedBox(height: 8),
+
+            Text(
+              "Manage your application easily",
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
             ),
-            buildCard(
-              context,
-              "Products",
-              Icons.shopping_bag,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CategoriesPage()),
-                );
-              },
+
+            const SizedBox(height: 30),
+
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 18,
+                mainAxisSpacing: 18,
+                childAspectRatio: 1,
+
+                children: [
+                  buildCard(context, "Clients", Icons.people_alt_rounded, () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ClientsPage()),
+                    );
+                  }),
+
+                  buildCard(context, "Stores", Icons.storefront_rounded, () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const StoresPage()),
+                    );
+                  }),
+
+                  buildCard(
+                    context,
+                    "Products",
+                    Icons.shopping_bag_rounded,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CategoriesPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  buildCard(
+                    context,
+                    "Statistics",
+                    Icons.bar_chart_rounded,
+                    () {},
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -64,18 +118,56 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  Widget buildCard(BuildContext context, String title, IconData icon, VoidCallback onTap) {
+  Widget buildCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        elevation: 6,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius: BorderRadius.circular(28),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+
           children: [
-            Icon(icon, size: 50, color: Colors.green),
-            const SizedBox(height: 10),
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Container(
+              padding: const EdgeInsets.all(18),
+
+              decoration: BoxDecoration(
+                color: primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(icon, size: 42, color: primaryColor),
+            ),
+
+            const SizedBox(height: 18),
+
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+                fontFamily: 'PlayfairDisplay',
+              ),
+            ),
           ],
         ),
       ),
@@ -83,39 +175,131 @@ class AdminDashboard extends StatelessWidget {
   }
 }
 
-// صفحات مؤقتة
+// ================= CLIENTS PAGE =================
+
 class ClientsPage extends StatelessWidget {
   const ClientsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Clients")),
-      body: const Center(child: Text("Liste des clients 👥")),
+    return buildSimplePage(
+      title: "Clients",
+      icon: Icons.people_alt_rounded,
+      text: "Liste des clients ",
     );
   }
 }
+
+// ================= STORES PAGE =================
 
 class StoresPage extends StatelessWidget {
   const StoresPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Stores")),
-      body: const Center(child: Text("Liste des stores 🏪")),
+    return buildSimplePage(
+      title: "Stores",
+      icon: Icons.storefront_rounded,
+      text: "Liste des stores ",
     );
   }
 }
+
+// ================= CATEGORIES PAGE =================
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Categories")),
-      body: const Center(child: Text("Liste des catégories 📦")),
+    return buildSimplePage(
+      title: "Products",
+      icon: Icons.shopping_bag_rounded,
+      text: "Liste des catégories ",
     );
   }
+}
+
+// ================= REUSABLE PAGE =================
+
+Widget buildSimplePage({
+  required String title,
+  required IconData icon,
+  required String text,
+}) {
+  const Color primaryColor = Color(0xFF0A3B2A);
+  const Color backgroundColor = Color(0xFFF5F0E6);
+
+  return Scaffold(
+    backgroundColor: backgroundColor,
+
+    appBar: AppBar(
+      backgroundColor: backgroundColor,
+      elevation: 0,
+      centerTitle: true,
+
+      iconTheme: const IconThemeData(color: primaryColor),
+
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: primaryColor,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'PlayfairDisplay',
+        ),
+      ),
+    ),
+
+    body: Center(
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(30),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius: BorderRadius.circular(30),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+
+              decoration: BoxDecoration(
+                color: primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(icon, size: 55, color: primaryColor),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              text,
+              textAlign: TextAlign.center,
+
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+                fontFamily: 'PlayfairDisplay',
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

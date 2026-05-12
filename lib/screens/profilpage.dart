@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../screens/addproductpage.dart';
+import '../lang.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   final String role;
@@ -36,13 +38,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final result = await ApiService.getProfile(token);
 
-    if (result["success"]) {
+    if (result["success"] == true) {
       final user = result["data"]["user"];
 
       setState(() {
-        name = user["name"];
-        email = user["email"];
-        role = user["role"];
+        name = (user["name"] ?? "").toString();
+        email = (user["email"] ?? "").toString();
+        role = (user["role"] ?? "").toString();
         isLoading = false;
       });
     } else {
@@ -52,14 +54,201 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Provider.of<Lang>(context);
+
+    final safeRole = role.isEmpty ? widget.role : role;
+
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F0E6),
+
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+
+              // PROFILE CARD
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 55,
+                      backgroundColor: const Color(0xFF0A3B2A),
+                      backgroundImage: AssetImage(
+                        safeRole == "store"
+                            ? 'assets/how1.png'
+                            : 'assets/how4.png',
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'PlayfairDisplay',
+                        color: Color(0xFF0A3B2A),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      email,
+                      style: const TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0A3B2A),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Text(
+                        safeRole.isNotEmpty ? safeRole.toUpperCase() : "USER",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // STORE SECTION
+              if (safeRole == "store") ...[
+                _buildSectionTitle(lang.t("my_store")),
+
+                const SizedBox(height: 16),
+
+                _buildStoreCard('assets/how2.png', "Product 1"),
+                const SizedBox(height: 12),
+                _buildStoreCard('assets/how3.png', "Product 2"),
+              ],
+
+              // CLIENT SECTION
+              if (safeRole == "client") ...[
+                _buildSectionTitle(lang.t("comments")),
+
+                const SizedBox(height: 16),
+
+                _buildCommentCard(lang.t("good_person")),
+                const SizedBox(height: 12),
+                _buildCommentCard(lang.t("trusted_client")),
+              ],
+
+              const SizedBox(height: 40),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: widget.onLogout,
+                  icon: const Icon(Icons.logout),
+                  label: Text(lang.t("logout")),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A3B2A),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'PlayfairDisplay',
+          color: Color(0xFF0A3B2A),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStoreCard(String image, String title) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(image, width: 60, height: 60, fit: BoxFit.cover),
+        ),
+        title: Text(title),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 18,
+          color: Color(0xFF0A3B2A),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommentCard(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
         children: [
+
           // 👤 Avatar
           CircleAvatar(
             radius: 60,
@@ -154,6 +343,11 @@ ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text("Logout"),
           ),
+
+          const Icon(Icons.comment, color: Color(0xFF0A3B2A)),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text)),
+
         ],
       ),
     );
