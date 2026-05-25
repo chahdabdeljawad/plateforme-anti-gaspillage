@@ -7,7 +7,8 @@ const {
 } = require('../models/productModel');
 
 // ➕ ADD PRODUCT
-const addProduct = async (data, user) => {
+const addProduct = async (data, file, user) => {
+
   if (user.role !== "store") {
     throw new Error("Only store can add products");
   }
@@ -15,40 +16,56 @@ const addProduct = async (data, user) => {
   return await createProduct(
     data.name,
     data.price,
+    data.oldPrice,
     data.description,
     data.category,
-    user.id
+    file ? file.filename : null,
+    Number(user.userId)
   );
 };
 
 // 🔄 UPDATE PRODUCT
 const update = async (id, data, user) => {
-  if (user.role !== "store") throw new Error("Only store");
+
+  if (user.role !== "store") {
+    throw new Error("Only store");
+  }
 
   return await updateProduct(
-    id,
+    Number(id),
     data.name,
     data.price,
+    data.oldPrice,
     data.description,
     data.category,
-    user.id
+    data.image,
+    Number(user.userId)
   );
 };
 
 // 🗑️ DELETE PRODUCT
 const remove = async (id, user) => {
-  if (user.role !== "store") throw new Error("Only store");
 
-  return await deleteProduct(id, user.id);
+  if (user.role !== "store") {
+    throw new Error("Only store");
+  }
+
+  return await deleteProduct(
+    Number(id),
+    Number(user.userId)
+  );
 };
 
 // 📦 STORE PRODUCTS
 const myProducts = async (user) => {
+
   if (user.role !== "store") {
     throw new Error("Access denied");
   }
 
-  return await getProductsByStore(user.id);
+  return await getProductsByStore(
+    Number(user.userId)
+  );
 };
 
 // 🌍 ALL PRODUCTS

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // ← added
+import 'package:provider/provider.dart'; 
 import 'reservationpage.dart';
 import '../components/footer.dart';
-import '../lang.dart'; // ← added
+import '../lang.dart'; 
+import '../services/api_service.dart';
+import 'package:flutter/foundation.dart';
 
-class CategoryDetailsPage extends StatelessWidget {
+/*class CategoryDetailsPage extends StatelessWidget {
   final String categoryName;
 
   const CategoryDetailsPage({super.key, required this.categoryName});
@@ -12,7 +14,49 @@ class CategoryDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context); // ← added
-    final isRtl = lang.current == "ar"; // ← added
+    final isRtl = lang.current == "ar";*/ // ← added
+
+class CategoryDetailsPage extends StatefulWidget {
+  final String categoryName;
+
+  const CategoryDetailsPage({
+    super.key,
+    required this.categoryName,
+  });
+
+  @override
+  State<CategoryDetailsPage> createState() =>
+      _CategoryDetailsPageState();
+}
+
+class _CategoryDetailsPageState
+    extends State<CategoryDetailsPage> {
+
+  List<dynamic> products = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    final result = await ApiService.getProducts();
+
+    if (result["success"] == true) {
+      setState(() {
+        products = result["products"];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final categoryName = widget.categoryName;
+
+    final lang = Provider.of<Lang>(context);
+    final isRtl = lang.current == "ar";
 
     /// STORES kébili (unchanged)
     final Map<String, Map<String, dynamic>> stores = {
@@ -305,7 +349,56 @@ class CategoryDetailsPage extends StatelessWidget {
       ],
     };
 
-    final products = data[categoryName] ?? [];
+    //final products = data[categoryName] ?? [];
+final staticProducts = data[widget.categoryName] ?? [];
+
+final allProducts = [
+  ...staticProducts,
+
+  ...products
+      .where((p) => p["category"] == categoryName)
+      .map<Map<String, String>>(
+        (p) => {
+
+          // NAME
+          "name": p["name"].toString(),
+
+          // OLD PRICE
+          "price":
+              "${p["old_price"] ?? p["price"]} DT",
+
+          // NEW PRICE
+          "promo":
+              "${p["price"]} DT",
+
+          // DESCRIPTION
+          "description":
+              p["description"]?.toString() ?? "",
+
+          // IMAGE
+          "image": p["image"] != null
+              ? (kIsWeb
+                  ? "http://localhost:5000/uploads/${p["image"]}"
+                  : "http://10.0.2.2:5000/uploads/${p["image"]}")
+              : "",
+
+          // STORE NAME
+          "storeName":
+              p["store_name"]?.toString() ??
+              categoryName,
+
+          // LOCATION
+          "lat":
+              p["latitude"]?.toString() ?? "33.705",
+
+          "lng":
+              p["longitude"]?.toString() ?? "8.969",
+
+          "time": "18:00",
+        },
+      )
+      .toList(),
+];
     final store = stores[categoryName];
 
     if (store == null) {
@@ -331,7 +424,7 @@ class CategoryDetailsPage extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
         ),
-        body: products.isEmpty
+        body: allProducts.isEmpty
             ? Center(child: Text(lang.t("no_products"))) // ← translated
             : SingleChildScrollView(
                 child: Column(
@@ -340,7 +433,8 @@ class CategoryDetailsPage extends StatelessWidget {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
-                      itemCount: products.length,
+                      //itemCount: products.length,
+                      itemCount: allProducts.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 4,
@@ -349,7 +443,8 @@ class CategoryDetailsPage extends StatelessWidget {
                             childAspectRatio: 0.8,
                           ),
                       itemBuilder: (context, index) {
-                        final item = products[index];
+                        //final item = products[index];
+                       final item = allProducts[index];
                         return _buildProductCard(
                           context: context,
                           item: item,
@@ -371,22 +466,44 @@ class CategoryDetailsPage extends StatelessWidget {
     required Map<String, dynamic> store,
   }) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ReservationPage(
-              productName: item['name']!,
-              price: item['promo']!,
-              image: item['image']!,
-              lat: store['lat'],
-              lng: store['lng'],
-              storeName: store['name'],
-              time: item['time'] ?? "18:00",
-            ),
-          ),
-        );
-      },
+    onTap: () {
+
+  double lat =
+      double.tryParse(item["lat"] ?? "") ??
+      store['lat'];
+
+  double lng =
+      double.tryParse(item["lng"] ?? "") ??
+      store['lng'];
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ReservationPage(
+
+        productName: item['name']!,
+
+        price: item['promo']!,
+
+        oldPrice: item['price']!,
+
+        description: item['description'] ?? "",
+
+        image: item['image']!,
+
+        lat: lat,
+
+        lng: lng,
+
+        storeName:
+            item['storeName'] ??
+            store['name'],
+
+        time: item['time'] ?? "18:00",
+      ),
+    ),
+  );
+},
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -401,16 +518,59 @@ class CategoryDetailsPage extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Image.asset(
-                item['image'] ?? '',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (_, _, _) =>
-                    const Icon(Icons.image_not_supported),
-              ),
-            ),
+          children: [Expanded(
+   child: ClipRRect(
+    borderRadius: const BorderRadius.only(
+      topLeft: Radius.circular(0),
+      topRight: Radius.circular(0),
+    ),
+    child: item['image'] != null &&
+            item['image']!.isNotEmpty &&
+            item['image']!.startsWith("http")
+
+        ? Image.network(
+            item['image']!.trim(),
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+
+            errorBuilder: (_, __, ___) {
+              return Container(
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
+                ),
+              );
+            },
+          )
+
+        : Image.asset(
+            item['image']!.isEmpty
+                ? "images/products/default.png"
+                : item['image']!,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+
+            errorBuilder: (_, __, ___) {
+              return Container(
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
+                ),
+              );
+            },
+          ),
+  ),
+),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -429,26 +589,40 @@ class CategoryDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Row(
-                    children: [
-                      Text(
-                        item['price']!,
-                        style: const TextStyle(
-                          decoration: TextDecoration.lineThrough,
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        item['promo']!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
-                  ),
+  children: [
+    Text(
+      item['price']!,
+      style: const TextStyle(
+        decoration: TextDecoration.lineThrough,
+        fontSize: 12,
+        color: Colors.grey,
+      ),
+    ),
+
+    const SizedBox(width: 6),
+
+    Text(
+      item['promo']!,
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.green,
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 6),
+
+Text(
+  item['description'] ?? "",
+  maxLines: 2,
+  overflow: TextOverflow.ellipsis,
+  style: const TextStyle(
+    fontSize: 11,
+    color: Colors.black87,
+  ),
+),
                 ],
               ),
             ),

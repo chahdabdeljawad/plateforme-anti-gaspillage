@@ -1,10 +1,82 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
+  @override
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
   static const Color primaryColor = Color(0xFF0A3B2A);
   static const Color backgroundColor = Color(0xFFF5F0E6);
+
+  int clientsCount = 0;
+  int storesCount = 0;
+  int productsCount = 0;
+  int reservationsCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDashboardData();
+  }
+
+  Future<void> fetchDashboardData() async {
+    try {
+      final clientsResponse = await http.get(
+        Uri.parse('http://localhost:5000/api/clients'),
+      );
+
+      final storesResponse = await http.get(
+        Uri.parse('http://localhost:5000/api/stores'),
+      );
+
+      final productsResponse = await http.get(
+        Uri.parse('http://localhost:5000/api/products'),
+      );
+
+      final reservationsResponse = await http.get(
+        Uri.parse('http://localhost:5000/api/reservations'),
+      );
+
+      if (clientsResponse.statusCode == 200) {
+        final clients = jsonDecode(clientsResponse.body);
+
+        setState(() {
+          clientsCount = clients.length;
+        });
+      }
+
+      if (storesResponse.statusCode == 200) {
+        final stores = jsonDecode(storesResponse.body);
+
+        setState(() {
+          storesCount = stores.length;
+        });
+      }
+
+      if (productsResponse.statusCode == 200) {
+        final products = jsonDecode(productsResponse.body);
+
+        setState(() {
+          productsCount = products.length;
+        });
+      }
+
+      if (reservationsResponse.statusCode == 200) {
+        final reservations = jsonDecode(reservationsResponse.body);
+
+        setState(() {
+          reservationsCount = reservations.length;
+        });
+      }
+    } catch (e) {
+      print("ERROR: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +134,10 @@ class AdminDashboard extends StatelessWidget {
 
             Text(
               "Manage your application easily",
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey.shade700,
+              ),
             ),
 
             const SizedBox(height: 30),
@@ -75,29 +150,16 @@ class AdminDashboard extends StatelessWidget {
                 childAspectRatio: 1,
 
                 children: [
-                  buildCard(context, "Clients", Icons.people_alt_rounded, () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ClientsPage()),
-                    );
-                  }),
-
-                  buildCard(context, "Stores", Icons.storefront_rounded, () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const StoresPage()),
-                    );
-                  }),
-
                   buildCard(
                     context,
-                    "Products",
-                    Icons.shopping_bag_rounded,
+                    "Clients",
+                    Icons.people_alt_rounded,
+                    clientsCount.toString(),
                     () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const CategoriesPage(),
+                          builder: (context) => ClientsPage(),
                         ),
                       );
                     },
@@ -105,9 +167,47 @@ class AdminDashboard extends StatelessWidget {
 
                   buildCard(
                     context,
-                    "Statistics",
-                    Icons.bar_chart_rounded,
-                    () {},
+                    "Stores",
+                    Icons.storefront_rounded,
+                    storesCount.toString(),
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StoresPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  buildCard(
+                    context,
+                    "Products",
+                    Icons.shopping_bag_rounded,
+                    productsCount.toString(),
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductsPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  buildCard(
+                    context,
+                    "Reservations",
+                    Icons.bookmark_rounded,
+                    reservationsCount.toString(),
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReservationsPage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -122,6 +222,7 @@ class AdminDashboard extends StatelessWidget {
     BuildContext context,
     String title,
     IconData icon,
+    String count,
     VoidCallback onTap,
   ) {
     return GestureDetector(
@@ -154,7 +255,11 @@ class AdminDashboard extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
 
-              child: Icon(icon, size: 42, color: primaryColor),
+              child: Icon(
+                icon,
+                size: 42,
+                color: primaryColor,
+              ),
             ),
 
             const SizedBox(height: 18),
@@ -168,6 +273,17 @@ class AdminDashboard extends StatelessWidget {
                 fontFamily: 'PlayfairDisplay',
               ),
             ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              count,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
           ],
         ),
       ),
@@ -178,14 +294,14 @@ class AdminDashboard extends StatelessWidget {
 // ================= CLIENTS PAGE =================
 
 class ClientsPage extends StatelessWidget {
-  const ClientsPage({super.key});
+  ClientsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return buildSimplePage(
       title: "Clients",
       icon: Icons.people_alt_rounded,
-      text: "Liste des clients ",
+      text: "Liste des clients",
     );
   }
 }
@@ -193,29 +309,44 @@ class ClientsPage extends StatelessWidget {
 // ================= STORES PAGE =================
 
 class StoresPage extends StatelessWidget {
-  const StoresPage({super.key});
+  StoresPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return buildSimplePage(
       title: "Stores",
       icon: Icons.storefront_rounded,
-      text: "Liste des stores ",
+      text: "Liste des stores",
     );
   }
 }
 
-// ================= CATEGORIES PAGE =================
+// ================= PRODUCTS PAGE =================
 
-class CategoriesPage extends StatelessWidget {
-  const CategoriesPage({super.key});
+class ProductsPage extends StatelessWidget {
+  ProductsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return buildSimplePage(
       title: "Products",
       icon: Icons.shopping_bag_rounded,
-      text: "Liste des catégories ",
+      text: "Liste des produits",
+    );
+  }
+}
+
+// ================= RESERVATIONS PAGE =================
+
+class ReservationsPage extends StatelessWidget {
+  ReservationsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return buildSimplePage(
+      title: "Reservations",
+      icon: Icons.bookmark_rounded,
+      text: "Liste des réservations",
     );
   }
 }
@@ -281,7 +412,11 @@ Widget buildSimplePage({
                 shape: BoxShape.circle,
               ),
 
-              child: Icon(icon, size: 55, color: primaryColor),
+              child: Icon(
+                icon,
+                size: 55,
+                color: primaryColor,
+              ),
             ),
 
             const SizedBox(height: 25),
