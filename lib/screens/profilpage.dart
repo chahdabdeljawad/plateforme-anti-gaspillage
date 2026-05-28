@@ -422,64 +422,64 @@ class _ProfilePageState
                   );
 
                 }).toList(),
-              ],
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // ➕ ADD PRODUCT
-              ElevatedButton.icon(
+                // ➕ ADD PRODUCT
+                ElevatedButton.icon(
 
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFF0A3B2A),
-                  foregroundColor:
-                      Colors.white,
-                  minimumSize:
-                      const Size(
-                    double.infinity,
-                    55,
-                  ),
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(15),
-                  ),
-                ),
-
-                onPressed: () async {
-
-                  await Navigator.push(
-
-                    context,
-
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          const AddProductPage(),
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color(0xFF0A3B2A),
+                    foregroundColor:
+                        Colors.white,
+                    minimumSize:
+                        const Size(
+                      double.infinity,
+                      55,
                     ),
-                  );
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15),
+                    ),
+                  ),
 
-                  await fetchProducts();
+                  onPressed: () async {
 
-                  setState(() {});
-                },
+                    await Navigator.push(
 
-                icon:
-                    const Icon(Icons.add_business),
+                      context,
 
-                label: const Text(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const AddProductPage(),
+                      ),
+                    );
 
-                  "Add Product",
+                    await fetchProducts();
 
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight:
-                        FontWeight.bold,
+                    setState(() {});
+                  },
+
+                  icon:
+                      const Icon(Icons.add_business),
+
+                  label: const Text(
+
+                    "Add Product",
+
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
+              ],
 
               // 🚪 LOGOUT
               SizedBox(
