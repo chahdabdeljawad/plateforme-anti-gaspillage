@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'categorydetailspage.dart';
 import '../lang.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -510,9 +511,21 @@ class _PaymentPageState extends State<PaymentPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              Navigator.pop(context);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => CategoryDetailsPage(
+                    categoryName:
+                        widget.storeName, // or real category if you have it
+                    onBack: () {
+                      Navigator.pop(context);
+                    },
+                    onReserve: (product, data) {
+                      // keep same callback if needed
+                    },
+                  ),
+                ),
+                (route) => false,
+              );
             },
             child: Text(lang.t("ok"), style: TextStyle(color: colors.primary)),
           ),

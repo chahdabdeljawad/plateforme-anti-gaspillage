@@ -8,14 +8,13 @@ import 'package:flutter/foundation.dart';
 class CategoryDetailsPage extends StatelessWidget {
   final String categoryName;
   final VoidCallback onBack;
-  final Function(Map<String, dynamic>, Map<String, dynamic>)
-  onReserve; // ✅ Added
+  final Function(Map<String, dynamic>, Map<String, dynamic>) onReserve;
 
   const CategoryDetailsPage({
     super.key,
     required this.categoryName,
     required this.onBack,
-    required this.onReserve, // ✅ Added
+    required this.onReserve,
   });
 
   @override
@@ -51,7 +50,7 @@ class CategoryDetailsPage extends StatelessWidget {
       },
     };
 
-    // ---------- PRODUCTS (ALL KEPT) ----------
+    // ---------- PRODUCTS (STATIC) ----------
     final Map<String, List<Map<String, String>>> data = {
       'Carrefour': [
         {
@@ -315,52 +314,45 @@ class CategoryDetailsPage extends StatelessWidget {
       ],
     };
 
-    //final products = data[categoryName] ?? [];
     final staticProducts = data[categoryName] ?? [];
-    final dynamicProducts = [];
+
+    // ✅ SAFE provider access – works with any provider version
+    List<Map<String, dynamic>>? dynamicProducts;
+    try {
+      dynamicProducts = Provider.of<List<Map<String, dynamic>>>(
+        context,
+        listen: false,
+      );
+    } catch (e) {
+      dynamicProducts = null;
+    }
+    final safeDynamicProducts = dynamicProducts ?? [];
 
     final allProducts = [
       ...staticProducts,
-      ...dynamicProducts,
-
-      ...(Provider.of<List<Map<String, dynamic>>>(context))
+      ...safeDynamicProducts
           .where((p) => p["category"] == categoryName)
           .map<Map<String, String>>(
             (p) => {
-              // NAME
               "name": p["name"].toString(),
-
-              // OLD PRICE
               "price": "${p["old_price"] ?? p["price"]} DT",
-
-              // NEW PRICE
               "promo": "${p["price"]} DT",
-
-              // DESCRIPTION
               "description": p["description"]?.toString() ?? "",
-
-              // IMAGE
               "image": p["image"] != null
                   ? (kIsWeb
                         ? "http://localhost:5000/uploads/${p["image"]}"
                         : "http://10.0.2.2:5000/uploads/${p["image"]}")
                   : "",
-
-              // STORE NAME
               "storeName": p["store_name"]?.toString() ?? categoryName,
-
-              // LOCATION
               "lat": p["latitude"]?.toString() ?? "33.705",
-
               "lng": p["longitude"]?.toString() ?? "8.969",
-
               "time": "18:00",
             },
           )
           .toList(),
     ];
-    final store = stores[categoryName];
 
+    final store = stores[categoryName];
     if (store == null) {
       return Directionality(
         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -428,8 +420,9 @@ class CategoryDetailsPage extends StatelessWidget {
   }) {
     return GestureDetector(
       onTap: () {
-        // ✅ Use the callback from the parent widget instead of Navigator.push
-        onReserve(item, store);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          onReserve(item, store);
+        });
       },
       child: Container(
         decoration: BoxDecoration(
@@ -460,7 +453,6 @@ class CategoryDetailsPage extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: double.infinity,
                         height: double.infinity,
-
                         errorBuilder: (_, __, ___) {
                           return Container(
                             color: Colors.grey[200],
@@ -481,7 +473,6 @@ class CategoryDetailsPage extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: double.infinity,
                         height: double.infinity,
-
                         errorBuilder: (_, __, ___) {
                           return Container(
                             color: Colors.grey[200],
