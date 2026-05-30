@@ -8,33 +8,22 @@ import 'package:flutter/foundation.dart';
 import '../services/api_service.dart';
 
 class AddProductPage extends StatefulWidget {
-
   final Map? product;
 
-  const AddProductPage({
-    super.key,
-    this.product,
-  });
+  const AddProductPage({super.key, this.product});
 
   @override
-  State<AddProductPage> createState() =>
-      _AddProductPageState();
+  State<AddProductPage> createState() => _AddProductPageState();
 }
 
-class _AddProductPageState
-    extends State<AddProductPage> {
+class _AddProductPageState extends State<AddProductPage> {
+  final nameController = TextEditingController();
 
-  final nameController =
-      TextEditingController();
+  final priceController = TextEditingController();
 
-  final priceController =
-      TextEditingController();
+  final oldPriceController = TextEditingController();
 
-  final oldPriceController =
-      TextEditingController();
-
-  final descController =
-      TextEditingController();
+  final descController = TextEditingController();
 
   File? selectedImage;
 
@@ -45,7 +34,6 @@ class _AddProductPageState
   bool isLoading = false;
 
   final List<String> categories = [
-
     "Carrefour",
     "MG",
     "Monoprix",
@@ -61,77 +49,48 @@ class _AddProductPageState
 
   String? selectedCategory;
 
-  bool get isEdit =>
-      widget.product != null;
+  bool get isEdit => widget.product != null;
 
   @override
   void initState() {
-
     super.initState();
 
     // ✅ EDIT MODE
     if (isEdit) {
+      final product = widget.product!;
 
-      final product =
-          widget.product!;
+      nameController.text = product["name"] ?? "";
 
-      nameController.text =
-          product["name"] ?? "";
+      priceController.text = product["price"].toString();
 
-      priceController.text =
-          product["price"]
-              .toString();
+      oldPriceController.text = product["old_price"].toString();
 
-      oldPriceController.text =
-          product["old_price"]
-              .toString();
-
-      descController.text =
-          product["description"] ?? "";
+      descController.text = product["description"] ?? "";
 
       // ✅ FIX CATEGORY ERROR
-      final category =
-          product["category"]
-                  ?.toString() ??
-              "";
+      final category = product["category"]?.toString() ?? "";
 
-      if (categories.contains(
-          category)) {
-
-        selectedCategory =
-            category;
-
+      if (categories.contains(category)) {
+        selectedCategory = category;
       } else {
-
-        selectedCategory =
-            null;
+        selectedCategory = null;
       }
     }
   }
 
   // 📸 PICK IMAGE
   Future<void> pickImage() async {
-
     final picker = ImagePicker();
 
-    final picked =
-        await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final picked = await picker.pickImage(source: ImageSource.gallery);
 
     if (picked != null) {
-
       imageName = picked.name;
 
       if (kIsWeb) {
-
-        webImage =
-            await picked.readAsBytes();
-
+        webImage = await picked.readAsBytes();
       } else {
-
-        selectedImage =
-            File(picked.path);
+        selectedImage = File(picked.path);
       }
 
       setState(() {});
@@ -140,32 +99,20 @@ class _AddProductPageState
 
   // ➕ ADD / ✏ UPDATE
   Future<void> saveProduct() async {
+    final prefs = await SharedPreferences.getInstance();
 
-    final prefs =
-        await SharedPreferences
-            .getInstance();
-
-    final token =
-        prefs.getString("token");
+    final token = prefs.getString("token");
 
     if (token == null) return;
 
     if (nameController.text.isEmpty ||
         priceController.text.isEmpty ||
-        oldPriceController
-            .text.isEmpty ||
+        oldPriceController.text.isEmpty ||
         descController.text.isEmpty ||
-        selectedCategory ==
-            null) {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
-        const SnackBar(
-          content:
-              Text("Fill all fields"),
-        ),
-      );
+        selectedCategory == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Fill all fields")));
 
       return;
     }
@@ -178,11 +125,7 @@ class _AddProductPageState
 
     // ✅ UPDATE
     if (isEdit) {
-
-      result =
-          await ApiService
-              .updateProduct(
-
+      result = await ApiService.updateProduct(
         token,
 
         widget.product!["id"],
@@ -197,27 +140,13 @@ class _AddProductPageState
 
         selectedCategory!,
       );
-
     }
-
     // ✅ ADD
     else {
-
-      if ((kIsWeb &&
-              webImage == null) ||
-          (!kIsWeb &&
-              selectedImage ==
-                  null)) {
-
+      if ((kIsWeb && webImage == null) || (!kIsWeb && selectedImage == null)) {
         ScaffoldMessenger.of(
-                context)
-            .showSnackBar(
-
-          const SnackBar(
-            content:
-                Text("Choose image"),
-          ),
-        );
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Choose image")));
 
         setState(() {
           isLoading = false;
@@ -226,10 +155,7 @@ class _AddProductPageState
         return;
       }
 
-      result =
-          await ApiService
-              .addProduct(
-
+      result = await ApiService.addProduct(
         token,
 
         nameController.text,
@@ -242,9 +168,7 @@ class _AddProductPageState
 
         selectedCategory!,
 
-        kIsWeb
-            ? webImage!
-            : selectedImage!,
+        kIsWeb ? webImage! : selectedImage!,
 
         imageName!,
       );
@@ -255,44 +179,21 @@ class _AddProductPageState
     });
 
     // ✅ SUCCESS
-    if (result["success"] ==
-        true) {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
+    if (result["success"] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-
-            isEdit
-                ? "Product updated ✅"
-                : "Product added ✅",
-          ),
+          content: Text(isEdit ? "Product updated ✅" : "Product added ✅"),
         ),
       );
 
       // ✅ AUTO REFRESH
-      Navigator.pop(
-        context,
-        true,
-      );
-
+      Navigator.pop(context, true);
     }
-
     // ❌ ERROR
     else {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
-        SnackBar(
-          content: Text(
-
-            result["message"] ??
-                "Error",
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result["message"] ?? "Error")));
     }
   }
 
@@ -303,7 +204,6 @@ class _AddProductPageState
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-
         elevation: 0,
 
         centerTitle: true,
@@ -319,7 +219,6 @@ class _AddProductPageState
         ),
       ),
       body: SafeArea(
-
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Container(
@@ -328,15 +227,10 @@ class _AddProductPageState
               color: colors.surface,
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
-
                 BoxShadow(
                   color: Colors.black.withOpacity(0.06),
                   blurRadius: 10,
-                  offset:
-                      const Offset(
-                    0,
-                    4,
-                  ),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -378,8 +272,7 @@ class _AddProductPageState
                 const SizedBox(height: 20),
 
                 buildTextField(
-                  controller:
-                      priceController,
+                  controller: priceController,
                   label: "Price",
                   icon: Icons.attach_money_rounded,
                   colors: colors,
@@ -387,24 +280,18 @@ class _AddProductPageState
                 const SizedBox(height: 20),
 
                 buildTextField(
-                  controller:
-                      oldPriceController,
-                  label:
-                      "Old Price",
-                  icon: Icons
-                      .local_offer,
+                  controller: oldPriceController,
+                  label: "Old Price",
+                  icon: Icons.local_offer,
+                  colors: colors,
                 ),
 
-                const SizedBox(
-                    height: 20),
+                const SizedBox(height: 20),
 
                 buildTextField(
-                  controller:
-                      descController,
-                  label:
-                      "Description",
-                  icon: Icons
-                      .description,
+                  controller: descController,
+                  label: "Description",
+                  icon: Icons.description,
                   maxLines: 4,
                   colors: colors,
                 ),
@@ -445,9 +332,7 @@ class _AddProductPageState
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-
-                      selectedCategory =
-                          value;
+                      selectedCategory = value;
                     });
                   },
                 ),
@@ -495,9 +380,8 @@ class _AddProductPageState
                             color: colors.primary,
                           ),
                         )
-
                       : ElevatedButton(
-                          onPressed: addProduct,
+                          onPressed: saveProduct,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colors.primary,
                             foregroundColor: colors.onPrimary,
@@ -525,9 +409,7 @@ class _AddProductPageState
 
   // 📝 TEXTFIELD
   Widget buildTextField({
-
-    required TextEditingController
-        controller,
+    required TextEditingController controller,
 
     required String label,
 
@@ -535,15 +417,12 @@ class _AddProductPageState
     required ColorScheme colors,
     int maxLines = 1,
   }) {
-
     return TextField(
-
       controller: controller,
 
       maxLines: maxLines,
       style: TextStyle(color: colors.onSurface),
       decoration: InputDecoration(
-
         labelText: label,
         labelStyle: TextStyle(color: colors.onSurface.withOpacity(0.6)),
         prefixIcon: Icon(icon, color: colors.primary),

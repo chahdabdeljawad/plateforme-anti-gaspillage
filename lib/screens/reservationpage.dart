@@ -34,13 +34,10 @@ class ReservationPage extends StatefulWidget {
   });
 
   @override
-  State<ReservationPage> createState() =>
-      _ReservationPageState();
+  State<ReservationPage> createState() => _ReservationPageState();
 }
 
-class _ReservationPageState
-    extends State<ReservationPage> {
-
+class _ReservationPageState extends State<ReservationPage> {
   String deliveryType = "sur_place";
 
   late TimeOfDay selectedTime;
@@ -57,14 +54,12 @@ class _ReservationPageState
         minute: int.parse(parts[1]),
       );
     } catch (e) {
-      selectedTime =
-          const TimeOfDay(hour: 18, minute: 0);
+      selectedTime = const TimeOfDay(hour: 18, minute: 0);
     }
   }
 
   void pickTime() async {
-    TimeOfDay? time =
-        await showTimePicker(
+    TimeOfDay? time = await showTimePicker(
       context: context,
       initialTime: selectedTime,
     );
@@ -310,6 +305,8 @@ class _ReservationPageState
                         widget.onConfirm({
                           'productName': widget.productName,
                           'price': widget.price,
+                          'oldPrice': widget.oldPrice,
+                          'description': widget.description,
                           'storeName': widget.storeName,
                           'pickupTime': selectedTime.format(context),
                           'deliveryType': deliveryType,
@@ -338,22 +335,13 @@ class _ReservationPageState
 
   Widget _buildReview(String text, int stars, ColorScheme colors) {
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
 
       child: Card(
         color: colors.surface,
         elevation: 0,
 
-        shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(
-            20,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
         child: ListTile(
           leading: CircleAvatar(
@@ -364,11 +352,7 @@ class _ReservationPageState
           subtitle: Row(
             children: List.generate(
               stars,
-              (index) => const Icon(
-                Icons.star,
-                color: Colors.amber,
-                size: 16,
-              ),
+              (index) => const Icon(Icons.star, color: Colors.amber, size: 16),
             ),
           ),
         ),

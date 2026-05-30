@@ -6,24 +6,16 @@ import '../screens/addproductpage.dart';
 import '../lang.dart';
 
 class ProfilePage extends StatefulWidget {
-
   final String role;
   final VoidCallback onLogout;
 
-  const ProfilePage({
-    super.key,
-    required this.role,
-    required this.onLogout,
-  });
+  const ProfilePage({super.key, required this.role, required this.onLogout});
 
   @override
-  State<ProfilePage> createState() =>
-      _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState
-    extends State<ProfilePage> {
-
+class _ProfilePageState extends State<ProfilePage> {
   String name = "";
   String email = "";
   String role = "";
@@ -48,15 +40,11 @@ class _ProfilePageState
 
   // 👤 PROFILE
   Future<void> loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
 
-    final prefs =
-        await SharedPreferences.getInstance();
-
-    final token =
-        prefs.getString("token");
+    final token = prefs.getString("token");
 
     if (token == null) {
-
       setState(() {
         isLoading = false;
       });
@@ -64,17 +52,14 @@ class _ProfilePageState
       return;
     }
 
-    final result =
-        await ApiService.getProfile(token);
+    final result = await ApiService.getProfile(token);
 
     print("PROFILE RESULT = $result");
 
     if (result["success"] == true) {
-
       final user = result["user"];
 
       if (user == null) {
-
         setState(() {
           isLoading = false;
         });
@@ -83,36 +68,25 @@ class _ProfilePageState
       }
 
       setState(() {
+        name = user["name"]?.toString() ?? "";
 
-        name =
-            user["name"]?.toString() ?? "";
+        email = user["email"]?.toString() ?? "";
 
-        email =
-            user["email"]?.toString() ?? "";
+        role = user["role"]?.toString() ?? "";
 
-        role =
-            user["role"]?.toString() ?? "";
+        num = user["num"]?.toString() ?? "";
 
-        num =
-            user["num"]?.toString() ?? "";
+        categorie = user["categorie"]?.toString() ?? "";
 
-        categorie =
-            user["categorie"]?.toString() ?? "";
+        localisation = user["localisation"]?.toString() ?? "";
 
-        localisation =
-            user["localisation"]?.toString() ?? "";
+        latitude = user["latitude"]?.toString() ?? "";
 
-        latitude =
-            user["latitude"]?.toString() ?? "";
-
-        longitude =
-            user["longitude"]?.toString() ?? "";
+        longitude = user["longitude"]?.toString() ?? "";
 
         isLoading = false;
       });
-
     } else {
-
       setState(() {
         isLoading = false;
       });
@@ -121,34 +95,24 @@ class _ProfilePageState
 
   // 📦 GET PRODUCTS
   Future<void> fetchProducts() async {
+    final prefs = await SharedPreferences.getInstance();
 
-    final prefs =
-        await SharedPreferences.getInstance();
-
-    final token =
-        prefs.getString("token");
+    final token = prefs.getString("token");
 
     if (token == null) return;
 
-    final result =
-        await ApiService.getMyProducts(token);
+    final result = await ApiService.getMyProducts(token);
 
     if (result["success"] == true) {
-
       setState(() {
-
-        products =
-            result["products"].map((p) {
-
+        products = result["products"].map((p) {
           return {
-
             ...p,
 
             "image": p["image"] != null
                 ? "http://localhost:5000/uploads/${p["image"]}"
                 : "",
           };
-
         }).toList();
       });
     }
@@ -156,44 +120,26 @@ class _ProfilePageState
 
   // 🗑 DELETE PRODUCT
   Future<void> deleteProduct(int id) async {
+    final prefs = await SharedPreferences.getInstance();
 
-    final prefs =
-        await SharedPreferences.getInstance();
-
-    final token =
-        prefs.getString("token");
+    final token = prefs.getString("token");
 
     if (token == null) return;
 
-    final success =
-        await ApiService.deleteProduct(
-          token,
-          id,
-        );
+    final success = await ApiService.deleteProduct(token, id);
 
     if (success) {
-
       await fetchProducts();
 
       setState(() {});
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
-        const SnackBar(
-          content: Text("Product deleted"),
-        ),
-      );
-
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Product deleted")));
     } else {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
-        const SnackBar(
-          content: Text("Delete failed"),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Delete failed")));
     }
   }
 
@@ -202,53 +148,33 @@ class _ProfilePageState
     final lang = Provider.of<Lang>(context);
     final colors = Theme.of(context).colorScheme;
 
-    final lang =
-        Provider.of<Lang>(context);
-
-    final safeRole =
-        role.isEmpty
-            ? widget.role
-            : role;
+    final safeRole = role.isEmpty ? widget.role : role;
 
     if (isLoading) {
-
-      return const Scaffold(
-        body: Center(
-          child:
-              CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       backgroundColor: colors.surface,
 
       body: SafeArea(
-
         child: SingleChildScrollView(
-
-          padding:
-              const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
 
           child: Column(
-
             children: [
-
               const SizedBox(height: 20),
 
               // 👤 PROFILE CARD
               Container(
-
                 width: double.infinity,
 
-                padding:
-                    const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
 
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
-
                     BoxShadow(
                       color: Colors.black.withOpacity(0.08),
                       blurRadius: 12,
@@ -257,15 +183,11 @@ class _ProfilePageState
                   ],
                 ),
                 child: Column(
-
                   children: [
-
                     CircleAvatar(
-
                       radius: 55,
                       backgroundColor: colors.primary,
                       backgroundImage: AssetImage(
-
                         safeRole == "store"
                             ? 'assets/how1.png'
                             : 'assets/how4.png',
@@ -275,7 +197,6 @@ class _ProfilePageState
                     const SizedBox(height: 20),
 
                     Text(
-
                       name,
                       style: TextStyle(
                         fontSize: 24,
@@ -288,7 +209,6 @@ class _ProfilePageState
                     const SizedBox(height: 10),
 
                     Text(
-
                       email,
                       style: TextStyle(
                         fontSize: 15,
@@ -299,7 +219,6 @@ class _ProfilePageState
                     const SizedBox(height: 15),
 
                     if (safeRole == "store") ...[
-
                       Text(
                         "📞 Num : $num",
                         style: const TextStyle(
@@ -353,9 +272,7 @@ class _ProfilePageState
                     const SizedBox(height: 16),
 
                     Container(
-
-                      padding:
-                          const EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 18,
                         vertical: 8,
                       ),
@@ -426,7 +343,6 @@ class _ProfilePageState
               const SizedBox(height: 40),
 
               SizedBox(
-
                 width: double.infinity,
 
                 child: ElevatedButton.icon(
@@ -454,12 +370,9 @@ class _ProfilePageState
 
   Widget _buildSectionTitle(String title, ColorScheme colors) {
     return Align(
-
-      alignment:
-          Alignment.centerLeft,
+      alignment: Alignment.centerLeft,
 
       child: Text(
-
         title,
         style: TextStyle(
           fontSize: 22,
@@ -473,12 +386,10 @@ class _ProfilePageState
 
   Widget _buildStoreCard(String image, String title, ColorScheme colors) {
     return Container(
-
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
@@ -488,31 +399,18 @@ class _ProfilePageState
       ),
 
       child: ListTile(
-
-        contentPadding:
-            const EdgeInsets.all(12),
+        contentPadding: const EdgeInsets.all(12),
 
         leading: ClipRRect(
-
-          borderRadius:
-              BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12),
 
           child: image.isNotEmpty
-
-              ? Image.network(
-                  imageUrl,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                )
-
+              ? Image.network(image, width: 60, height: 60, fit: BoxFit.cover)
               : Container(
                   width: 60,
                   height: 60,
                   color: Colors.grey[300],
-                  child: const Icon(
-                    Icons.image_not_supported,
-                  ),
+                  child: const Icon(Icons.image_not_supported),
                 ),
         ),
         title: Text(title, style: TextStyle(color: colors.onSurface)),

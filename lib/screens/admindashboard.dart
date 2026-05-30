@@ -1,11 +1,16 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import 'categoriespage.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
+  @override
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -78,55 +83,32 @@ class AdminDashboard extends StatefulWidget {
                     context,
                     "Clients",
                     Icons.people_alt_rounded,
+                    "0", // 👈 ADD THIS
                     () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ClientsPage()),
+                      MaterialPageRoute(builder: (_) => ClientsPage()),
                     ),
                   ),
                   buildCard(
                     context,
                     "Stores",
                     Icons.storefront_rounded,
+                    "0", // 👈 ADD THIS
                     () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const StoresPage()),
+                      MaterialPageRoute(builder: (_) => StoresPage()),
                     ),
-                  ),
-                  buildCard(
-                    context,
-                    "Products",
-                    Icons.shopping_bag_rounded,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const CategoriesPage()),
-                    ),
-                  ),
-                  buildCard(
-                    context,
-                    "Stores",
-                    Icons.storefront_rounded,
-                    storesCount.toString(),
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => StoresPage(),
-                        ),
-                      );
-                    },
                   ),
 
                   buildCard(
                     context,
                     "Products",
                     Icons.shopping_bag_rounded,
-                    productsCount.toString(),
+                    "0", // 👈 ADD THIS
                     () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductsPage(),
-                        ),
+                        MaterialPageRoute(builder: (context) => ProductsPage()),
                       );
                     },
                   ),
@@ -135,12 +117,12 @@ class AdminDashboard extends StatefulWidget {
                     context,
                     "Reservations",
                     Icons.bookmark_rounded,
-                    reservationsCount.toString(),
+                    "0", // 👈 ADD THIS
                     () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ReservationsPage(),
+                          builder: (context) => CategoriesPage(),
                         ),
                       );
                     },

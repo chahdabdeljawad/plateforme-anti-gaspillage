@@ -8,6 +8,7 @@ import '../components/footer.dart';
 import '../lang.dart';
 import '../providers/location_provider.dart';
 import 'location_picker_page.dart';
+import 'package:flutter/foundation.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -31,6 +32,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
       _selectedProduct = {
         'productName': product['name'],
         'price': product['promo'],
+        'oldPrice': product['price'] ?? '',
+        'description': product['description'] ?? '',
         'image': product['image'],
         'lat': store['lat'],
         'lng': store['lng'],
@@ -210,6 +213,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     ? PaymentPage(
                         productName: _paymentDetails!['productName'],
                         price: _paymentDetails!['price'],
+                        oldPrice: _paymentDetails!['oldPrice'] ?? '',
+                        description: _paymentDetails!['description'] ?? '',
                         storeName: _paymentDetails!['storeName'],
                         pickupTime: _paymentDetails!['pickupTime'],
                         deliveryType: _paymentDetails!['deliveryType'],
@@ -219,6 +224,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     ? ReservationPage(
                         productName: _selectedProduct!['productName'],
                         price: _selectedProduct!['price'],
+                        oldPrice: _selectedProduct!['oldPrice'],
+                        description: _selectedProduct!['description'],
                         image: _selectedProduct!['image'],
                         lat: _selectedProduct!['lat'],
                         lng: _selectedProduct!['lng'],

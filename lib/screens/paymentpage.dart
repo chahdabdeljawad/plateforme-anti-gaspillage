@@ -9,6 +9,8 @@ class PaymentPage extends StatefulWidget {
   final String pickupTime;
   final String deliveryType;
   final VoidCallback onBack;
+  final String oldPrice;
+  final String description;
 
   const PaymentPage({
     super.key,
@@ -18,6 +20,8 @@ class PaymentPage extends StatefulWidget {
     required this.pickupTime,
     required this.deliveryType,
     required this.onBack,
+    required this.oldPrice,
+    required this.description,
   });
 
   @override

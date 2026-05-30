@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../components/footer.dart';
 import '../lang.dart';
+import 'package:flutter/foundation.dart';
 
-/*class CategoryDetailsPage extends StatelessWidget {
+class CategoryDetailsPage extends StatelessWidget {
   final String categoryName;
   final VoidCallback onBack;
   final Function(Map<String, dynamic>, Map<String, dynamic>)
@@ -315,55 +316,49 @@ import '../lang.dart';
     };
 
     //final products = data[categoryName] ?? [];
-final staticProducts = data[widget.categoryName] ?? [];
+    final staticProducts = data[categoryName] ?? [];
+    final dynamicProducts = [];
 
-final allProducts = [
-  ...staticProducts,
+    final allProducts = [
+      ...staticProducts,
+      ...dynamicProducts,
 
-  ...products
-      .where((p) => p["category"] == categoryName)
-      .map<Map<String, String>>(
-        (p) => {
+      ...(Provider.of<List<Map<String, dynamic>>>(context))
+          .where((p) => p["category"] == categoryName)
+          .map<Map<String, String>>(
+            (p) => {
+              // NAME
+              "name": p["name"].toString(),
 
-          // NAME
-          "name": p["name"].toString(),
+              // OLD PRICE
+              "price": "${p["old_price"] ?? p["price"]} DT",
 
-          // OLD PRICE
-          "price":
-              "${p["old_price"] ?? p["price"]} DT",
+              // NEW PRICE
+              "promo": "${p["price"]} DT",
 
-          // NEW PRICE
-          "promo":
-              "${p["price"]} DT",
+              // DESCRIPTION
+              "description": p["description"]?.toString() ?? "",
 
-          // DESCRIPTION
-          "description":
-              p["description"]?.toString() ?? "",
+              // IMAGE
+              "image": p["image"] != null
+                  ? (kIsWeb
+                        ? "http://localhost:5000/uploads/${p["image"]}"
+                        : "http://10.0.2.2:5000/uploads/${p["image"]}")
+                  : "",
 
-          // IMAGE
-          "image": p["image"] != null
-              ? (kIsWeb
-                  ? "http://localhost:5000/uploads/${p["image"]}"
-                  : "http://10.0.2.2:5000/uploads/${p["image"]}")
-              : "",
+              // STORE NAME
+              "storeName": p["store_name"]?.toString() ?? categoryName,
 
-          // STORE NAME
-          "storeName":
-              p["store_name"]?.toString() ??
-              categoryName,
+              // LOCATION
+              "lat": p["latitude"]?.toString() ?? "33.705",
 
-          // LOCATION
-          "lat":
-              p["latitude"]?.toString() ?? "33.705",
+              "lng": p["longitude"]?.toString() ?? "8.969",
 
-          "lng":
-              p["longitude"]?.toString() ?? "8.969",
-
-          "time": "18:00",
-        },
-      )
-      .toList(),
-];
+              "time": "18:00",
+            },
+          )
+          .toList(),
+    ];
     final store = stores[categoryName];
 
     if (store == null) {
@@ -383,7 +378,7 @@ final allProducts = [
       child: Column(
         children: [
           Expanded(
-            child: products.isEmpty
+            child: allProducts.isEmpty
                 ? Center(
                     child: Text(
                       lang.t("no_products"),
@@ -397,7 +392,7 @@ final allProducts = [
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.all(16),
-                          itemCount: products.length,
+                          itemCount: allProducts.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
@@ -406,7 +401,7 @@ final allProducts = [
                                 childAspectRatio: 0.8,
                               ),
                           itemBuilder: (context, index) {
-                            final item = products[index];
+                            final item = allProducts[index];
                             return _buildProductCard(
                               context: context,
                               item: item,
@@ -449,59 +444,59 @@ final allProducts = [
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Expanded(
-   child: ClipRRect(
-    borderRadius: const BorderRadius.only(
-      topLeft: Radius.circular(0),
-      topRight: Radius.circular(0),
-    ),
-    child: item['image'] != null &&
-            item['image']!.isNotEmpty &&
-            item['image']!.startsWith("http")
-
-        ? Image.network(
-            item['image']!.trim(),
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-
-            errorBuilder: (_, __, ___) {
-              return Container(
-                color: Colors.grey[200],
-                child: const Center(
-                  child: Icon(
-                    Icons.broken_image,
-                    size: 40,
-                    color: Colors.grey,
-                  ),
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(0),
+                  topRight: Radius.circular(0),
                 ),
-              );
-            },
-          )
+                child:
+                    item['image'] != null &&
+                        item['image']!.isNotEmpty &&
+                        item['image']!.startsWith("http")
+                    ? Image.network(
+                        item['image']!.trim(),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
 
-        : Image.asset(
-            item['image']!.isEmpty
-                ? "images/products/default.png"
-                : item['image']!,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
+                        errorBuilder: (_, __, ___) {
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        item['image']!.isEmpty
+                            ? "images/products/default.png"
+                            : item['image']!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
 
-            errorBuilder: (_, __, ___) {
-              return Container(
-                color: Colors.grey[200],
-                child: const Center(
-                  child: Icon(
-                    Icons.image_not_supported,
-                    size: 40,
-                    color: Colors.grey,
-                  ),
-                ),
-              );
-            },
-          ),
-  ),
-),
+                        errorBuilder: (_, __, ___) {
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
