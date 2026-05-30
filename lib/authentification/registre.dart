@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
-
 import '../services/api_service.dart';
 import '../lang.dart';
 import '../screens/location_picker_page.dart';
+import '../components/footer.dart'; // ✅ Add footer import
 
 class RegistrePage extends StatefulWidget {
-  const RegistrePage({super.key});
+  final VoidCallback onBack; // ✅ Add this
+
+  const RegistrePage({super.key, required this.onBack});
 
   @override
   State<RegistrePage> createState() => _RegistrePageState();
@@ -46,7 +48,16 @@ class _RegistrePageState extends State<RegistrePage> {
   Future<void> _openLocationPicker() async {
     final result = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (_) => const LocationPickerPage()),
+      MaterialPageRoute(
+        builder: (_) => LocationPickerPage(
+          onConfirm: (result) {
+            Navigator.pop(context, result);
+          },
+          onCancel: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
     );
     if (result != null && result.containsKey('lat')) {
       setState(() {
@@ -105,7 +116,7 @@ class _RegistrePageState extends State<RegistrePage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Signup Successful ✅")));
-      Navigator.pop(context);
+      widget.onBack(); // ✅ Return to LoginPage
     } else {
       ScaffoldMessenger.of(
         context,
@@ -126,19 +137,25 @@ class _RegistrePageState extends State<RegistrePage> {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E6),
+      backgroundColor: colors.surface,
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: colors.onPrimary),
+          onPressed: widget.onBack, // ✅ Return to Login
+        ),
         title: Text(
           lang.t("create_account"),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'PlayfairDisplay',
             fontWeight: FontWeight.bold,
+            color: colors.onPrimary,
           ),
         ),
-        backgroundColor: const Color(0xFF0A3B2A),
-        foregroundColor: Colors.white,
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -147,13 +164,13 @@ class _RegistrePageState extends State<RegistrePage> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
+                  color: Colors.black.withOpacity(0.08),
                   blurRadius: 8,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -163,11 +180,11 @@ class _RegistrePageState extends State<RegistrePage> {
                 children: [
                   Text(
                     lang.t("join_us"),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'PlayfairDisplay',
-                      color: Color(0xFF0A3B2A),
+                      color: colors.primary,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -175,7 +192,8 @@ class _RegistrePageState extends State<RegistrePage> {
                   // Full name
                   TextFormField(
                     controller: nameController,
-                    decoration: _inputDecoration(lang.t("full_name")),
+                    decoration: _inputDecoration(lang.t("full_name"), colors),
+                    style: TextStyle(color: colors.onSurface),
                     validator: (value) => value == null || value.isEmpty
                         ? lang.t("required_field")
                         : null,
@@ -185,7 +203,8 @@ class _RegistrePageState extends State<RegistrePage> {
                   // Email
                   TextFormField(
                     controller: emailController,
-                    decoration: _inputDecoration(lang.t("email")),
+                    decoration: _inputDecoration(lang.t("email"), colors),
+                    style: TextStyle(color: colors.onSurface),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) => value == null || !value.contains("@")
                         ? lang.t("invalid_email")
@@ -196,14 +215,13 @@ class _RegistrePageState extends State<RegistrePage> {
                   // Phone (Tunisian validation)
                   TextFormField(
                     controller: phoneController,
-                    decoration: _inputDecoration(lang.t("phone")),
+                    decoration: _inputDecoration(lang.t("phone"), colors),
+                    style: TextStyle(color: colors.onSurface),
                     keyboardType: TextInputType.phone,
                     validator: (value) {
                       if (value == null || value.isEmpty)
                         return lang.t("required_field");
-                      final regex = RegExp(
-                        r'^[2579][0-9]{7}$',
-                      ); // Tunisian: 8 digits starting with 2,5,7,9
+                      final regex = RegExp(r'^[2579][0-9]{7}$');
                       if (!regex.hasMatch(value))
                         return "Invalid Tunisian phone number";
                       return null;
@@ -215,7 +233,8 @@ class _RegistrePageState extends State<RegistrePage> {
                   TextFormField(
                     controller: passwordController,
                     obscureText: true,
-                    decoration: _inputDecoration(lang.t("password")),
+                    decoration: _inputDecoration(lang.t("password"), colors),
+                    style: TextStyle(color: colors.onSurface),
                     validator: (value) => value != null && value.length >= 4
                         ? null
                         : lang.t("weak_password"),
@@ -226,7 +245,11 @@ class _RegistrePageState extends State<RegistrePage> {
                   TextFormField(
                     controller: confirmController,
                     obscureText: true,
-                    decoration: _inputDecoration(lang.t("confirm_password")),
+                    decoration: _inputDecoration(
+                      lang.t("confirm_password"),
+                      colors,
+                    ),
+                    style: TextStyle(color: colors.onSurface),
                     validator: (value) => value == null || value.isEmpty
                         ? lang.t("required_field")
                         : null,
@@ -239,26 +262,32 @@ class _RegistrePageState extends State<RegistrePage> {
                     items: [
                       DropdownMenuItem(
                         value: "client",
-                        child: Text(lang.t("client")),
+                        child: Text(
+                          lang.t("client"),
+                          style: TextStyle(color: colors.onSurface),
+                        ),
                       ),
                       DropdownMenuItem(
                         value: "store",
-                        child: Text(lang.t("store")),
+                        child: Text(
+                          lang.t("store"),
+                          style: TextStyle(color: colors.onSurface),
+                        ),
                       ),
                     ],
                     onChanged: (val) => setState(() => role = val!),
-                    decoration: _inputDecoration(lang.t("role")),
+                    decoration: _inputDecoration(lang.t("role"), colors),
+                    style: TextStyle(color: colors.onSurface),
                   ),
 
                   // Store-specific fields
                   if (role == "store") ...[
                     const SizedBox(height: 16),
 
-                    // Store category dropdown – DISPLAY TRANSLATED, VALUE ENGLISH
+                    // Store category dropdown
                     DropdownButtonFormField<String>(
                       value: storeCategory,
                       items: storeCategories.map((cat) {
-                        // Map each English category to its translation key
                         String translationKey;
                         switch (cat) {
                           case "Restaurant":
@@ -289,10 +318,11 @@ class _RegistrePageState extends State<RegistrePage> {
                             translationKey = cat;
                         }
                         return DropdownMenuItem<String>(
-                          value: cat, // stored value stays English
+                          value: cat,
                           child: Text(
                             lang.t(translationKey),
-                          ), // displayed translation
+                            style: TextStyle(color: colors.onSurface),
+                          ),
                         );
                       }).toList(),
                       onChanged: (val) {
@@ -302,14 +332,22 @@ class _RegistrePageState extends State<RegistrePage> {
                           if (!isOtherCategory) customCategory = "";
                         });
                       },
-                      decoration: _inputDecoration(lang.t("store_category")),
+                      decoration: _inputDecoration(
+                        lang.t("store_category"),
+                        colors,
+                      ),
+                      style: TextStyle(color: colors.onSurface),
                     ),
                     if (isOtherCategory) ...[
                       const SizedBox(height: 8),
                       TextFormField(
                         initialValue: customCategory,
                         onChanged: (val) => customCategory = val,
-                        decoration: _inputDecoration(lang.t("custom_category")),
+                        decoration: _inputDecoration(
+                          lang.t("custom_category"),
+                          colors,
+                        ),
+                        style: TextStyle(color: colors.onSurface),
                         validator: (value) => value == null || value.isEmpty
                             ? lang.t("required_field")
                             : null,
@@ -323,7 +361,10 @@ class _RegistrePageState extends State<RegistrePage> {
                       children: [
                         Text(
                           lang.t("store_location"),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: colors.onSurface,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton.icon(
@@ -335,8 +376,8 @@ class _RegistrePageState extends State<RegistrePage> {
                                 : storePlaceName!,
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0A3B2A),
-                            foregroundColor: Colors.white,
+                            backgroundColor: colors.primary,
+                            foregroundColor: colors.onPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -360,12 +401,12 @@ class _RegistrePageState extends State<RegistrePage> {
                   const SizedBox(height: 30),
 
                   isLoading
-                      ? const CircularProgressIndicator()
+                      ? CircularProgressIndicator(color: colors.primary)
                       : ElevatedButton(
                           onPressed: _register,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0A3B2A),
-                            foregroundColor: Colors.white,
+                            backgroundColor: colors.primary,
+                            foregroundColor: colors.onPrimary,
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -373,6 +414,10 @@ class _RegistrePageState extends State<RegistrePage> {
                           ),
                           child: Text(lang.t("signup")),
                         ),
+
+                  // ✅ Add the footer at the bottom of the form
+                  const SizedBox(height: 40),
+                  const AppFooter(),
                 ],
               ),
             ),
@@ -382,18 +427,19 @@ class _RegistrePageState extends State<RegistrePage> {
     );
   }
 
-  InputDecoration _inputDecoration(String label) {
+  InputDecoration _inputDecoration(String label, ColorScheme colors) {
     return InputDecoration(
       labelText: label,
+      labelStyle: TextStyle(color: colors.onSurface.withOpacity(0.6)),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: colors.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(color: Color(0xFF0A3B2A), width: 1.5),
+        borderSide: BorderSide(color: colors.primary, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
     );

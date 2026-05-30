@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zerogaspi/screens/categorydetailspage.dart';
-//import '../style/screens/categoriespage_style.dart';
+import 'package:zerogaspi/screens/reservationpage.dart';
+import 'package:zerogaspi/screens/paymentpage.dart'; // ✅ Import PaymentPage
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 import '../components/footer.dart';
@@ -17,23 +18,61 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   String searchQuery = "";
+  String? selectedCategory;
+  bool _showLocationPicker = false;
+
+  Map<String, dynamic>? _selectedProduct;
+
+  void _openReservation(
+    Map<String, dynamic> product,
+    Map<String, dynamic> store,
+  ) {
+    setState(() {
+      _selectedProduct = {
+        'productName': product['name'],
+        'price': product['promo'],
+        'image': product['image'],
+        'lat': store['lat'],
+        'lng': store['lng'],
+        'storeName': store['name'],
+        'time': product['time'] ?? '18:00',
+      };
+    });
+  }
+
+  Map<String, dynamic>? _paymentDetails;
+
+  void _openPayment(Map<String, dynamic> details) {
+    setState(() {
+      _paymentDetails = details;
+    });
+  }
+
+  void _closePayment() {
+    setState(() {
+      _paymentDetails = null;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // ALWAYS open map first
-      await _openLocationPicker();
+      _openLocationPicker();
     });
   }
 
-  Future<void> _openLocationPicker() async {
-    final result = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(builder: (_) => const LocationPickerPage()),
-    );
-    if (result != null && result.containsKey('lat')) {
+  void _openLocationPicker() {
+    setState(() {
+      _showLocationPicker = true;
+    });
+  }
+
+  void _onLocationConfirmed(Map<String, dynamic> result) {
+    setState(() {
+      _showLocationPicker = false;
+    });
+    if (result.containsKey('lat')) {
       final locationProvider = Provider.of<LocationProvider>(
         context,
         listen: false,
@@ -45,30 +84,46 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }
   }
 
+  void _navigateToCategory(String categoryName) {
+    setState(() {
+      selectedCategory = categoryName;
+    });
+  }
+
+  void _goBackToGrid() {
+    setState(() {
+      selectedCategory = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
     final locationProvider = Provider.of<LocationProvider>(context);
+    final colors = Theme.of(context).colorScheme;
     final isRtl = lang.current == "ar";
 
-    // If still no location (user pressed back on picker), show a message + retry button
-    if (!locationProvider.hasLocation) {
+    if (!locationProvider.hasLocation && !_showLocationPicker) {
       return Directionality(
         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
         child: Scaffold(
-          backgroundColor: const Color(0xFFF5F0E6),
+          backgroundColor: colors.surface,
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.location_off, size: 80, color: Colors.grey),
+                Icon(Icons.location_off, size: 80, color: Colors.grey),
                 const SizedBox(height: 16),
-                Text(lang.t("no_location_selected")),
+                Text(
+                  lang.t("no_location_selected"),
+                  style: TextStyle(color: colors.onSurface),
+                ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _openLocationPicker,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0A3B2A),
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.onPrimary,
                   ),
                   child: Text(lang.t("select_location")),
                 ),
@@ -79,97 +134,112 @@ class _CategoriesPageState extends State<CategoriesPage> {
       );
     }
 
-    // Location exists – show the normal categories page
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F0E6),
+        backgroundColor: colors.surface,
         body: SafeArea(
           child: Column(
             children: [
-              // Header with search bar + change maps button (now opens location picker)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: [
-                    // Search bar
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 4,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          onChanged: (value) {
-                            setState(() {
-                              searchQuery = value.toLowerCase();
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: lang.t("search_hint"),
-                            prefixIcon: const Icon(Icons.search, size: 18),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Change maps button – now opens location picker
-                    Expanded(
-                      flex: 2,
-                      child: SizedBox(
-                        height: 42,
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            await _openLocationPicker();
-                          },
-                          icon: const Icon(Icons.map, size: 16),
-                          label: Text(lang.t("change_maps")),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0A3B2A),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Scrollable content (original grids)
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              // ✅ HIDE CATEGORIES HEADER when LocationPicker, ReservationPage, or PaymentPage is active
+              if (!_showLocationPicker &&
+                  _selectedProduct == null &&
+                  _paymentDetails == null) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Row(
                     children: [
-                      _buildSectionTitle(lang.t("large_stores")),
-                      const SizedBox(height: 12),
-                      _buildLargeStoresGrid(lang),
-                      const SizedBox(height: 32),
-                      _buildSectionTitle(lang.t("other_stores")),
-                      const SizedBox(height: 12),
-                      _buildSmallCategoriesGrid(lang),
-                      const SizedBox(height: 40),
-                      const AppFooter(),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: colors.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            onChanged: (value) => setState(
+                              () => searchQuery = value.toLowerCase(),
+                            ),
+                            decoration: InputDecoration(
+                              hintText: lang.t("search_hint"),
+                              prefixIcon: const Icon(Icons.search, size: 18),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
+                          height: 42,
+                          child: ElevatedButton.icon(
+                            onPressed: _openLocationPicker,
+                            icon: const Icon(Icons.map, size: 16),
+                            label: Text(lang.t("change_maps")),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: colors.onPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
+              ],
+
+              // ✅ CONTENT AREA
+              Expanded(
+                child: _paymentDetails != null
+                    ? PaymentPage(
+                        productName: _paymentDetails!['productName'],
+                        price: _paymentDetails!['price'],
+                        storeName: _paymentDetails!['storeName'],
+                        pickupTime: _paymentDetails!['pickupTime'],
+                        deliveryType: _paymentDetails!['deliveryType'],
+                        onBack: _closePayment,
+                      )
+                    : _selectedProduct != null
+                    ? ReservationPage(
+                        productName: _selectedProduct!['productName'],
+                        price: _selectedProduct!['price'],
+                        image: _selectedProduct!['image'],
+                        lat: _selectedProduct!['lat'],
+                        lng: _selectedProduct!['lng'],
+                        storeName: _selectedProduct!['storeName'],
+                        time: _selectedProduct!['time'],
+                        onBack: () => setState(() => _selectedProduct = null),
+                        onConfirm: _openPayment,
+                      )
+                    : _showLocationPicker
+                    ? LocationPickerPage(
+                        onConfirm: _onLocationConfirmed,
+                        onCancel: () =>
+                            setState(() => _showLocationPicker = false),
+                      )
+                    : selectedCategory == null
+                    ? _buildGridContent(lang, colors)
+                    : CategoryDetailsPage(
+                        categoryName: selectedCategory!,
+                        onBack: _goBackToGrid,
+                        onReserve: _openReservation,
+                      ),
               ),
             ],
           ),
@@ -178,21 +248,40 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  // ---------------------- ALL ORIGINAL HELPER METHODS REMAIN IDENTICAL ----------------------
-  Widget _buildSectionTitle(String title) {
+  Widget _buildGridContent(Lang lang, ColorScheme colors) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(lang.t("large_stores"), colors),
+          const SizedBox(height: 12),
+          _buildLargeStoresGrid(lang, colors),
+          const SizedBox(height: 32),
+          _buildSectionTitle(lang.t("other_stores"), colors),
+          const SizedBox(height: 12),
+          _buildSmallCategoriesGrid(lang, colors),
+          const SizedBox(height: 40),
+          const AppFooter(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, ColorScheme colors) {
     return Text(
       title.toUpperCase(),
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: 'PlayfairDisplay',
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Color(0xFF0A3B2A),
+        color: colors.primary,
         letterSpacing: 1.2,
       ),
     );
   }
 
-  Widget _buildLargeStoresGrid(Lang lang) {
+  Widget _buildLargeStoresGrid(Lang lang, ColorScheme colors) {
     final List<Map<String, String?>> brands = [
       {'name': 'Carrefour', 'logo': 'assets/images/carrefour.png'},
       {'name': 'MG', 'logo': 'assets/images/mg.png'},
@@ -205,7 +294,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
         .toList();
 
     if (filtered.isEmpty) {
-      return Center(child: Text(lang.t("no_results")));
+      return Center(
+        child: Text(
+          lang.t("no_results"),
+          style: TextStyle(color: colors.onSurface),
+        ),
+      );
     }
 
     return GridView.builder(
@@ -221,7 +315,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       itemBuilder: (context, index) {
         final brand = filtered[index];
         return _buildCard(
-          onTap: () => _navigateToCategory(context, brand['name']!),
+          onTap: () => _navigateToCategory(brand['name']!),
           child: Center(
             child: Image.asset(
               brand['logo']!,
@@ -235,7 +329,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  Widget _buildSmallCategoriesGrid(Lang lang) {
+  Widget _buildSmallCategoriesGrid(Lang lang, ColorScheme colors) {
     final List<Map<String, String>> categories = [
       {'title': 'Restaurants', 'image': 'assets/images/res.png'},
       {'title': 'Boulangeries', 'image': 'assets/images/boulangerie.png'},
@@ -254,7 +348,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
         .toList();
 
     if (filtered.isEmpty) {
-      return Center(child: Text(lang.t("no_results")));
+      return Center(
+        child: Text(
+          lang.t("no_results"),
+          style: TextStyle(color: colors.onSurface),
+        ),
+      );
     }
 
     return GridView.builder(
@@ -270,7 +369,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       itemBuilder: (context, index) {
         final cat = filtered[index];
         return _buildCard(
-          onTap: () => _navigateToCategory(context, cat['title']!),
+          onTap: () => _navigateToCategory(cat['title']!),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -283,10 +382,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.7),
-                    ],
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
@@ -314,30 +410,21 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   Widget _buildCard({required VoidCallback onTap, required Widget child}) {
+    final colors = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.zero,
+        decoration: BoxDecoration(
+          color: colors.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 4,
-              offset: Offset(0, 1),
+              offset: const Offset(0, 1),
             ),
           ],
         ),
         child: child,
-      ),
-    );
-  }
-
-  void _navigateToCategory(BuildContext context, String categoryName) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CategoryDetailsPage(categoryName: categoryName),
       ),
     );
   }

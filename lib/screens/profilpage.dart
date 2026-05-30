@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../screens/addproductpage.dart';
 import '../lang.dart';
-import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   final String role;
@@ -55,6 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final colors = Theme.of(context).colorScheme;
 
     final safeRole = role.isEmpty ? widget.role : role;
 
@@ -63,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E6),
+      backgroundColor: colors.surface,
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -78,22 +79,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colors.surface,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
+                      color: Colors.black.withOpacity(0.08),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-
                 child: Column(
                   children: [
                     CircleAvatar(
                       radius: 55,
-                      backgroundColor: const Color(0xFF0A3B2A),
+                      backgroundColor: colors.primary,
                       backgroundImage: AssetImage(
                         safeRole == "store"
                             ? 'assets/how1.png'
@@ -105,11 +105,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     Text(
                       name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'PlayfairDisplay',
-                        color: Color(0xFF0A3B2A),
+                        color: colors.primary,
                       ),
                     ),
 
@@ -117,7 +117,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     Text(
                       email,
-                      style: const TextStyle(fontSize: 15, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: colors.onSurface.withOpacity(0.6),
+                      ),
                     ),
 
                     const SizedBox(height: 16),
@@ -128,13 +131,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0A3B2A),
+                        color: colors.primary,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
                         safeRole.isNotEmpty ? safeRole.toUpperCase() : "USER",
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: colors.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -147,52 +150,46 @@ class _ProfilePageState extends State<ProfilePage> {
 
               // STORE SECTION
               if (safeRole == "store") ...[
-                _buildSectionTitle(lang.t("my_store")),
+                _buildSectionTitle(lang.t("my_store"), colors),
 
                 const SizedBox(height: 16),
 
-                _buildStoreCard('assets/how2.png', "Product 1"),
+                _buildStoreCard('assets/how2.png', "Product 1", colors),
                 const SizedBox(height: 12),
-                _buildStoreCard('assets/how3.png', "Product 2"),
+                _buildStoreCard('assets/how3.png', "Product 2", colors),
               ],
 
-
-ElevatedButton.icon(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color(0xFF0A3B2A),
-    foregroundColor: Colors.white,
-    minimumSize: const Size(double.infinity, 55),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
-    ),
-  ),
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AddProductPage(),
-      ),
-    );
-  },
-  icon: const Icon(Icons.add_business),
-  label: const Text(
-    "Add Product",
-    style: TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                  minimumSize: const Size(double.infinity, 55),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AddProductPage()),
+                  );
+                },
+                icon: const Icon(Icons.add_business),
+                label: const Text(
+                  "Add Product",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
 
               // CLIENT SECTION
               if (safeRole == "client") ...[
-                _buildSectionTitle(lang.t("comments")),
+                _buildSectionTitle(lang.t("comments"), colors),
 
                 const SizedBox(height: 16),
 
-                _buildCommentCard(lang.t("good_person")),
+                _buildCommentCard(lang.t("good_person"), colors),
                 const SizedBox(height: 12),
-                _buildCommentCard(lang.t("trusted_client")),
+                _buildCommentCard(lang.t("trusted_client"), colors),
               ],
 
               const SizedBox(height: 40),
@@ -204,8 +201,8 @@ ElevatedButton.icon(
                   icon: const Icon(Icons.logout),
                   label: Text(lang.t("logout")),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0A3B2A),
-                    foregroundColor: Colors.white,
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -222,29 +219,29 @@ ElevatedButton.icon(
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, ColorScheme colors) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
           fontFamily: 'PlayfairDisplay',
-          color: Color(0xFF0A3B2A),
+          color: colors.primary,
         ),
       ),
     );
   }
 
-  Widget _buildStoreCard(String image, String title) {
+  Widget _buildStoreCard(String image, String title, ColorScheme colors) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -256,100 +253,88 @@ ElevatedButton.icon(
           borderRadius: BorderRadius.circular(12),
           child: Image.asset(image, width: 60, height: 60, fit: BoxFit.cover),
         ),
-        title: Text(title),
-        trailing: const Icon(
+        title: Text(title, style: TextStyle(color: colors.onSurface)),
+        trailing: Icon(
           Icons.arrow_forward_ios,
           size: 18,
-          color: Color(0xFF0A3B2A),
+          color: colors.primary,
         ),
       ),
     );
   }
 
-  Widget _buildCommentCard(String text) {
+  Widget _buildCommentCard(String text, ColorScheme colors) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: AssetImage(
+                  role == "store" ? 'assets/how1.png' : 'assets/how4.png',
+                ),
+              ),
 
-          // 👤 Avatar
-          CircleAvatar(
-            radius: 60,
-            backgroundImage: AssetImage(
-              role == "store" ? 'assets/how1.png' : 'assets/how4.png',
-            ),
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.onSurface,
+                      ),
+                    ),
+
+                    Text(
+                      email,
+                      style: TextStyle(
+                        color: colors.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+
+                    Text(
+                      role.toUpperCase(),
+                      style: TextStyle(
+                        color: colors.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-
-          const SizedBox(height: 16),
-
-          // 👤 Name
-          Text(
-            name,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-
-          const SizedBox(height: 8),
-
-          // 📧 Email
-          Text(email),
-
-          const SizedBox(height: 8),
-
-          // 🎭 Role
-          Text(role.toUpperCase(), style: const TextStyle(color: Colors.grey)),
 
           const SizedBox(height: 20),
 
-          // 🏪 STORE UI
-          if (role == "store") ...[
-            const Text("My Store", style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-
-            ListTile(
-              leading: Image.asset('assets/how2.png', width: 50),
-              title: const Text("Product 1"),
-            ),
-            ListTile(
-              leading: Image.asset('assets/how3.png', width: 50),
-              title: const Text("Product 2"),
-            ),
-            const SizedBox(height: 20),
-
-          ],
-
-          // 👤 CLIENT UI
-          if (role == "client") ...[
-            const Text("Comments", style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-
-            ListTile(
-              leading: const Icon(Icons.comment),
-              title: const Text("Great person 👍"),
-            ),
-            ListTile(
-              leading: const Icon(Icons.comment),
-              title: const Text("Trusted client 💯"),
-            ),
-          ],
-
-          const SizedBox(height: 30),
-
-          // 🚪 Logout
-          ElevatedButton(
-            onPressed: widget.onLogout,
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text("Logout"),
+          Row(
+            children: [
+              Icon(Icons.comment, color: colors.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(text, style: TextStyle(color: colors.onSurface)),
+              ),
+            ],
           ),
-
-          const Icon(Icons.comment, color: Color(0xFF0A3B2A)),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text)),
-
         ],
       ),
     );

@@ -4,9 +4,19 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
+import '../lang.dart';
 
 class LocationPickerPage extends StatefulWidget {
-  const LocationPickerPage({super.key});
+  final Function(Map<String, dynamic>) onConfirm;
+  final VoidCallback onCancel;
+
+  const LocationPickerPage({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+  });
 
   @override
   State<LocationPickerPage> createState() => _LocationPickerPageState();
@@ -14,7 +24,7 @@ class LocationPickerPage extends StatefulWidget {
 
 class _LocationPickerPageState extends State<LocationPickerPage> {
   late MapController _mapController;
-  LatLng _currentCenter = const LatLng(36.8065, 10.1815); // Tunis
+  LatLng _currentCenter = const LatLng(36.8065, 10.1815);
   final TextEditingController _searchController = TextEditingController();
   bool _isLoading = false;
 
@@ -25,9 +35,6 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     _getCurrentLocation();
   }
 
-  // ------------------------------------------------------------------
-  // GET CURRENT LOCATION (GPS)
-  // ------------------------------------------------------------------
   Future<void> _getCurrentLocation() async {
     setState(() => _isLoading = true);
     try {
@@ -56,9 +63,6 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     }
   }
 
-  // ------------------------------------------------------------------
-  // SEARCH USING OPENSTREETMAP NOMINATIM (NO API KEY)
-  // ------------------------------------------------------------------
   Future<void> _searchPlace() async {
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
@@ -97,9 +101,6 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     }
   }
 
-  // ------------------------------------------------------------------
-  // REVERSE GEOCODING USING NOMINATIM
-  // ------------------------------------------------------------------
   Future<String?> _reverseGeocode(LatLng point) async {
     try {
       final url = Uri.parse(
@@ -110,7 +111,6 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
         final data = json.decode(response.body);
         final address = data['address'] as Map<String, dynamic>?;
         if (address != null) {
-          // Prefer city/town/village, then county, then state
           return address['city'] ??
               address['town'] ??
               address['village'] ??
@@ -126,34 +126,28 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     }
   }
 
-  // ------------------------------------------------------------------
-  // CONFIRM LOCATION (with fallback to manual name)
-  // ------------------------------------------------------------------
   Future<void> _confirmLocation() async {
     setState(() => _isLoading = true);
     try {
       String placeName = await _reverseGeocode(_currentCenter) ?? "";
       if (placeName.isEmpty) {
-        // No geocoding result -> ask user to enter a name
         placeName = await _manualNameEntry() ?? "";
         if (placeName.isEmpty) {
           setState(() => _isLoading = false);
           return;
         }
       }
-      // Return the location
       if (mounted) {
-        Navigator.pop(context, {
+        widget.onConfirm({
           'lat': _currentCenter.latitude,
           'lng': _currentCenter.longitude,
           'name': placeName,
         });
       }
     } catch (e) {
-      // Final fallback: manual entry
       final manualName = await _manualNameEntry();
       if (manualName != null && mounted) {
-        Navigator.pop(context, {
+        widget.onConfirm({
           'lat': _currentCenter.latitude,
           'lng': _currentCenter.longitude,
           'name': manualName,
@@ -167,31 +161,27 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     }
   }
 
-  // ------------------------------------------------------------------
-  // MANUAL ENTRY DIALOG
-  // ------------------------------------------------------------------
   Future<String?> _manualNameEntry() async {
     final controller = TextEditingController();
+    final lang = Provider.of<Lang>(context, listen: false);
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text("Location name"),
+        title: Text(lang.t("location_name")),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: "e.g., Downtown Tunis, Carthage, La Marsa",
-          ),
+          decoration: InputDecoration(hintText: lang.t("location_name_hint")),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel"),
+            child: Text(lang.t("cancel")),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text("Confirm"),
+            child: Text(lang.t("confirm")),
           ),
         ],
       ),
@@ -199,15 +189,16 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   }
 
   void _showErrorDialog(String message) {
+    final lang = Provider.of<Lang>(context, listen: false);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Error"),
+        title: Text(lang.t("error")),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("OK"),
+            child: Text(lang.t("ok")),
           ),
         ],
       ),
@@ -223,69 +214,88 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E6),
-      appBar: AppBar(
-        title: const Text("Choose your location"),
-        backgroundColor: const Color(0xFF0A3B2A),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          // Manual entry button in app bar
-          TextButton.icon(
-            onPressed: _isLoading
-                ? null
-                : () async {
-                    final name = await _manualNameEntry();
-                    if (name != null && mounted) {
-                      Navigator.pop(context, {
-                        'lat': _currentCenter.latitude,
-                        'lng': _currentCenter.longitude,
-                        'name': name,
-                      });
-                    }
-                  },
-            icon: const Icon(Icons.edit, color: Colors.white),
-            label: const Text("Enter manually"),
-          ),
-        ],
-      ),
-      body: Column(
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final colors = Theme.of(context).colorScheme;
+    final lang = Provider.of<Lang>(context);
+    final isDark = themeProvider.isDarkMode;
+    final isRtl = lang.current == "ar";
+
+    return Directionality(
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      child: Column(
         children: [
+          // Search Bar + Location Button (FIXED HEIGHT)
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search city or place...",
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                  flex: 3,
+                  child: Container(
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: colors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
-                    onSubmitted: (_) => _searchPlace(),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: lang.t("search_city_placeholder"),
+                        hintStyle: TextStyle(
+                          color: colors.onSurface.withOpacity(0.5),
+                        ),
+                        prefixIcon: Icon(Icons.search, color: colors.primary),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                        ),
+                      ),
+                      style: TextStyle(color: colors.onSurface),
+                      onSubmitted: (_) => _searchPlace(),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.my_location),
-                  onPressed: _getCurrentLocation,
-                  tooltip: "Use my current location",
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      onPressed: _getCurrentLocation,
+                      icon: const Icon(Icons.my_location, size: 16),
+                      label: Text(lang.t("use_current_location")),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
+
+          // ✅ MAP (TAKES ALL REMAINING SPACE)
           Expanded(
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
                 initialCenter: _currentCenter,
                 initialZoom: 13,
+                backgroundColor: isDark
+                    ? const Color(0xFF121212)
+                    : const Color(0xFFF5F0E6),
                 onTap: (_, latLng) {
                   setState(() {
                     _currentCenter = latLng;
@@ -294,7 +304,9 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  urlTemplate: isDark
+                      ? "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
+                      : "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 ),
                 MarkerLayer(
                   markers: [
@@ -313,6 +325,8 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               ],
             ),
           ),
+
+          // ✅ Confirm Button (FIXED HEIGHT)
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -321,10 +335,10 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _confirmLocation,
                     icon: const Icon(Icons.check_circle),
-                    label: const Text("Confirm location"),
+                    label: Text(lang.t("confirm_location")),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0A3B2A),
-                      foregroundColor: Colors.white,
+                      backgroundColor: colors.primary,
+                      foregroundColor: colors.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),

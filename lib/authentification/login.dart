@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
-import 'registre.dart';
 import '../lang.dart';
 import 'loginadmin.dart';
 
 class LoginPage extends StatefulWidget {
   final Function(String) onLoginSuccess;
+  final VoidCallback onSignUp; // ✅ Add this
 
-  const LoginPage({super.key, required this.onLoginSuccess});
+  const LoginPage({
+    super.key,
+    required this.onLoginSuccess,
+    required this.onSignUp,
+  });
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -49,7 +53,6 @@ class _LoginPageState extends State<LoginPage> {
       ).showSnackBar(SnackBar(content: Text("Login Successful ✅")));
 
       widget.onLoginSuccess(role);
-
     } else {
       ScaffoldMessenger.of(
         context,
@@ -67,9 +70,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E6),
+      backgroundColor: colors.surface,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -78,13 +82,13 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Colors.black12,
+                      color: Colors.black.withOpacity(0.08),
                       blurRadius: 8,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -95,11 +99,11 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Text(
                         lang.t("welcome_back"),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'PlayfairDisplay',
-                          color: Color(0xFF0A3B2A),
+                          color: colors.primary,
                         ),
                       ),
 
@@ -108,9 +112,9 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         lang.t("login_subtitle"),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          color: Colors.black54,
+                          color: colors.onSurface.withOpacity(0.6),
                         ),
                       ),
 
@@ -121,16 +125,19 @@ class _LoginPageState extends State<LoginPage> {
                         controller: emailController,
                         decoration: InputDecoration(
                           labelText: lang.t("email"),
+                          labelStyle: TextStyle(
+                            color: colors.onSurface.withOpacity(0.6),
+                          ),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: colors.surface,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide.none,
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0A3B2A),
+                            borderSide: BorderSide(
+                              color: colors.primary,
                               width: 1.5,
                             ),
                           ),
@@ -139,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                             vertical: 16,
                           ),
                         ),
+                        style: TextStyle(color: colors.onSurface),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return lang.t("required_field");
@@ -155,16 +163,19 @@ class _LoginPageState extends State<LoginPage> {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: lang.t("password"),
+                          labelStyle: TextStyle(
+                            color: colors.onSurface.withOpacity(0.6),
+                          ),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: colors.surface,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide.none,
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0A3B2A),
+                            borderSide: BorderSide(
+                              color: colors.primary,
                               width: 1.5,
                             ),
                           ),
@@ -173,6 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                             vertical: 16,
                           ),
                         ),
+                        style: TextStyle(color: colors.onSurface),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return lang.t("required_field");
@@ -185,12 +197,12 @@ class _LoginPageState extends State<LoginPage> {
 
                       // BUTTON
                       isLoading
-                          ? const CircularProgressIndicator()
+                          ? CircularProgressIndicator(color: colors.primary)
                           : ElevatedButton(
                               onPressed: _login,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0A3B2A),
-                                foregroundColor: Colors.white,
+                                backgroundColor: colors.primary,
+                                foregroundColor: colors.onPrimary,
                                 minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
@@ -200,23 +212,20 @@ class _LoginPageState extends State<LoginPage> {
                             ),
 
                       TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RegistrePage(),
-                            ),
-                          );
-                        },
-                        child: const Text("Don't have an account? Sign Up"),
+                        onPressed: widget
+                            .onSignUp, // ✅ Uses callback (no Navigator.push)
+                        child: Text(
+                          "Don't have an account? Sign Up",
+                          style: TextStyle(color: colors.primary),
+                        ),
                       ),
 
                       const SizedBox(height: 10),
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF0A3B2A),
-                          foregroundColor: Colors.white,
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onPrimary,
                         ),
                         onPressed: () {
                           Navigator.push(

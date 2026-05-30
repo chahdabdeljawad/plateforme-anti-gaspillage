@@ -1,20 +1,29 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // ← added
-import 'reservationpage.dart';
+import 'package:provider/provider.dart';
 import '../components/footer.dart';
-import '../lang.dart'; // ← added
+import '../lang.dart';
 
 class CategoryDetailsPage extends StatelessWidget {
   final String categoryName;
+  final VoidCallback onBack;
+  final Function(Map<String, dynamic>, Map<String, dynamic>)
+  onReserve; // ✅ Added
 
-  const CategoryDetailsPage({super.key, required this.categoryName});
+  const CategoryDetailsPage({
+    super.key,
+    required this.categoryName,
+    required this.onBack,
+    required this.onReserve, // ✅ Added
+  });
 
   @override
   Widget build(BuildContext context) {
-    final lang = Provider.of<Lang>(context); // ← added
-    final isRtl = lang.current == "ar"; // ← added
+    final lang = Provider.of<Lang>(context);
+    final colors = Theme.of(context).colorScheme;
+    final isRtl = lang.current == "ar";
 
-    /// STORES kébili (unchanged)
+    // ---------- STORES ----------
     final Map<String, Map<String, dynamic>> stores = {
       'Carrefour': {'lat': 33.705, 'lng': 8.969, 'name': 'Carrefour Kébili'},
       'MG': {'lat': 33.707, 'lng': 8.971, 'name': 'MG Kébili'},
@@ -41,7 +50,7 @@ class CategoryDetailsPage extends StatelessWidget {
       },
     };
 
-    /// PRODUITS (unchanged)
+    // ---------- PRODUCTS (ALL KEPT) ----------
     final Map<String, List<Map<String, String>>> data = {
       'Carrefour': [
         {
@@ -310,57 +319,59 @@ class CategoryDetailsPage extends StatelessWidget {
 
     if (store == null) {
       return Directionality(
-        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr, // ← added
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF5F0E6),
-          body: Center(child: Text(lang.t("store_not_found"))), // ← translated
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+        child: Center(
+          child: Text(
+            lang.t("store_not_found"),
+            style: TextStyle(color: colors.onSurface),
+          ),
         ),
       );
     }
 
     return Directionality(
-      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr, // ← added
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F0E6),
-        appBar: AppBar(
-          title: Text(
-            categoryName,
-            style: const TextStyle(fontFamily: 'PlayfairDisplay'),
-          ),
-          backgroundColor: const Color(0xFF0A3B2A),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        body: products.isEmpty
-            ? Center(child: Text(lang.t("no_products"))) // ← translated
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
-                      itemCount: products.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.8,
-                          ),
-                      itemBuilder: (context, index) {
-                        final item = products[index];
-                        return _buildProductCard(
-                          context: context,
-                          item: item,
-                          store: store,
-                        );
-                      },
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      child: Column(
+        children: [
+          Expanded(
+            child: products.isEmpty
+                ? Center(
+                    child: Text(
+                      lang.t("no_products"),
+                      style: TextStyle(color: colors.onSurface),
                     ),
-                    const AppFooter(),
-                  ],
-                ),
-              ),
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16),
+                          itemCount: products.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.8,
+                              ),
+                          itemBuilder: (context, index) {
+                            final item = products[index];
+                            return _buildProductCard(
+                              context: context,
+                              item: item,
+                              store: store,
+                              colors: colors,
+                            );
+                          },
+                        ),
+                        const AppFooter(),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -369,33 +380,21 @@ class CategoryDetailsPage extends StatelessWidget {
     required BuildContext context,
     required Map<String, String> item,
     required Map<String, dynamic> store,
+    required ColorScheme colors,
   }) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ReservationPage(
-              productName: item['name']!,
-              price: item['promo']!,
-              image: item['image']!,
-              lat: store['lat'],
-              lng: store['lng'],
-              storeName: store['name'],
-              time: item['time'] ?? "18:00",
-            ),
-          ),
-        );
+        // ✅ Use the callback from the parent widget instead of Navigator.push
+        onReserve(item, store);
       },
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.zero,
+        decoration: BoxDecoration(
+          color: colors.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 4,
-              offset: Offset(0, 1),
+              offset: const Offset(0, 1),
             ),
           ],
         ),
@@ -418,11 +417,11 @@ class CategoryDetailsPage extends StatelessWidget {
                 children: [
                   Text(
                     item['name']!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'PlayfairDisplay',
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
-                      color: Color(0xFF0A3B2A),
+                      color: colors.primary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -432,19 +431,19 @@ class CategoryDetailsPage extends StatelessWidget {
                     children: [
                       Text(
                         item['price']!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           decoration: TextDecoration.lineThrough,
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: colors.onSurface.withOpacity(0.5),
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         item['promo']!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: Colors.green,
+                          color: colors.secondary,
                         ),
                       ),
                     ],

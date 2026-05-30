@@ -191,6 +191,16 @@ class Lang extends ChangeNotifier {
       "product_2": "Produit 2",
       "great_person": "Personne géniale 👍",
       "trusted_client": "Client fiable 💯",
+
+      //resevation
+      "review_great": "Très bon produit 👌",
+      "review_average": "Qualité moyenne",
+      "review_good_price": "Prix intéressant 🔥",
+      "pickup_on_site": "Récupération sur place",
+      "delivery_home": "Livraison à domicile",
+      "reviews": "Avis clients",
+      "next": "Suivant",
+      "pickup_time": "Heure de récupération",
     },
     "en": {
       // Navbar
@@ -370,6 +380,16 @@ class Lang extends ChangeNotifier {
       "product_2": "Product 2",
       "great_person": "Great person 👍",
       "trusted_client": "Trusted client 💯",
+
+      //resevation
+      "review_great": "Great product 👌",
+      "review_average": "Average quality",
+      "review_good_price": "Great price 🔥",
+      "pickup_on_site": "Pick up on site",
+      "delivery_home": "Home delivery",
+      "reviews": "Reviews",
+      "next": "Next",
+      "pickup_time": "Pickup time",
     },
     "ar": {
       // Navbar
@@ -546,6 +566,16 @@ class Lang extends ChangeNotifier {
       "product_2": "المنتج 2",
       "great_person": "شخص رائع 👍",
       "trusted_client": "عميل موثوق 💯",
+
+      //resevation
+      "review_great": "منتج رائع 👌",
+      "review_average": "جودة متوسطة",
+      "review_good_price": "سعر ممتاز 🔥",
+      "pickup_on_site": "الاستلام في الموقع",
+      "delivery_home": "التوصيل إلى المنزل",
+      "reviews": "التعليقات",
+      "next": "التالي",
+      "pickup_time": "وقت الاستلام",
     },
   };
 

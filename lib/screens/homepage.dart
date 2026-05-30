@@ -8,8 +8,6 @@ import 'package:video_player/video_player.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  static const Color beigeBg = Color(0xFFF5F0E6);
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -64,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                         style: baseText.copyWith(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Colors.white, // Keep white for video overlay
                         ),
                       ),
                     ),
@@ -97,7 +95,7 @@ class _HomePageState extends State<HomePage> {
       fit: StackFit.expand,
       children: [
         Image.asset(image, fit: BoxFit.cover),
-        Container(color: Colors.black.withValues(alpha: 0.25)),
+        Container(color: Colors.black.withOpacity(0.25)),
         _animatedWords(text: text, alignment: position),
       ],
     );
@@ -127,9 +125,11 @@ class _HomePageState extends State<HomePage> {
   ];
 
   Widget _buildBenefits(Lang lang) {
+    final colors = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
-      color: HomePage.beigeBg,
+      color: colors.surface,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       child: Column(
         children: [
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             style: baseText.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.teal,
+              color: colors.secondary,
             ),
           ),
           const SizedBox(height: 20),
@@ -167,9 +167,11 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 10),
                   Text(
                     lang.t(b.titleKey),
-                    style: baseText.copyWith(fontWeight: FontWeight.bold),
+                    style: baseText.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                    ),
                   ),
-                  // ❌ description removed
                 ],
               );
             },
@@ -182,6 +184,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Directionality(
       textDirection: lang.current == "ar"
           ? TextDirection.rtl
@@ -196,7 +201,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Positioned.fill(
-              child: Container(color: Colors.black.withValues(alpha: 0.15)),
+              child: Container(
+                color: Colors.black.withOpacity(isDark ? 0.4 : 0.15),
+              ),
             ),
             SingleChildScrollView(
               child: Column(
@@ -220,7 +227,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Container(
                         height: 900,
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: Colors.black.withOpacity(isDark ? 0.5 : 0.4),
                       ),
                       SizedBox(
                         height: 900,
@@ -241,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                   // Our Goal
                   Container(
                     width: double.infinity,
-                    color: HomePage.beigeBg,
+                    color: colors.surface,
                     padding: const EdgeInsets.symmetric(
                       vertical: 60,
                       horizontal: 20,
@@ -260,7 +267,10 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           lang.t("about_small"),
                           textAlign: TextAlign.center,
-                          style: baseText.copyWith(fontSize: 16),
+                          style: baseText.copyWith(
+                            fontSize: 16,
+                            color: colors.onSurface,
+                          ),
                         ),
                       ],
                     ),
@@ -270,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                   // How it works slider
                   Container(
                     width: double.infinity,
-                    color: HomePage.beigeBg,
+                    color: colors.surface,
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                           style: baseText.copyWith(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF0A3B2A),
+                            color: colors.primary,
                           ),
                         ),
                         const SizedBox(height: 20),

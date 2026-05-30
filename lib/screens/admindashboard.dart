@@ -1,108 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
 
-  static const Color primaryColor = Color(0xFF0A3B2A);
-  static const Color backgroundColor = Color(0xFFF5F0E6);
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor,
+    final colors = Theme.of(context).colorScheme;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
+    return Scaffold(
+      backgroundColor: colors.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: backgroundColor,
+        backgroundColor: colors.surface,
         centerTitle: true,
-
-        title: const Text(
+        title: Text(
           "Admin Dashboard",
           style: TextStyle(
-            color: primaryColor,
+            color: colors.primary,
             fontWeight: FontWeight.bold,
             fontSize: 24,
             fontFamily: 'PlayfairDisplay',
           ),
         ),
-
         actions: [
+          IconButton(
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: colors.primary,
+            ),
+            onPressed: themeProvider.toggleTheme,
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: IconButton(
-              icon: const Icon(Icons.logout, color: primaryColor),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              icon: Icon(Icons.logout, color: colors.primary),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
         ],
       ),
-
       body: Padding(
-        padding: const EdgeInsets.all(20),
-
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
-            const SizedBox(height: 10),
-
-            const Text(
+            const SizedBox(height: 8),
+            Text(
               "Welcome Admin 👋",
               style: TextStyle(
-                fontSize: 30,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'PlayfairDisplay',
-                color: primaryColor,
+                color: colors.primary,
               ),
             ),
-
-            const SizedBox(height: 8),
-
+            const SizedBox(height: 6),
             Text(
               "Manage your application easily",
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+              style: TextStyle(
+                fontSize: 14,
+                color: colors.onSurface.withOpacity(0.6),
+              ),
             ),
-
-            const SizedBox(height: 30),
-
+            const SizedBox(height: 24),
             Expanded(
               child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 18,
-                mainAxisSpacing: 18,
-                childAspectRatio: 1,
-
+                crossAxisCount: 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.85,
                 children: [
-                  buildCard(context, "Clients", Icons.people_alt_rounded, () {
-                    Navigator.push(
+                  buildCard(
+                    context,
+                    "Clients",
+                    Icons.people_alt_rounded,
+                    () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const ClientsPage()),
-                    );
-                  }),
-
-                  buildCard(context, "Stores", Icons.storefront_rounded, () {
-                    Navigator.push(
+                    ),
+                  ),
+                  buildCard(
+                    context,
+                    "Stores",
+                    Icons.storefront_rounded,
+                    () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const StoresPage()),
-                    );
-                  }),
-
+                    ),
+                  ),
                   buildCard(
                     context,
                     "Products",
                     Icons.shopping_bag_rounded,
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CategoriesPage(),
-                        ),
-                      );
-                    },
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CategoriesPage()),
+                    ),
                   ),
-
                   buildCard(
                     context,
                     "Statistics",
@@ -124,47 +121,40 @@ class AdminDashboard extends StatelessWidget {
     IconData icon,
     VoidCallback onTap,
   ) {
+    final colors = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
-
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-
-          borderRadius: BorderRadius.circular(28),
-
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-
           children: [
             Container(
-              padding: const EdgeInsets.all(18),
-
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.1),
+                color: colors.primary.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
-
-              child: Icon(icon, size: 42, color: primaryColor),
+              child: Icon(icon, size: 32, color: colors.primary),
             ),
-
-            const SizedBox(height: 18),
-
+            const SizedBox(height: 14),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: primaryColor,
+                color: colors.primary,
                 fontFamily: 'PlayfairDisplay',
               ),
             ),
@@ -183,9 +173,10 @@ class ClientsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return buildSimplePage(
+      context: context, // ✅ Pass context
       title: "Clients",
       icon: Icons.people_alt_rounded,
-      text: "Liste des clients ",
+      text: "Liste des clients",
     );
   }
 }
@@ -198,9 +189,10 @@ class StoresPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return buildSimplePage(
+      context: context, // ✅ Pass context
       title: "Stores",
       icon: Icons.storefront_rounded,
-      text: "Liste des stores ",
+      text: "Liste des stores",
     );
   }
 }
@@ -213,87 +205,74 @@ class CategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return buildSimplePage(
+      context: context, // ✅ Pass context
       title: "Products",
       icon: Icons.shopping_bag_rounded,
-      text: "Liste des catégories ",
+      text: "Liste des catégories",
     );
   }
 }
 
-// ================= REUSABLE PAGE =================
+// ================= REUSABLE PAGE (Fixed) =================
 
 Widget buildSimplePage({
+  required BuildContext context, // ✅ Accept context
   required String title,
   required IconData icon,
   required String text,
 }) {
-  const Color primaryColor = Color(0xFF0A3B2A);
-  const Color backgroundColor = Color(0xFFF5F0E6);
+  final colors = Theme.of(context).colorScheme; // ✅ Now context is valid
 
   return Scaffold(
-    backgroundColor: backgroundColor,
-
+    backgroundColor: colors.surface,
     appBar: AppBar(
-      backgroundColor: backgroundColor,
+      backgroundColor: colors.surface,
       elevation: 0,
       centerTitle: true,
-
-      iconTheme: const IconThemeData(color: primaryColor),
-
+      iconTheme: IconThemeData(color: colors.primary),
       title: Text(
         title,
-        style: const TextStyle(
-          color: primaryColor,
+        style: TextStyle(
+          color: colors.primary,
           fontWeight: FontWeight.bold,
           fontFamily: 'PlayfairDisplay',
         ),
       ),
     ),
-
     body: Center(
       child: Container(
-        margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.all(30),
-
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
-
-          borderRadius: BorderRadius.circular(30),
-
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
+              color: Colors.black.withOpacity(0.06),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-
         child: Column(
           mainAxisSize: MainAxisSize.min,
-
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
-
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.1),
+                color: colors.primary.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
-
-              child: Icon(icon, size: 55, color: primaryColor),
+              child: Icon(icon, size: 44, color: colors.primary),
             ),
-
-            const SizedBox(height: 25),
-
+            const SizedBox(height: 20),
             Text(
               text,
               textAlign: TextAlign.center,
-
-              style: const TextStyle(
-                fontSize: 22,
+              style: TextStyle(
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: primaryColor,
+                color: colors.primary,
                 fontFamily: 'PlayfairDisplay',
               ),
             ),

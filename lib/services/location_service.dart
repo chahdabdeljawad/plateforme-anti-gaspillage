@@ -2,7 +2,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 class LocationService {
-
   static Future<Position?> getUserLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -39,7 +38,6 @@ class LocationService {
       print("Pays: ${place.country}");
 
       return position;
-
     } catch (e) {
       print("Erreur: $e");
       return null;

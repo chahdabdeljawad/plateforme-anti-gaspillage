@@ -7,6 +7,8 @@ import '../screens/profilpage.dart';
 import '../screens/about.dart';
 import '../screens/categoriespage.dart';
 import '../authentification/login.dart';
+import '../providers/theme_provider.dart';
+import '../authentification/registre.dart';
 
 class CustomNavbar extends StatefulWidget {
   const CustomNavbar({super.key});
@@ -18,11 +20,13 @@ class CustomNavbar extends StatefulWidget {
 class _CustomNavbarState extends State<CustomNavbar> {
   bool isLoggedIn = false;
   String userRole = 'Client';
+  bool _showRegister = false;
 
   void loginSuccess(String role) {
     setState(() {
       isLoggedIn = true;
       userRole = role;
+      _showRegister = false;
     });
   }
 
@@ -30,12 +34,21 @@ class _CustomNavbarState extends State<CustomNavbar> {
     setState(() {
       isLoggedIn = false;
       userRole = 'Client';
+      _showRegister = false;
+    });
+  }
+
+  void toggleRegister() {
+    setState(() {
+      _showRegister = !_showRegister;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final colors = Theme.of(context).colorScheme;
 
     return DefaultTabController(
       length: 4,
@@ -48,29 +61,79 @@ class _CustomNavbarState extends State<CustomNavbar> {
               child: AppBar(
                 elevation: 0,
                 backgroundColor: Colors.transparent,
-                title: const Text(
+                title: Text(
                   "ZeroGaspi",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: colors.onSurface,
                   ),
                 ),
                 actions: [
+                  IconButton(
+                    icon: Icon(
+                      themeProvider.isDarkMode
+                          ? Icons.light_mode
+                          : Icons.dark_mode,
+                      color: colors.onSurface,
+                    ),
+                    onPressed: themeProvider.toggleTheme,
+                  ),
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.language, color: Colors.black),
+                    icon: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: Image.asset("assets/langue/translator.png"),
+                    ),
                     onSelected: (value) => lang.changeLang(value),
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: "fr", child: Text("Français")),
-                      PopupMenuItem(value: "en", child: Text("English")),
-                      PopupMenuItem(value: "ar", child: Text("العربية")),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: "fr",
+                        child: Row(
+                          children: const [
+                            CircleAvatar(
+                              radius: 18,
+                              backgroundImage: AssetImage(
+                                "assets/langue/france.png",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: "en",
+                        child: Row(
+                          children: const [
+                            CircleAvatar(
+                              radius: 18,
+                              backgroundImage: AssetImage(
+                                "assets/langue/united-kingdom.png",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: "ar",
+                        child: Row(
+                          children: const [
+                            CircleAvatar(
+                              radius: 18,
+                              backgroundImage: AssetImage(
+                                "assets/langue/flag.png",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
                 bottom: TabBar(
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Colors.black54,
-                  indicatorColor: Colors.black,
+                  labelColor: colors.onSurface,
+                  unselectedLabelColor: colors.onSurface.withOpacity(0.6),
+                  indicatorColor: colors.onSurface,
                   tabs: [
                     Tab(text: lang.t("home")),
                     Tab(text: lang.t("categories")),
@@ -89,7 +152,12 @@ class _CustomNavbarState extends State<CustomNavbar> {
             const AboutPage(),
             isLoggedIn
                 ? ProfilePage(role: userRole, onLogout: logout)
-                : LoginPage(onLoginSuccess: loginSuccess),
+                : _showRegister
+                ? RegistrePage(onBack: toggleRegister)
+                : LoginPage(
+                    onLoginSuccess: loginSuccess,
+                    onSignUp: toggleRegister,
+                  ), // ✅ Fixed syntax
           ],
         ),
       ),

@@ -52,6 +52,7 @@ flutter:
     - assets/benefit2.png
     - assets/benefit3.png
     - assets/benefit4.png
+    - assets/langue/
 
   fonts:
     - family: PlayfairDisplay

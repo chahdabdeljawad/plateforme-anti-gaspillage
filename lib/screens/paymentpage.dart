@@ -8,6 +8,7 @@ class PaymentPage extends StatefulWidget {
   final String storeName;
   final String pickupTime;
   final String deliveryType;
+  final VoidCallback onBack;
 
   const PaymentPage({
     super.key,
@@ -16,6 +17,7 @@ class PaymentPage extends StatefulWidget {
     required this.storeName,
     required this.pickupTime,
     required this.deliveryType,
+    required this.onBack,
   });
 
   @override
@@ -28,86 +30,114 @@ class _PaymentPageState extends State<PaymentPage> {
   final dateController = TextEditingController();
   final cvvController = TextEditingController();
 
-  String? _paymentMethod;
+  // ✅ FIX: Initialize with a default value instead of null
+  String _paymentMethod = "sur_place";
 
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final colors = Theme.of(context).colorScheme;
     final isRtl = lang.current == "ar";
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F0E6),
-        appBar: AppBar(
-          title: Text(
-            lang.t("payment_title"),
-            style: const TextStyle(fontFamily: 'PlayfairDisplay'),
-          ),
-          backgroundColor: const Color(0xFF0A3B2A),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Card(
-                  color: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+      child: Column(
+        children: [
+          // ✅ Custom Header (Back arrow + Title)
+          Container(
+            decoration: BoxDecoration(
+              color: colors.surface.withOpacity(0.95),
+              border: Border(
+                bottom: BorderSide(color: colors.onSurface.withOpacity(0.1)),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back_ios, color: colors.onSurface),
+                    onPressed: widget.onBack,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      children: [
-                        RadioListTile<String>(
-                          value: "sur_place",
-                          groupValue: _paymentMethod,
-                          title: Text(lang.t("payment_on_site")),
-                          activeColor: const Color(0xFF0A3B2A),
-                          onChanged: (value) =>
-                              setState(() => _paymentMethod = value),
-                        ),
-                        RadioListTile<String>(
-                          value: "en_ligne",
-                          groupValue: _paymentMethod,
-                          title: Text(lang.t("payment_online")),
-                          activeColor: const Color(0xFF0A3B2A),
-                          onChanged: (value) =>
-                              setState(() => _paymentMethod = value),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                if (_paymentMethod == null)
-                  Card(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Center(
-                        child: Text(lang.t("please_select_payment")),
+                  Expanded(
+                    child: Text(
+                      lang.t("payment_title"),
+                      style: TextStyle(
+                        fontFamily: 'PlayfairDisplay',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
                       ),
                     ),
                   ),
-                if (_paymentMethod == "sur_place") _buildOnSitePayment(lang),
-                if (_paymentMethod == "en_ligne") _buildOnlinePayment(lang),
-                const SizedBox(height: 30),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+
+          // ✅ Content
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Card(
+                      color: colors.surface,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          children: [
+                            RadioListTile<String>(
+                              value: "sur_place",
+                              groupValue: _paymentMethod,
+                              title: Text(
+                                lang.t("payment_on_site"),
+                                style: TextStyle(color: colors.onSurface),
+                              ),
+                              activeColor: colors.primary,
+                              onChanged: (value) =>
+                                  setState(() => _paymentMethod = value!),
+                            ),
+                            RadioListTile<String>(
+                              value: "en_ligne",
+                              groupValue: _paymentMethod,
+                              title: Text(
+                                lang.t("payment_online"),
+                                style: TextStyle(color: colors.onSurface),
+                              ),
+                              activeColor: colors.primary,
+                              onChanged: (value) =>
+                                  setState(() => _paymentMethod = value!),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    if (_paymentMethod == "sur_place")
+                      _buildOnSitePayment(lang, colors),
+                    if (_paymentMethod == "en_ligne")
+                      _buildOnlinePayment(lang, colors),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildOnSitePayment(Lang lang) {
+  Widget _buildOnSitePayment(Lang lang, ColorScheme colors) {
     return Card(
-      color: Colors.white,
+      color: colors.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
@@ -117,32 +147,45 @@ class _PaymentPageState extends State<PaymentPage> {
           children: [
             Text(
               lang.t("order_summary"),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'PlayfairDisplay',
-                color: Color(0xFF0A3B2A),
+                color: colors.primary,
               ),
             ),
             const SizedBox(height: 16),
-            _buildDetailRow(lang.t("product_label"), widget.productName, lang),
-            _buildDetailRow(lang.t("price_label"), widget.price, lang),
-            _buildDetailRow(lang.t("store_label"), widget.storeName, lang),
+            _buildDetailRow(
+              lang.t("product_label"),
+              widget.productName,
+              lang,
+              colors,
+            ),
+            _buildDetailRow(lang.t("price_label"), widget.price, lang, colors),
+            _buildDetailRow(
+              lang.t("store_label"),
+              widget.storeName,
+              lang,
+              colors,
+            ),
             _buildDetailRow(
               lang.t("pickup_time_label"),
               widget.pickupTime,
               lang,
+              colors,
             ),
             _buildDetailRow(
               lang.t("type_label"),
               widget.deliveryType == "sur_place" ? "Sur place" : "Livraison",
               lang,
+              colors,
             ),
-            const Divider(height: 24),
+            Divider(height: 24, color: colors.onSurface.withOpacity(0.12)),
             _buildDetailRow(
               lang.t("total_label"),
               widget.price,
               lang,
+              colors,
               isTotal: true,
             ),
             const SizedBox(height: 20),
@@ -150,28 +193,34 @@ class _PaymentPageState extends State<PaymentPage> {
               width: double.infinity,
               height: 180,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300, width: 2),
+                border: Border.all(
+                  color: colors.onSurface.withOpacity(0.12),
+                  width: 2,
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.qr_code_scanner,
                     size: 60,
-                    color: Colors.grey,
+                    color: colors.onSurface.withOpacity(0.5),
                   ),
                   const SizedBox(height: 8),
-                  Text(lang.t("qr_code_placeholder")),
+                  Text(
+                    lang.t("qr_code_placeholder"),
+                    style: TextStyle(color: colors.onSurface.withOpacity(0.5)),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () => _showSuccessDialog(lang),
+              onPressed: () => _showSuccessDialog(lang, colors),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0A3B2A),
-                foregroundColor: Colors.white,
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onPrimary,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -186,11 +235,11 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Widget _buildOnlinePayment(Lang lang) {
+  Widget _buildOnlinePayment(Lang lang, ColorScheme colors) {
     return Form(
       key: _formKey,
       child: Card(
-        color: Colors.white,
+        color: colors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
@@ -199,11 +248,11 @@ class _PaymentPageState extends State<PaymentPage> {
             children: [
               Text(
                 lang.t("card_title"),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'PlayfairDisplay',
-                  color: Color(0xFF0A3B2A),
+                  color: colors.primary,
                 ),
               ),
               const SizedBox(height: 30),
@@ -212,25 +261,22 @@ class _PaymentPageState extends State<PaymentPage> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: lang.t("card_number"),
-                  prefixIcon: const Icon(Icons.credit_card),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
+                  labelStyle: TextStyle(
+                    color: colors.onSurface.withOpacity(0.6),
                   ),
-                  enabledBorder: OutlineInputBorder(
+                  prefixIcon: Icon(Icons.credit_card, color: colors.primary),
+                  filled: true,
+                  fillColor: colors.surface,
+                  border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF0A3B2A),
-                      width: 1.5,
-                    ),
+                    borderSide: BorderSide(color: colors.primary, width: 1.5),
                   ),
                 ),
+                style: TextStyle(color: colors.onSurface),
                 validator: (value) {
                   if (value == null || value.isEmpty)
                     return lang.t("required_field");
@@ -246,24 +292,24 @@ class _PaymentPageState extends State<PaymentPage> {
                       controller: dateController,
                       decoration: InputDecoration(
                         labelText: lang.t("expiry_date"),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
+                        labelStyle: TextStyle(
+                          color: colors.onSurface.withOpacity(0.6),
                         ),
-                        enabledBorder: OutlineInputBorder(
+                        filled: true,
+                        fillColor: colors.surface,
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A3B2A),
+                          borderSide: BorderSide(
+                            color: colors.primary,
                             width: 1.5,
                           ),
                         ),
                       ),
+                      style: TextStyle(color: colors.onSurface),
                       validator: (value) => (value == null || value.isEmpty)
                           ? lang.t("required_field")
                           : null,
@@ -277,24 +323,24 @@ class _PaymentPageState extends State<PaymentPage> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: lang.t("cvv"),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
+                        labelStyle: TextStyle(
+                          color: colors.onSurface.withOpacity(0.6),
                         ),
-                        enabledBorder: OutlineInputBorder(
+                        filled: true,
+                        fillColor: colors.surface,
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A3B2A),
+                          borderSide: BorderSide(
+                            color: colors.primary,
                             width: 1.5,
                           ),
                         ),
                       ),
+                      style: TextStyle(color: colors.onSurface),
                       validator: (value) => (value == null || value.length < 3)
                           ? lang.t("invalid_cvv")
                           : null,
@@ -306,11 +352,11 @@ class _PaymentPageState extends State<PaymentPage> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate())
-                    _showOnlinePaymentConfirmation(lang);
+                    _showOnlinePaymentConfirmation(lang, colors);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0A3B2A),
-                  foregroundColor: Colors.white,
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -326,12 +372,16 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  void _showOnlinePaymentConfirmation(Lang lang) {
+  void _showOnlinePaymentConfirmation(Lang lang, ColorScheme colors) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(lang.t("order_summary")),
+        backgroundColor: colors.surface,
+        title: Text(
+          lang.t("order_summary"),
+          style: TextStyle(color: colors.onSurface),
+        ),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,29 +391,43 @@ class _PaymentPageState extends State<PaymentPage> {
                 lang.t("product_label"),
                 widget.productName,
                 lang,
+                colors,
               ),
-              _buildDetailRow(lang.t("price_label"), widget.price, lang),
-              _buildDetailRow(lang.t("store_label"), widget.storeName, lang),
+              _buildDetailRow(
+                lang.t("price_label"),
+                widget.price,
+                lang,
+                colors,
+              ),
+              _buildDetailRow(
+                lang.t("store_label"),
+                widget.storeName,
+                lang,
+                colors,
+              ),
               _buildDetailRow(
                 lang.t("pickup_time_label"),
                 widget.pickupTime,
                 lang,
+                colors,
               ),
               _buildDetailRow(
                 lang.t("type_label"),
                 widget.deliveryType == "sur_place" ? "Sur place" : "Livraison",
                 lang,
+                colors,
               ),
-              const Divider(),
+              Divider(color: colors.onSurface.withOpacity(0.12)),
               _buildDetailRow(
                 lang.t("total_paid_label"),
                 widget.price,
                 lang,
+                colors,
                 isTotal: true,
               ),
               const SizedBox(height: 16),
-              const Center(
-                child: Icon(Icons.payment, size: 48, color: Color(0xFF0A3B2A)),
+              Center(
+                child: Icon(Icons.payment, size: 48, color: colors.primary),
               ),
             ],
           ),
@@ -371,16 +435,19 @@ class _PaymentPageState extends State<PaymentPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(lang.t("cancel")),
+            child: Text(
+              lang.t("cancel"),
+              style: TextStyle(color: colors.onSurface),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _showSuccessDialog(lang);
+              _showSuccessDialog(lang, colors);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0A3B2A),
-              foregroundColor: Colors.white,
+              backgroundColor: colors.primary,
+              foregroundColor: colors.onPrimary,
             ),
             child: Text(lang.t("confirm")),
           ),
@@ -392,7 +459,8 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget _buildDetailRow(
     String label,
     String value,
-    Lang lang, {
+    Lang lang,
+    ColorScheme colors, {
     bool isTotal = false,
   }) {
     return Padding(
@@ -405,7 +473,7 @@ class _PaymentPageState extends State<PaymentPage> {
             style: TextStyle(
               fontSize: isTotal ? 16 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? const Color(0xFF0A3B2A) : Colors.black87,
+              color: isTotal ? colors.primary : colors.onSurface,
             ),
           ),
           Text(
@@ -413,7 +481,7 @@ class _PaymentPageState extends State<PaymentPage> {
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? const Color(0xFF2E7D32) : Colors.black87,
+              color: isTotal ? colors.secondary : colors.onSurface,
             ),
           ),
         ],
@@ -421,13 +489,20 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  void _showSuccessDialog(Lang lang) {
+  void _showSuccessDialog(Lang lang, ColorScheme colors) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(lang.t("reservation_success_title")),
-        content: Text(lang.t("reservation_success_msg")),
+        backgroundColor: colors.surface,
+        title: Text(
+          lang.t("reservation_success_title"),
+          style: TextStyle(color: colors.onSurface),
+        ),
+        content: Text(
+          lang.t("reservation_success_msg"),
+          style: TextStyle(color: colors.onSurface),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -435,7 +510,7 @@ class _PaymentPageState extends State<PaymentPage> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text(lang.t("ok")),
+            child: Text(lang.t("ok"), style: TextStyle(color: colors.primary)),
           ),
         ],
       ),

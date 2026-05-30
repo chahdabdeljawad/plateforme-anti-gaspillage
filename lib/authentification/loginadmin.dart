@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+
 import '../screens/admindashboard.dart';
 
 class LoginAdminPage extends StatefulWidget {
@@ -82,25 +83,21 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E6),
+    final colors = Theme.of(context).colorScheme;
 
+    return Scaffold(
+      backgroundColor: colors.surface, // ✅ Dynamic
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-
             child: Container(
               width: double.infinity,
               constraints: const BoxConstraints(maxWidth: 450),
-
               padding: const EdgeInsets.all(28),
-
               decoration: BoxDecoration(
-                color: Colors.white,
-
+                color: colors.surface, // ✅ Dynamic
                 borderRadius: BorderRadius.circular(30),
-
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.08),
@@ -109,22 +106,19 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
                   ),
                 ],
               ),
-
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // 👤 ADMIN ICON
                   Container(
                     padding: const EdgeInsets.all(18),
-
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0A3B2A),
+                      color: colors.primary, // ✅ Dynamic
                       shape: BoxShape.circle,
                     ),
-
-                    child: const Icon(
+                    child: Icon(
                       Icons.admin_panel_settings,
-                      color: Colors.white,
+                      color: colors.onPrimary, // ✅ Dynamic
                       size: 55,
                     ),
                   ),
@@ -132,23 +126,24 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
                   const SizedBox(height: 25),
 
                   // TITLE
-                  const Text(
+                  Text(
                     "Admin Panel",
-
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'PlayfairDisplay',
-                      color: Color(0xFF0A3B2A),
+                      color: colors.primary, // ✅ Dynamic
                     ),
                   ),
 
                   const SizedBox(height: 8),
 
-                  const Text(
+                  Text(
                     "Login to manage the platform",
-
-                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                    style: TextStyle(
+                      color: colors.onSurface.withOpacity(0.5), // ✅ Dynamic
+                      fontSize: 15,
+                    ),
                   ),
 
                   const SizedBox(height: 35),
@@ -156,30 +151,28 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
                   // 📧 EMAIL FIELD
                   TextField(
                     controller: emailController,
-
+                    style: TextStyle(color: colors.onSurface), // ✅ Dynamic
                     decoration: InputDecoration(
                       hintText: "Enter your email",
-
-                      prefixIcon: const Icon(
-                        Icons.email_outlined,
-                        color: Color(0xFF0A3B2A),
+                      hintStyle: TextStyle(
+                        color: colors.onSurface.withOpacity(0.4),
                       ),
-
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: colors.primary, // ✅ Dynamic
+                      ),
                       filled: true,
-                      fillColor: const Color(0xFFF8F8F8),
-
+                      fillColor: colors.surface, // ✅ Dynamic
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide.none,
                       ),
-
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-
-                        borderSide: const BorderSide(
-                          color: Color(0xFF0A3B2A),
+                        borderSide: BorderSide(
+                          color: colors.primary,
                           width: 2,
-                        ),
+                        ), // ✅ Dynamic
                       ),
                     ),
                   ),
@@ -190,45 +183,41 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
                   TextField(
                     controller: passwordController,
                     obscureText: obscurePassword,
-
+                    style: TextStyle(color: colors.onSurface), // ✅ Dynamic
                     decoration: InputDecoration(
                       hintText: "Enter your password",
-
-                      prefixIcon: const Icon(
-                        Icons.lock_outline,
-                        color: Color(0xFF0A3B2A),
+                      hintStyle: TextStyle(
+                        color: colors.onSurface.withOpacity(0.4),
                       ),
-
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: colors.primary, // ✅ Dynamic
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           obscurePassword
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: const Color(0xFF0A3B2A),
+                          color: colors.primary, // ✅ Dynamic
                         ),
-
                         onPressed: () {
                           setState(() {
                             obscurePassword = !obscurePassword;
                           });
                         },
                       ),
-
                       filled: true,
-                      fillColor: const Color(0xFFF8F8F8),
-
+                      fillColor: colors.surface, // ✅ Dynamic
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide.none,
                       ),
-
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-
-                        borderSide: const BorderSide(
-                          color: Color(0xFF0A3B2A),
+                        borderSide: BorderSide(
+                          color: colors.primary,
                           width: 2,
-                        ),
+                        ), // ✅ Dynamic
                       ),
                     ),
                   ),
@@ -237,32 +226,24 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
 
                   // 🚀 LOGIN BUTTON
                   isLoading
-                      ? const CircularProgressIndicator(
-                          color: Color(0xFF0A3B2A),
-                        )
+                      ? CircularProgressIndicator(
+                          color: colors.primary,
+                        ) // ✅ Dynamic
                       : SizedBox(
                           width: double.infinity,
-
                           child: ElevatedButton(
                             onPressed: loginAdmin,
-
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0A3B2A),
-
-                              foregroundColor: Colors.white,
-
+                              backgroundColor: colors.primary, // ✅ Dynamic
+                              foregroundColor: colors.onPrimary, // ✅ Dynamic
                               padding: const EdgeInsets.symmetric(vertical: 16),
-
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
-
                               elevation: 0,
                             ),
-
                             child: const Text(
                               "Login",
-
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

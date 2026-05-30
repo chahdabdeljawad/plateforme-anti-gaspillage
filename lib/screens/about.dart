@@ -9,30 +9,31 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
+    final colors = Theme.of(context).colorScheme;
     final isRtl = lang.current == "ar";
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F0E6),
+        backgroundColor: colors.surface,
         appBar: AppBar(
           title: Text(
             lang.t("about_title"),
             style: const TextStyle(fontFamily: 'PlayfairDisplay'),
           ),
-          backgroundColor: const Color(0xFF0A3B2A),
-          foregroundColor: Colors.white,
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onPrimary,
           elevation: 0,
         ),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero section (solid color – no missing image)
+              // Hero section
               Container(
                 height: 280,
                 width: double.infinity,
-                color: const Color(0xFF0A3B2A),
+                color: colors.primary,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -49,9 +50,9 @@ class AboutPage extends StatelessWidget {
                       const SizedBox(height: 10),
                       Text(
                         lang.t("about_hero_subtitle"),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
-                          color: Colors.white70,
+                          color: colors.onPrimary.withOpacity(0.7),
                           fontFamily: 'PlayfairDisplay',
                         ),
                       ),
@@ -68,28 +69,32 @@ class AboutPage extends StatelessWidget {
                   children: [
                     Text(
                       lang.t("about_mission_label"),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0A3B2A),
+                        color: colors.primary,
                         letterSpacing: 1,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       lang.t("about_mission_title"),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'PlayfairDisplay',
                         height: 1.2,
-                        color: Color(0xFF0A3B2A),
+                        color: colors.primary,
                       ),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       lang.t("about_mission_text"),
-                      style: const TextStyle(fontSize: 16, height: 1.5),
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: colors.onSurface,
+                      ),
                     ),
                     const SizedBox(height: 30),
 
@@ -100,14 +105,17 @@ class AboutPage extends StatelessWidget {
                         _buildStatCard(
                           lang.t("about_stat_meals_value"),
                           lang.t("about_stat_meals"),
+                          colors,
                         ),
                         _buildStatCard(
                           lang.t("about_stat_stores_value"),
                           lang.t("about_stat_stores"),
+                          colors,
                         ),
                         _buildStatCard(
                           lang.t("about_stat_co2_value"),
                           lang.t("about_stat_co2"),
+                          colors,
                         ),
                       ],
                     ),
@@ -115,7 +123,12 @@ class AboutPage extends StatelessWidget {
                 ),
               ),
 
-              const Divider(thickness: 1, indent: 24, endIndent: 24),
+              Divider(
+                thickness: 1,
+                indent: 24,
+                endIndent: 24,
+                color: colors.onSurface.withOpacity(0.12),
+              ),
 
               // Story section
               Padding(
@@ -125,31 +138,39 @@ class AboutPage extends StatelessWidget {
                   children: [
                     Text(
                       lang.t("about_story_label"),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0A3B2A),
+                        color: colors.primary,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       lang.t("about_story_title"),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'PlayfairDisplay',
-                        color: Color(0xFF0A3B2A),
+                        color: colors.primary,
                       ),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       lang.t("about_story_text1"),
-                      style: const TextStyle(fontSize: 16, height: 1.5),
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: colors.onSurface,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       lang.t("about_story_text2"),
-                      style: const TextStyle(fontSize: 16, height: 1.5),
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: colors.onSurface,
+                      ),
                     ),
                   ],
                 ),
@@ -157,16 +178,16 @@ class AboutPage extends StatelessWidget {
 
               // How it works section
               Container(
-                color: Colors.white,
+                color: colors.surface,
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
                     Text(
                       lang.t("about_how_label"),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0A3B2A),
+                        color: colors.primary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -177,16 +198,19 @@ class AboutPage extends StatelessWidget {
                           "1",
                           lang.t("about_step1_title"),
                           lang.t("about_step1_desc"),
+                          colors,
                         ),
                         _buildStepCard(
                           "2",
                           lang.t("about_step2_title"),
                           lang.t("about_step2_desc"),
+                          colors,
                         ),
                         _buildStepCard(
                           "3",
                           lang.t("about_step3_title"),
                           lang.t("about_step3_desc"),
+                          colors,
                         ),
                       ],
                     ),
@@ -203,27 +227,27 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String number, String label) {
+  Widget _buildStatCard(String number, String label, ColorScheme colors) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: Colors.white,
+      color: colors.surface,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           children: [
             Text(
               number,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0A3B2A),
+                color: colors.primary,
               ),
             ),
             const SizedBox(height: 5),
             Text(
               label,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14, color: colors.onSurface),
               textAlign: TextAlign.center,
             ),
           ],
@@ -232,17 +256,22 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStepCard(String stepNumber, String title, String description) {
+  Widget _buildStepCard(
+    String stepNumber,
+    String title,
+    String description,
+    ColorScheme colors,
+  ) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
@@ -251,29 +280,29 @@ class AboutPage extends StatelessWidget {
         child: Column(
           children: [
             CircleAvatar(
-              backgroundColor: const Color(0xFF0A3B2A).withValues(alpha: 0.1),
+              backgroundColor: colors.primary.withOpacity(0.1),
               child: Text(
                 stepNumber,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0A3B2A),
+                  color: colors.primary,
                 ),
               ),
             ),
             const SizedBox(height: 10),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: Color(0xFF0A3B2A),
+                color: colors.primary,
               ),
             ),
             const SizedBox(height: 5),
             Text(
               description,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12, color: colors.onSurface),
             ),
           ],
         ),
