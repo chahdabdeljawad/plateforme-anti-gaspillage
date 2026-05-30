@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
   @override
@@ -102,9 +103,47 @@ class AdminDashboard extends StatelessWidget {
                   ),
                   buildCard(
                     context,
-                    "Statistics",
-                    Icons.bar_chart_rounded,
-                    () {},
+                    "Stores",
+                    Icons.storefront_rounded,
+                    storesCount.toString(),
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StoresPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  buildCard(
+                    context,
+                    "Products",
+                    Icons.shopping_bag_rounded,
+                    productsCount.toString(),
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductsPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  buildCard(
+                    context,
+                    "Reservations",
+                    Icons.bookmark_rounded,
+                    reservationsCount.toString(),
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReservationsPage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -119,6 +158,7 @@ class AdminDashboard extends StatelessWidget {
     BuildContext context,
     String title,
     IconData icon,
+    String count,
     VoidCallback onTap,
   ) {
     final colors = Theme.of(context).colorScheme;
@@ -158,6 +198,17 @@ class AdminDashboard extends StatelessWidget {
                 fontFamily: 'PlayfairDisplay',
               ),
             ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              count,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
           ],
         ),
       ),
@@ -168,7 +219,7 @@ class AdminDashboard extends StatelessWidget {
 // ================= CLIENTS PAGE =================
 
 class ClientsPage extends StatelessWidget {
-  const ClientsPage({super.key});
+  ClientsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +235,7 @@ class ClientsPage extends StatelessWidget {
 // ================= STORES PAGE =================
 
 class StoresPage extends StatelessWidget {
-  const StoresPage({super.key});
+  StoresPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -197,10 +248,10 @@ class StoresPage extends StatelessWidget {
   }
 }
 
-// ================= CATEGORIES PAGE =================
+// ================= PRODUCTS PAGE =================
 
-class CategoriesPage extends StatelessWidget {
-  const CategoriesPage({super.key});
+class ProductsPage extends StatelessWidget {
+  ProductsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

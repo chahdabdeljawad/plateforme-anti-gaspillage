@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../components/footer.dart';
 import '../lang.dart';
 
-class CategoryDetailsPage extends StatelessWidget {
+/*class CategoryDetailsPage extends StatelessWidget {
   final String categoryName;
   final VoidCallback onBack;
   final Function(Map<String, dynamic>, Map<String, dynamic>)
@@ -314,7 +314,56 @@ class CategoryDetailsPage extends StatelessWidget {
       ],
     };
 
-    final products = data[categoryName] ?? [];
+    //final products = data[categoryName] ?? [];
+final staticProducts = data[widget.categoryName] ?? [];
+
+final allProducts = [
+  ...staticProducts,
+
+  ...products
+      .where((p) => p["category"] == categoryName)
+      .map<Map<String, String>>(
+        (p) => {
+
+          // NAME
+          "name": p["name"].toString(),
+
+          // OLD PRICE
+          "price":
+              "${p["old_price"] ?? p["price"]} DT",
+
+          // NEW PRICE
+          "promo":
+              "${p["price"]} DT",
+
+          // DESCRIPTION
+          "description":
+              p["description"]?.toString() ?? "",
+
+          // IMAGE
+          "image": p["image"] != null
+              ? (kIsWeb
+                  ? "http://localhost:5000/uploads/${p["image"]}"
+                  : "http://10.0.2.2:5000/uploads/${p["image"]}")
+              : "",
+
+          // STORE NAME
+          "storeName":
+              p["store_name"]?.toString() ??
+              categoryName,
+
+          // LOCATION
+          "lat":
+              p["latitude"]?.toString() ?? "33.705",
+
+          "lng":
+              p["longitude"]?.toString() ?? "8.969",
+
+          "time": "18:00",
+        },
+      )
+      .toList(),
+];
     final store = stores[categoryName];
 
     if (store == null) {
@@ -400,16 +449,59 @@ class CategoryDetailsPage extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Image.asset(
-                item['image'] ?? '',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (_, _, _) =>
-                    const Icon(Icons.image_not_supported),
-              ),
-            ),
+          children: [Expanded(
+   child: ClipRRect(
+    borderRadius: const BorderRadius.only(
+      topLeft: Radius.circular(0),
+      topRight: Radius.circular(0),
+    ),
+    child: item['image'] != null &&
+            item['image']!.isNotEmpty &&
+            item['image']!.startsWith("http")
+
+        ? Image.network(
+            item['image']!.trim(),
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+
+            errorBuilder: (_, __, ___) {
+              return Container(
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
+                ),
+              );
+            },
+          )
+
+        : Image.asset(
+            item['image']!.isEmpty
+                ? "images/products/default.png"
+                : item['image']!,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+
+            errorBuilder: (_, __, ___) {
+              return Container(
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
+                ),
+              );
+            },
+          ),
+  ),
+),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(

@@ -1,13 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'dart:typed_data';
 
 class ApiService {
+
+  // 🌍 BASE URL
   static String get baseUrl {
+
     if (kIsWeb) {
-      return "http://localhost:5000/api"; // ✅ WEB
+      return "http://localhost:5000/api";
     } else {
-      return "http://10.0.2.2:5000/api"; // ✅ ANDROID EMULATOR
+      return "http://10.0.2.2:5000/api";
     }
   }
 
@@ -16,27 +21,52 @@ class ApiService {
     String email,
     String password,
   ) async {
+
     try {
+
       final response = await http.post(
         Uri.parse("$baseUrl/auth/login"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"email": email, "password": password}),
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+        }),
       );
 
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        return {"success": true, "data": data};
+
+        return {
+          "success": true,
+          "data": data,
+        };
+
       } else {
-        return {"success": false, "message": data["message"] ?? "Login failed"};
+
+        return {
+          "success": false,
+          "message":
+              data["message"] ?? "Login failed",
+        };
       }
+
     } catch (e) {
-      print("LOGIN ERROR: $e");
-      return {"success": false, "message": "Server error"};
+
+      print("LOGIN ERROR = $e");
+
+      return {
+        "success": false,
+        "message": "Server error",
+      };
     }
   }
 
-  // 📝 REGISTER (updated with additional fields)
+  // 📝 REGISTER
   static Future<Map<String, dynamic>> register(
     String name,
     String email,
@@ -48,8 +78,9 @@ class ApiService {
     double? longitude,
     String? placeName,
   }) async {
+
     try {
-      // Base request body (common to all roles)
+
       final Map<String, dynamic> body = {
         "name": name,
         "email": email,
@@ -57,137 +88,423 @@ class ApiService {
         "role": role,
       };
 
-      // Add phone if provided (required for both roles)
       if (phone != null && phone.isNotEmpty) {
         body["phone"] = phone;
       }
 
-      // Add store-specific fields only when role is "store"
       if (role == "store") {
-        if (storeCategory != null && storeCategory.isNotEmpty) {
+
+        if (storeCategory != null) {
           body["storeCategory"] = storeCategory;
         }
+
         if (latitude != null) {
           body["latitude"] = latitude;
         }
+
         if (longitude != null) {
           body["longitude"] = longitude;
         }
-        if (placeName != null && placeName.isNotEmpty) {
+
+        if (placeName != null) {
           body["placeName"] = placeName;
         }
       }
 
       final response = await http.post(
         Uri.parse("$baseUrl/auth/register"),
-        headers: {"Content-Type": "application/json"},
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
         body: jsonEncode(body),
       );
 
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
-        return {"success": true, "data": data};
+
+        return {
+          "success": true,
+          "data": data,
+        };
+
       } else {
+
         return {
           "success": false,
-          "message": data["message"] ?? "Signup failed",
+          "message":
+              data["message"] ?? "Signup failed",
         };
       }
+
     } catch (e) {
-      print("REGISTER ERROR: $e");
-      return {"success": false, "message": "Server error"};
+
+      print("REGISTER ERROR = $e");
+
+      return {
+        "success": false,
+        "message": "Server error",
+      };
     }
   }
 
-  // 👤 GET PROFILE
-  static Future<Map<String, dynamic>> getProfile(String token) async {
+  // 👤 PROFILE
+static Future<Map<String, dynamic>> getProfile(
+  String token,
+) async {
+
+  try {
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/auth/me"),
+
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    print("PROFILE STATUS = ${response.statusCode}");
+    print("PROFILE BODY = ${response.body}");
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+
+      return data;
+
+    } else {
+
+      return {
+        "success": false,
+      };
+    }
+
+  } catch (e) {
+
+    print("PROFILE ERROR = $e");
+
+    return {
+      "success": false,
+    };
+  }
+}
+
+  // 🌍 GET ALL PRODUCTS
+  static Future<Map<String, dynamic>>
+      getProducts() async {
+
     try {
+
       final response = await http.get(
-        Uri.parse("$baseUrl/auth/me"),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
+        Uri.parse("$baseUrl/products"),
       );
 
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        return {"success": true, "data": data};
+
+        return {
+          "success": true,
+          "products": data["products"],
+        };
+
       } else {
-        return {"success": false};
+
+        return {
+          "success": false,
+        };
       }
+
     } catch (e) {
-      return {"success": false};
+
+      print("GET PRODUCTS ERROR = $e");
+
+      return {
+        "success": false,
+      };
     }
   }
 
+  // 📦 GET MY PRODUCTS
+  static Future<Map<String, dynamic>>
+      getMyProducts(
+    String token,
+  ) async {
 
-// 📦 GET ALL PRODUCTS
-static Future<Map<String, dynamic>> getProducts() async {
-  try {
-    final response = await http.get(
-      Uri.parse("$baseUrl/products"),
-    );
+    try {
 
-    final data = jsonDecode(response.body);
+      final response = await http.get(
+        Uri.parse("$baseUrl/products/my"),
 
-    if (response.statusCode == 200) {
-      return {"success": true, "products": data["products"]};
-    } else {
-      return {"success": false};
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      print(
+        "MY PRODUCTS STATUS = ${response.statusCode}",
+      );
+
+      print(
+        "MY PRODUCTS BODY = ${response.body}",
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+
+        return {
+          "success": true,
+          "products": data["products"],
+        };
+
+      } else {
+
+        return {
+          "success": false,
+        };
+      }
+
+    } catch (e) {
+
+      print("GET MY PRODUCTS ERROR = $e");
+
+      return {
+        "success": false,
+      };
     }
-  } catch (e) {
-    return {"success": false};
   }
-}
 
-// ➕ ADD PRODUCT (STORE ONLY)
-static Future<Map<String, dynamic>> addProduct(
+  // ➕ ADD PRODUCT
+  static Future<Map<String, dynamic>>
+      addProduct(
     String token,
     String name,
     String price,
+    String oldPrice,
     String description,
-    String category) async {
+    String category,
+    dynamic image,
+    String imageName,
+  ) async {
 
-  try {
-    final response = await http.post(
-      Uri.parse("$baseUrl/products"),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      },
-      body: jsonEncode({
-        "name": name,
-        "price": price,
-        "description": description,
-        "category": category
-      }),
-    );
+    try {
 
-    final data = jsonDecode(response.body);
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse("$baseUrl/products"),
+      );
 
-    if (response.statusCode == 201) {
-      return {"success": true};
-    } else {
-      return {"success": false, "message": data["message"]};
+      request.headers['Authorization'] =
+          'Bearer $token';
+
+      request.fields['name'] = name;
+      request.fields['price'] = price;
+      request.fields['oldPrice'] = oldPrice;
+      request.fields['description'] =
+          description;
+      request.fields['category'] =
+          category;
+
+      // WEB
+      if (kIsWeb) {
+
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            image as Uint8List,
+            filename: imageName,
+          ),
+        );
+
+      }
+
+      // MOBILE
+      else {
+
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            (image as File).path,
+          ),
+        );
+      }
+
+      var response = await request.send();
+
+      var responseData =
+          await response.stream.bytesToString();
+
+      print(
+        "ADD STATUS = ${response.statusCode}",
+      );
+
+      print(
+        "ADD BODY = $responseData",
+      );
+
+      if (responseData.isEmpty) {
+
+        if (response.statusCode == 201) {
+
+          return {
+            "success": true,
+          };
+        }
+
+        return {
+          "success": false,
+          "message": "Empty response",
+        };
+      }
+
+      final data = jsonDecode(responseData);
+
+      if (response.statusCode == 201) {
+
+        return {
+          "success": true,
+          "product": data,
+        };
+
+      } else {
+
+        return {
+          "success": false,
+          "message":
+              data["message"] ?? "Error",
+        };
+      }
+
+    } catch (e) {
+
+      print("ADD PRODUCT ERROR = $e");
+
+      return {
+        "success": false,
+        "message": e.toString(),
+      };
     }
-  } catch (e) {
-    return {"success": false};
+  }
+
+  // ✏️ UPDATE PRODUCT
+  static Future<Map<String, dynamic>>
+      updateProduct(
+    String token,
+    int id,
+    String name,
+    String price,
+    String oldPrice,
+    String description,
+    String category,
+  ) async {
+
+    try {
+
+      final response = await http.put(
+        Uri.parse("$baseUrl/products/$id"),
+
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+
+        body: jsonEncode({
+          "name": name,
+          "price": price,
+          "oldPrice": oldPrice,
+          "description": description,
+          "category": category,
+        }),
+      );
+
+      print(
+        "UPDATE STATUS = ${response.statusCode}",
+      );
+
+      print(
+        "UPDATE BODY = ${response.body}",
+      );
+
+      if (response.body.isEmpty) {
+
+        if (response.statusCode == 200) {
+
+          return {
+            "success": true,
+          };
+        }
+
+        return {
+          "success": false,
+          "message": "Empty response",
+        };
+      }
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+
+        return {
+          "success": true,
+          "product": data,
+        };
+
+      } else {
+
+        return {
+          "success": false,
+          "message":
+              data["message"] ??
+              "Update failed",
+        };
+      }
+
+    } catch (e) {
+
+      print("UPDATE PRODUCT ERROR = $e");
+
+      return {
+        "success": false,
+        "message": e.toString(),
+      };
+    }
+  }
+
+  // 🗑 DELETE PRODUCT
+  static Future<bool> deleteProduct(
+    String token,
+    int id,
+  ) async {
+
+    try {
+
+      final response = await http.delete(
+        Uri.parse("$baseUrl/products/$id"),
+
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      print(
+        "DELETE STATUS = ${response.statusCode}",
+      );
+
+      print(
+        "DELETE BODY = ${response.body}",
+      );
+
+      return response.statusCode == 200;
+
+    } catch (e) {
+
+      print("DELETE ERROR = $e");
+
+      return false;
+    }
   }
 }
-
-// 🗑️ DELETE PRODUCT
-static Future<bool> deleteProduct(String token, int id) async {
-  final response = await http.delete(
-    Uri.parse("$baseUrl/products/$id"),
-    headers: {
-      "Authorization": "Bearer $token"
-    },
-  );
-
-  return response.statusCode == 200;
-}
-}
-

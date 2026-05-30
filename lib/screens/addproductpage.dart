@@ -2,25 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+
 import '../services/api_service.dart';
 
 class AddProductPage extends StatefulWidget {
-  const AddProductPage({super.key});
+
+  final Map? product;
+
+  const AddProductPage({
+    super.key,
+    this.product,
+  });
 
   @override
-  State<AddProductPage> createState() => _AddProductPageState();
+  State<AddProductPage> createState() =>
+      _AddProductPageState();
 }
 
-class _AddProductPageState extends State<AddProductPage> {
-  final nameController = TextEditingController();
-  final priceController = TextEditingController();
-  final descController = TextEditingController();
+class _AddProductPageState
+    extends State<AddProductPage> {
+
+  final nameController =
+      TextEditingController();
+
+  final priceController =
+      TextEditingController();
+
+  final oldPriceController =
+      TextEditingController();
+
+  final descController =
+      TextEditingController();
 
   File? selectedImage;
+
+  Uint8List? webImage;
+
+  String? imageName;
 
   bool isLoading = false;
 
   final List<String> categories = [
+
     "Carrefour",
     "MG",
     "Monoprix",
@@ -36,29 +61,112 @@ class _AddProductPageState extends State<AddProductPage> {
 
   String? selectedCategory;
 
-  Future<void> pickImage() async {
-    final picker = ImagePicker();
+  bool get isEdit =>
+      widget.product != null;
 
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+  @override
+  void initState() {
 
-    if (picked != null) {
-      setState(() {
-        selectedImage = File(picked.path);
-      });
+    super.initState();
+
+    // ✅ EDIT MODE
+    if (isEdit) {
+
+      final product =
+          widget.product!;
+
+      nameController.text =
+          product["name"] ?? "";
+
+      priceController.text =
+          product["price"]
+              .toString();
+
+      oldPriceController.text =
+          product["old_price"]
+              .toString();
+
+      descController.text =
+          product["description"] ?? "";
+
+      // ✅ FIX CATEGORY ERROR
+      final category =
+          product["category"]
+                  ?.toString() ??
+              "";
+
+      if (categories.contains(
+          category)) {
+
+        selectedCategory =
+            category;
+
+      } else {
+
+        selectedCategory =
+            null;
+      }
     }
   }
 
-  Future<void> addProduct() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString("token");
+  // 📸 PICK IMAGE
+  Future<void> pickImage() async {
+
+    final picker = ImagePicker();
+
+    final picked =
+        await picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (picked != null) {
+
+      imageName = picked.name;
+
+      if (kIsWeb) {
+
+        webImage =
+            await picked.readAsBytes();
+
+      } else {
+
+        selectedImage =
+            File(picked.path);
+      }
+
+      setState(() {});
+    }
+  }
+
+  // ➕ ADD / ✏ UPDATE
+  Future<void> saveProduct() async {
+
+    final prefs =
+        await SharedPreferences
+            .getInstance();
+
+    final token =
+        prefs.getString("token");
+
+    if (token == null) return;
 
     if (nameController.text.isEmpty ||
         priceController.text.isEmpty ||
+        oldPriceController
+            .text.isEmpty ||
         descController.text.isEmpty ||
-        selectedCategory == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+        selectedCategory ==
+            null) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+
+        const SnackBar(
+          content:
+              Text("Fill all fields"),
+        ),
+      );
+
       return;
     }
 
@@ -66,30 +174,125 @@ class _AddProductPageState extends State<AddProductPage> {
       isLoading = true;
     });
 
-    final result = await ApiService.addProduct(
-      token!,
-      nameController.text,
-      priceController.text,
-      descController.text,
-      selectedCategory!,
-    );
+    Map<String, dynamic> result;
+
+    // ✅ UPDATE
+    if (isEdit) {
+
+      result =
+          await ApiService
+              .updateProduct(
+
+        token,
+
+        widget.product!["id"],
+
+        nameController.text,
+
+        priceController.text,
+
+        oldPriceController.text,
+
+        descController.text,
+
+        selectedCategory!,
+      );
+
+    }
+
+    // ✅ ADD
+    else {
+
+      if ((kIsWeb &&
+              webImage == null) ||
+          (!kIsWeb &&
+              selectedImage ==
+                  null)) {
+
+        ScaffoldMessenger.of(
+                context)
+            .showSnackBar(
+
+          const SnackBar(
+            content:
+                Text("Choose image"),
+          ),
+        );
+
+        setState(() {
+          isLoading = false;
+        });
+
+        return;
+      }
+
+      result =
+          await ApiService
+              .addProduct(
+
+        token,
+
+        nameController.text,
+
+        priceController.text,
+
+        oldPriceController.text,
+
+        descController.text,
+
+        selectedCategory!,
+
+        kIsWeb
+            ? webImage!
+            : selectedImage!,
+
+        imageName!,
+      );
+    }
 
     setState(() {
       isLoading = false;
     });
 
-    final bool success = result["success"] ?? false;
+    // ✅ SUCCESS
+    if (result["success"] ==
+        true) {
 
-    if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Product added ✅")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
 
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(
+        SnackBar(
+          content: Text(
+
+            isEdit
+                ? "Product updated ✅"
+                : "Product added ✅",
+          ),
+        ),
+      );
+
+      // ✅ AUTO REFRESH
+      Navigator.pop(
         context,
-      ).showSnackBar(SnackBar(content: Text(result["message"] ?? "Error")));
+        true,
+      );
+
+    }
+
+    // ❌ ERROR
+    else {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+
+        SnackBar(
+          content: Text(
+
+            result["message"] ??
+                "Error",
+          ),
+        ),
+      );
     }
   }
 
@@ -100,7 +303,9 @@ class _AddProductPageState extends State<AddProductPage> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
+
         elevation: 0,
+
         centerTitle: true,
         backgroundColor: colors.surface,
         iconTheme: IconThemeData(color: colors.onSurface),
@@ -110,11 +315,11 @@ class _AddProductPageState extends State<AddProductPage> {
             color: colors.primary,
             fontWeight: FontWeight.bold,
             fontSize: 24,
-            fontFamily: 'PlayfairDisplay',
           ),
         ),
       ),
       body: SafeArea(
+
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Container(
@@ -123,10 +328,15 @@ class _AddProductPageState extends State<AddProductPage> {
               color: colors.surface,
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
+
                 BoxShadow(
                   color: Colors.black.withOpacity(0.06),
                   blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  offset:
+                      const Offset(
+                    0,
+                    4,
+                  ),
                 ),
               ],
             ),
@@ -167,20 +377,34 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // PRICE
                 buildTextField(
-                  controller: priceController,
+                  controller:
+                      priceController,
                   label: "Price",
                   icon: Icons.attach_money_rounded,
                   colors: colors,
                 ),
                 const SizedBox(height: 20),
 
-                // DESCRIPTION
                 buildTextField(
-                  controller: descController,
-                  label: "Description",
-                  icon: Icons.description_outlined,
+                  controller:
+                      oldPriceController,
+                  label:
+                      "Old Price",
+                  icon: Icons
+                      .local_offer,
+                ),
+
+                const SizedBox(
+                    height: 20),
+
+                buildTextField(
+                  controller:
+                      descController,
+                  label:
+                      "Description",
+                  icon: Icons
+                      .description,
                   maxLines: 4,
                   colors: colors,
                 ),
@@ -221,7 +445,9 @@ class _AddProductPageState extends State<AddProductPage> {
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedCategory = value;
+
+                      selectedCategory =
+                          value;
                     });
                   },
                 ),
@@ -269,6 +495,7 @@ class _AddProductPageState extends State<AddProductPage> {
                             color: colors.primary,
                           ),
                         )
+
                       : ElevatedButton(
                           onPressed: addProduct,
                           style: ElevatedButton.styleFrom(
@@ -296,18 +523,27 @@ class _AddProductPageState extends State<AddProductPage> {
     );
   }
 
+  // 📝 TEXTFIELD
   Widget buildTextField({
-    required TextEditingController controller,
+
+    required TextEditingController
+        controller,
+
     required String label,
+
     required IconData icon,
     required ColorScheme colors,
     int maxLines = 1,
   }) {
+
     return TextField(
+
       controller: controller,
+
       maxLines: maxLines,
       style: TextStyle(color: colors.onSurface),
       decoration: InputDecoration(
+
         labelText: label,
         labelStyle: TextStyle(color: colors.onSurface.withOpacity(0.6)),
         prefixIcon: Icon(icon, color: colors.primary),

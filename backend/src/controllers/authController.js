@@ -1,18 +1,33 @@
-const { registerUser, loginUser, getUserProfile } = require('../services/authService');
+const {
+  registerUser,
+  loginUser,
+  getUserProfile
+} = require('../services/authService');
+
 
 // ================= REGISTER =================
 const register = async (req, res) => {
+
   try {
-    console.log("📥 REGISTER BODY:", req.body); // 🔥 مهم برشا
 
-    const data = await registerUser(req.body);
+    console.log(
+      "REGISTER BODY =",
+      req.body
+    );
 
-    res.status(201).json(data);
+    const data =
+      await registerUser(req.body);
+
+    return res.status(201).json({
+      success: true,
+      ...data
+    });
 
   } catch (err) {
-    console.error("❌ REGISTER ERROR:", err.message); // 🔥 مهم
 
-    res.status(400).json({
+    console.log("REGISTER ERROR =", err);
+
+    return res.status(400).json({
       success: false,
       message: err.message
     });
@@ -22,35 +37,93 @@ const register = async (req, res) => {
 
 // ================= LOGIN =================
 const login = async (req, res) => {
+
   try {
-    console.log("📥 LOGIN BODY:", req.body); // 🔥
 
-    const data = await loginUser(req.body);
+    const data =
+      await loginUser(req.body);
 
-    res.json({
+    return res.status(200).json({
       success: true,
       ...data
     });
 
   } catch (err) {
-    console.error("❌ LOGIN ERROR:", err.message); // 🔥
 
-    res.status(400).json({
+    console.log("LOGIN ERROR =", err);
+
+    return res.status(400).json({
       success: false,
       message: err.message
     });
   }
 };
 
-// ================= PROFILE =================
+
+// ================= GET PROFILE =================
 const getMe = async (req, res) => {
+
   try {
-    const user = await getUserProfile(req.user.id, req.user.role);
-    res.json({       success: true,
-          user });
+
+    // ✅ DEBUG TOKEN USER
+    console.log(
+      "REQ.USER =",
+      req.user
+    );
+
+    // ✅ CHECK TOKEN ID
+    if (!req.user || !req.user.userId) {
+
+      return res.status(400).json({
+        success: false,
+        message: "ID missing from token"
+      });
+    }
+
+    // ✅ GET USER FROM DB
+    const user =
+      await getUserProfile(
+        req.user.userId,
+        req.user.role
+      );
+
+    console.log(
+      "USER FROM DB =",
+      user
+    );
+
+    // ❌ USER NOT FOUND
+    if (!user) {
+
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // ✅ SUCCESS
+    return res.status(200).json({
+      success: true,
+      user
+    });
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+
+    console.log(
+      "GET ME ERROR =",
+      err
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
 
-module.exports = { register, login, getMe };
+
+module.exports = {
+  register,
+  login,
+  getMe
+};

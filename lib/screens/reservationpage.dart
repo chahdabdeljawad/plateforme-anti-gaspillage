@@ -8,6 +8,8 @@ import 'mappage.dart';
 class ReservationPage extends StatefulWidget {
   final String productName;
   final String price;
+  final String oldPrice;
+  final String description;
   final String image;
   final double lat;
   final double lng;
@@ -20,6 +22,8 @@ class ReservationPage extends StatefulWidget {
     super.key,
     required this.productName,
     required this.price,
+    required this.oldPrice,
+    required this.description,
     required this.image,
     required this.lat,
     required this.lng,
@@ -30,32 +34,41 @@ class ReservationPage extends StatefulWidget {
   });
 
   @override
-  State<ReservationPage> createState() => _ReservationPageState();
+  State<ReservationPage> createState() =>
+      _ReservationPageState();
 }
 
-class _ReservationPageState extends State<ReservationPage> {
+class _ReservationPageState
+    extends State<ReservationPage> {
+
   String deliveryType = "sur_place";
+
   late TimeOfDay selectedTime;
 
   @override
   void initState() {
     super.initState();
+
     try {
       final parts = widget.time.split(":");
+
       selectedTime = TimeOfDay(
         hour: int.parse(parts[0]),
         minute: int.parse(parts[1]),
       );
     } catch (e) {
-      selectedTime = const TimeOfDay(hour: 18, minute: 0);
+      selectedTime =
+          const TimeOfDay(hour: 18, minute: 0);
     }
   }
 
   void pickTime() async {
-    TimeOfDay? time = await showTimePicker(
+    TimeOfDay? time =
+        await showTimePicker(
       context: context,
       initialTime: selectedTime,
     );
+
     if (time != null) {
       setState(() {
         selectedTime = time;
@@ -325,11 +338,23 @@ class _ReservationPageState extends State<ReservationPage> {
 
   Widget _buildReview(String text, int stars, ColorScheme colors) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 4,
+      ),
+
       child: Card(
         color: colors.surface,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+
+        shape: RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
+            20,
+          ),
+        ),
+
         child: ListTile(
           leading: CircleAvatar(
             backgroundColor: colors.primary,
@@ -339,7 +364,11 @@ class _ReservationPageState extends State<ReservationPage> {
           subtitle: Row(
             children: List.generate(
               stars,
-              (index) => const Icon(Icons.star, color: Colors.amber, size: 16),
+              (index) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+                size: 16,
+              ),
             ),
           ),
         ),
