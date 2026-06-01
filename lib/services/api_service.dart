@@ -507,4 +507,187 @@ static Future<Map<String, dynamic>> getProfile(
       return false;
     }
   }
+  // ================= CLIENT RESERVATIONS =================
+
+static Future<Map<String, dynamic>>
+    getClientReservations(
+  int clientId,
+) async {
+
+  try {
+
+    final response = await http.get(
+      Uri.parse(
+        "$baseUrl/client-reservations/$clientId",
+      ),
+    );
+
+    final data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+
+      return {
+        "success": true,
+        "reservations":
+            data["reservations"] ?? [],
+      };
+
+    } else {
+
+      return {
+        "success": false,
+        "message":
+            data["message"] ??
+            "Failed to load reservations",
+      };
+    }
+
+  } catch (e) {
+
+    return {
+      "success": false,
+      "message": e.toString(),
+    };
+  }
+}
+// ================= GET PENDING STORES =================
+
+static Future<Map<String, dynamic>>
+getPendingStores() async {
+
+  try {
+
+    final response = await http.get(
+      Uri.parse(
+        "$baseUrl/admin/pending-stores",
+      ),
+    );
+
+    final data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+
+      return {
+        "success": true,
+        "stores": data["stores"],
+      };
+
+    } else {
+
+      return {
+        "success": false,
+      };
+    }
+
+  } catch (e) {
+
+    return {
+      "success": false,
+    };
+  }
+}
+
+
+// ================= VALIDATE STORE =================
+
+static Future<bool>
+validateStore(
+  int id,
+) async {
+
+  try {
+
+    final response = await http.put(
+      Uri.parse(
+        "$baseUrl/admin/validate-store/$id",
+      ),
+    );
+
+    return response.statusCode == 200;
+
+  } catch (e) {
+
+    return false;
+  }
+}
+
+// ================= UPDATE PROFILE =================
+
+static Future<Map<String, dynamic>>
+updateProfile(
+  int id,
+  String role,
+  String name,
+  String email,
+  String num, {
+  String? categorie,
+  String? localisation,
+}) async {
+
+  try {
+
+    final response = await http.put(
+
+      Uri.parse(
+        "$baseUrl/auth/update-profile",
+      ),
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: jsonEncode({
+
+        "id": id,
+        "role": role,
+        "name": name,
+        "email": email,
+        "num": num,
+        "categorie": categorie,
+        "localisation": localisation,
+      }),
+    );
+
+    print(
+      "UPDATE PROFILE STATUS = ${response.statusCode}",
+    );
+
+    print(
+      "UPDATE PROFILE BODY = ${response.body}",
+    );
+
+    final data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+
+      return {
+        "success": true,
+        "user": data["user"],
+      };
+
+    } else {
+
+      return {
+        "success": false,
+        "message":
+            data["message"],
+      };
+    }
+
+  } catch (e) {
+
+    print(
+      "UPDATE PROFILE ERROR = $e",
+    );
+
+    return {
+      "success": false,
+      "message": e.toString(),
+    };
+  }
+}
+
 }

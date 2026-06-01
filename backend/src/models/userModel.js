@@ -5,7 +5,8 @@ const pool = require('../config/db');
 const createClient = async (
   name,
   email,
-  password
+  password,
+  phone
 ) => {
 
   const result = await pool.query(
@@ -13,17 +14,24 @@ const createClient = async (
     INSERT INTO clients(
       name,
       email,
-      password
+      password,
+      num
     )
 
-    VALUES($1,$2,$3)
+    VALUES($1,$2,$3,$4)
 
     RETURNING
       id,
       name,
-      email
+      email,
+      num
     `,
-    [name, email, password]
+    [
+      name,
+      email,
+      password,
+      phone
+    ]
   );
 
   return result.rows[0];
@@ -56,7 +64,8 @@ const createStore = async (
   storeCategory,
   placeName,
   latitude,
-  longitude
+  longitude,
+  isValidated
 ) => {
 
   const result = await pool.query(
@@ -69,10 +78,11 @@ const createStore = async (
       categorie,
       localisation,
       latitude,
-      longitude
+      longitude,
+      is_validated
     )
 
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)
 
     RETURNING
       id,
@@ -82,7 +92,8 @@ const createStore = async (
       categorie,
       localisation,
       latitude,
-      longitude
+      longitude,
+     is_validated
     `,
     [
       name,
@@ -92,7 +103,8 @@ const createStore = async (
       storeCategory,
       placeName,
       latitude,
-      longitude
+      longitude,
+      isValidated
     ]
   );
 
@@ -116,10 +128,85 @@ const findStoreByEmail = async (
   return result.rows[0];
 };
 
+// ================= UPDATE CLIENT =================
+
+const updateClient = async (
+  id,
+  name,
+  email,
+  num
+) => {
+
+  const result = await pool.query(
+    `
+    UPDATE clients
+
+    SET
+      name = $1,
+      email = $2,
+      num = $3
+
+    WHERE id = $4
+
+    RETURNING *
+    `,
+    [
+      name,
+      email,
+      num,
+      id
+    ]
+  );
+
+  return result.rows[0];
+};
+
+
+// ================= UPDATE STORE =================
+
+const updateStore = async (
+  id,
+  name,
+  email,
+  num,
+  categorie,
+  localisation
+) => {
+
+  const result = await pool.query(
+    `
+    UPDATE stores
+
+    SET
+      name = $1,
+      email = $2,
+      num = $3,
+      categorie = $4,
+      localisation = $5
+
+    WHERE id = $6
+
+    RETURNING *
+    `,
+    [
+      name,
+      email,
+      num,
+      categorie,
+      localisation,
+      id
+    ]
+  );
+
+  return result.rows[0];
+};
+
 
 module.exports = {
   createClient,
   findClientByEmail,
   createStore,
-  findStoreByEmail
+  findStoreByEmail,
+    updateClient,
+  updateStore
 };

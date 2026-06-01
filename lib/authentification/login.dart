@@ -46,6 +46,11 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setString("role", data["user"]["role"]);
       await prefs.setString("email", data["user"]["email"]);
 
+await prefs.setInt(
+  "client_id",
+  data["user"]["id"],
+);
+
       String role = data["user"]["role"];
 
       ScaffoldMessenger.of(

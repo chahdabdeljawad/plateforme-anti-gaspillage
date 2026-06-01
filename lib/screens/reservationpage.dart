@@ -6,6 +6,8 @@ import '../lang.dart';
 import 'mappage.dart';
 
 class ReservationPage extends StatefulWidget {
+  final int productId;
+final int clientId;
   final String productName;
   final String price;
   final String oldPrice;
@@ -20,6 +22,8 @@ class ReservationPage extends StatefulWidget {
 
   const ReservationPage({
     super.key,
+    required this.productId,
+required this.clientId,
     required this.productName,
     required this.price,
     required this.oldPrice,
@@ -321,6 +325,75 @@ class _ReservationPageState extends State<ReservationPage> {
                   ),
 
                   const SizedBox(height: 20),
+            /// BUTTON
+            Center(
+              child: ElevatedButton.icon(
+                style:
+                    ElevatedButton.styleFrom(
+                  backgroundColor:
+                      const Color(
+                    0xFF0A3B2A,
+                  ),
+
+                  foregroundColor:
+                      Colors.white,
+
+                  padding:
+                      const EdgeInsets
+                          .symmetric(
+                    horizontal: 40,
+                    vertical: 15,
+                  ),
+
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(
+                      30,
+                    ),
+                  ),
+
+                  elevation: 0,
+                ),
+
+                onPressed: () {
+
+                  Navigator.push(
+                    context,
+
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+PaymentPage(
+  productId: widget.productId,
+  clientId: widget.clientId,
+
+  productName: widget.productName,
+  price: widget.price,
+  storeName: widget.storeName,
+
+  pickupTime: selectedTime.format(context),
+
+  deliveryType: deliveryType,
+),
+                    ),
+                  );
+                },
+
+                icon: const Icon(
+                  Icons.arrow_forward,
+                ),
+
+                label: const Text(
+                  "Suivant",
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
 
                   // Footer
                   const AppFooter(),

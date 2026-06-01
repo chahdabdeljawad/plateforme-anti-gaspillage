@@ -3,6 +3,8 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "bootstrap": "^5.3.8",
-    "cors": "^2.8.6"
+    "cors": "^2.8.6",
+    "json2csv": "^6.0.0-alpha.2",
+    "uuid": "^14.0.0"
   }
 }

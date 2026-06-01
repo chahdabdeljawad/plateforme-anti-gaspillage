@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../components/footer.dart';
 import '../lang.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryDetailsPage extends StatelessWidget {
   final String categoryName;
@@ -16,6 +17,46 @@ class CategoryDetailsPage extends StatelessWidget {
     required this.onBack,
     required this.onReserve,
   });
+  });
+
+  @override
+  State<CategoryDetailsPage> createState() =>
+      _CategoryDetailsPageState();
+}
+
+class _CategoryDetailsPageState
+    extends State<CategoryDetailsPage> {
+
+  List<dynamic> products = [];
+
+int clientId = 0;
+
+@override
+void initState() {
+  super.initState();
+
+  loadClientId();
+
+  fetchProducts();
+}
+
+Future<void> loadClientId() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  setState(() {
+    clientId = prefs.getInt("client_id") ?? 0;
+  });
+}
+
+  Future<void> fetchProducts() async {
+    final result = await ApiService.getProducts();
+
+    if (result["success"] == true) {
+      setState(() {
+        products = result["products"];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -352,6 +393,56 @@ class CategoryDetailsPage extends StatelessWidget {
           .toList(),
     ];
 
+final allProducts = [
+  ...staticProducts,
+
+  ...products
+      .where((p) => p["category"] == categoryName)
+      .map<Map<String, String>>(
+        (p) => {
+
+  // PRODUCT ID
+  "id": p["id"].toString(),
+  
+          // NAME
+          "name": p["name"].toString(),
+
+          // OLD PRICE
+          "price":
+              "${p["old_price"] ?? p["price"]} DT",
+
+          // NEW PRICE
+          "promo":
+              "${p["price"]} DT",
+
+          // DESCRIPTION
+          "description":
+              p["description"]?.toString() ?? "",
+
+          // IMAGE
+          "image": p["image"] != null
+              ? (kIsWeb
+                  ? "http://localhost:5000/uploads/${p["image"]}"
+                  : "http://10.0.2.2:5000/uploads/${p["image"]}")
+              : "",
+
+          // STORE NAME
+          "storeName":
+              p["store_name"]?.toString() ??
+              categoryName,
+
+          // LOCATION
+          "lat":
+              p["latitude"]?.toString() ?? "33.705",
+
+          "lng":
+              p["longitude"]?.toString() ?? "8.969",
+
+          "time": "18:00",
+        },
+      )
+      .toList(),
+];
     final store = stores[categoryName];
     if (store == null) {
       return Directionality(
@@ -424,6 +515,54 @@ class CategoryDetailsPage extends StatelessWidget {
           onReserve(item, store);
         });
       },
+    onTap: () {
+
+  double lat =
+      double.tryParse(item["lat"] ?? "") ??
+      store['lat'];
+
+  double lng =
+      double.tryParse(item["lng"] ?? "") ??
+      store['lng'];
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+builder: (context) => ReservationPage(
+
+  productId:
+      int.tryParse(
+        item['id'] ?? "0",
+      ) ??
+      0,
+
+  clientId: clientId,
+
+  productName: item['name']!,
+
+  price: item['promo']!,
+
+  oldPrice: item['price']!,
+
+  description:
+      item['description'] ?? "",
+
+  image: item['image']!,
+
+  lat: lat,
+
+  lng: lng,
+
+  storeName:
+      item['storeName'] ??
+      store['name'],
+
+  time:
+      item['time'] ?? "18:00",
+),
+    ),
+  );
+},
       child: Container(
         decoration: BoxDecoration(
           color: colors.surface,

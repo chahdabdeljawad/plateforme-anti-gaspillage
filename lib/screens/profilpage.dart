@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../screens/addproductpage.dart';
 import '../lang.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   final String role;
@@ -13,6 +15,94 @@ class ProfilePage extends StatefulWidget {
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class EditProfilePage extends StatefulWidget {
+  final int id;
+  final String role;
+  final String name;
+  final String email;
+  final String num;
+  final String categorie;
+  final String localisation;
+  const EditProfilePage({
+    super.key,
+    required this.id,
+    required this.role,
+    required this.name,
+    required this.email,
+    required this.num,
+    required this.categorie,
+    required this.localisation,
+  });
+  @override
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController numController;
+  late TextEditingController categorieController;
+  late TextEditingController localisationController;
+  bool isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.name);
+    emailController = TextEditingController(text: widget.email);
+    numController = TextEditingController(text: widget.num);
+    categorieController = TextEditingController(text: widget.categorie);
+    localisationController = TextEditingController(text: widget.localisation);
+  }
+
+  Future<void> updateProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final response = await http.put(
+        Uri.parse("${ApiService.baseUrl}/auth/update-profile"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "id": widget.id,
+          "role": widget.role,
+          "name": nameController.text.trim(),
+          "email": emailController.text.trim(),
+          "num": numController.text.trim(),
+          "categorie": categorieController.text.trim(),
+          "localisation": localisationController.text.trim(),
+        }),
+      );
+      print("UPDATE PROFILE STATUS = ${response.statusCode}");
+      print("UPDATE PROFILE BODY = ${response.body}");
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Profile updated")));
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data["message"] ?? "Update failed")),
+        );
+      }
+    } catch (e) {
+      print("UPDATE PROFILE ERROR = $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+  const ProfilePage({super.key, required this.role, required this.onLogout});
+
+  @override
+  State<ProfilePage> createState() =>
+      _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
@@ -25,6 +115,8 @@ class _ProfilePageState extends State<ProfilePage> {
   String longitude = "";
   String categorie = "";
   String num = "";
+
+  int clientId = 0;
 
   bool isLoading = true;
 
@@ -68,7 +160,9 @@ class _ProfilePageState extends State<ProfilePage> {
       }
 
       setState(() {
-        name = user["name"]?.toString() ?? "";
+
+        name =
+            user["name"]?.toString() ?? "";
 
         email = user["email"]?.toString() ?? "";
 
@@ -145,8 +239,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = Provider.of<Lang>(context);
-    final colors = Theme.of(context).colorScheme;
+
+    final lang =
+        Provider.of<Lang>(context);
 
     final safeRole = role.isEmpty ? widget.role : role;
 
@@ -155,7 +250,9 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
-      backgroundColor: colors.surface,
+
+      backgroundColor:
+          const Color(0xFFF5F0E6),
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -172,11 +269,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.all(24),
 
                 decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: BorderRadius.circular(30),
+
+                  color: Colors.white,
+
+                  borderRadius:
+                      BorderRadius.circular(30),
+
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black
+                          .withValues(alpha: 0.08),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -186,7 +288,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     CircleAvatar(
                       radius: 55,
-                      backgroundColor: colors.primary,
+
+                      backgroundColor:
+                          const Color(0xFF0A3B2A),
+
                       backgroundImage: AssetImage(
                         safeRole == "store"
                             ? 'assets/how1.png'
@@ -200,9 +305,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       name,
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'PlayfairDisplay',
-                        color: colors.primary,
+                        fontWeight:
+                            FontWeight.bold,
+                        fontFamily:
+                            'PlayfairDisplay',
+                        color:
+                            Color(0xFF0A3B2A),
                       ),
                     ),
 
@@ -210,9 +318,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     Text(
                       email,
-                      style: TextStyle(
+
+                      style: const TextStyle(
                         fontSize: 15,
-                        color: colors.onSurface.withOpacity(0.6),
+                        color: Colors.grey,
                       ),
                     ),
 
@@ -220,7 +329,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     if (safeRole == "store") ...[
                       Text(
-                        "📞 Num : $num",
+                        "Num : $num",
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
@@ -230,7 +339,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 8),
 
                       Text(
-                        "🏪 Catégorie : $categorie",
+                        "Catégorie : $categorie",
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
@@ -240,7 +349,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 8),
 
                       Text(
-                        "📍 Localisation : $localisation",
+                        "Localisation : $localisation",
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 15,
@@ -251,7 +360,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 8),
 
                       Text(
-                        "🌍 Latitude : $latitude",
+                        "Latitude : $latitude",
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
@@ -261,7 +370,18 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 8),
 
                       Text(
-                        "🌍 Longitude : $longitude",
+                        "Longitude : $longitude",
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+
+                    // 👤 CLIENT NUM
+                    if (safeRole == "client") ...[
+                      Text(
+                        "Num : $num",
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
@@ -272,21 +392,28 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 16),
 
                     Container(
-                      padding: const EdgeInsets.symmetric(
+
+                      padding:
+                          const EdgeInsets.symmetric(
                         horizontal: 18,
                         vertical: 8,
                       ),
 
                       decoration: BoxDecoration(
-                        color: colors.primary,
-                        borderRadius: BorderRadius.circular(30),
+                        color:
+                            const Color(0xFF0A3B2A),
+                        borderRadius:
+                            BorderRadius.circular(30),
                       ),
 
                       child: Text(
-                        safeRole.isNotEmpty ? safeRole.toUpperCase() : "USER",
-                        style: TextStyle(
-                          color: colors.onPrimary,
-                          fontWeight: FontWeight.bold,
+
+                        safeRole.toUpperCase(),
+
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight:
+                              FontWeight.bold,
                         ),
                       ),
                     ),
@@ -298,46 +425,157 @@ class _ProfilePageState extends State<ProfilePage> {
 
               // 🏪 PRODUCTS
               if (safeRole == "store") ...[
-                _buildSectionTitle(lang.t("my_store"), colors),
+
+                _buildSectionTitle(
+                  lang.t("my_store"),
+                ),
 
                 const SizedBox(height: 16),
 
-                _buildStoreCard('assets/how2.png', "Product 1", colors),
-                const SizedBox(height: 12),
-                _buildStoreCard('assets/how3.png', "Product 2", colors),
-              ],
+                ...products.map((product) {
 
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                  minimumSize: const Size(double.infinity, 55),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                  return Padding(
+
+                    padding:
+                        const EdgeInsets.only(
+                      bottom: 12,
+                    ),
+
+                    child:
+                        _buildStoreCard(product),
+                  );
+
+                }).toList(),
+
+                const SizedBox(height: 20),
+
+                // ➕ ADD PRODUCT
+                ElevatedButton.icon(
+
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color(0xFF0A3B2A),
+                    foregroundColor:
+                        Colors.white,
+                    minimumSize:
+                        const Size(
+                      double.infinity,
+                      55,
+                    ),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15),
+                    ),
+                  ),
+
+                  onPressed: () async {
+
+                    await Navigator.push(
+
+                      context,
+
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const AddProductPage(),
+                      ),
+                    );
+
+                    await fetchProducts();
+
+                    setState(() {});
+                  },
+
+                  icon:
+                      const Icon(Icons.add_business),
+
+                  label: const Text(
+
+                    "Add Product",
+
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AddProductPage()),
-                  );
-                },
-                icon: const Icon(Icons.add_business),
-                label: const Text(
-                  "Add Product",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
 
-              // CLIENT SECTION
+                const SizedBox(height: 40),
+              ],
+
+              // 📅 CLIENT RESERVATIONS
               if (safeRole == "client") ...[
-                _buildSectionTitle(lang.t("comments"), colors),
+                _buildSectionTitle("My Reservations"),
 
                 const SizedBox(height: 16),
 
-                _buildCommentCard(lang.t("good_person"), colors),
-                const SizedBox(height: 12),
-                _buildCommentCard(lang.t("trusted_client"), colors),
+                FutureBuilder(
+                  future: ApiService.getClientReservations(clientId),
+
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final data = snapshot.data as Map<String, dynamic>;
+
+                    final reservations = data["reservations"] ?? [];
+
+                    if (reservations.isEmpty) {
+                      return const Text("No reservations found");
+                    }
+
+                    return Column(
+                      children: reservations.map<Widget>((reservation) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+
+                          padding: const EdgeInsets.all(16),
+
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+
+                            borderRadius: BorderRadius.circular(20),
+
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
+                            children: [
+                              Text(
+                                "Product : ${reservation["product_name"]}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              Text("Store : ${reservation["store_name"]}"),
+
+                              const SizedBox(height: 8),
+
+                              Text("Date : ${reservation["reservation_date"]}"),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 30),
               ],
 
               const SizedBox(height: 40),
@@ -346,15 +584,30 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: double.infinity,
 
                 child: ElevatedButton.icon(
-                  onPressed: widget.onLogout,
-                  icon: const Icon(Icons.logout),
-                  label: Text(lang.t("logout")),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+
+                  onPressed:
+                      widget.onLogout,
+
+                  icon:
+                      const Icon(Icons.logout),
+
+                  label:
+                      Text(lang.t("logout")),
+
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color(0xFF0A3B2A),
+                    foregroundColor:
+                        Colors.white,
+                    padding:
+                        const EdgeInsets.symmetric(
+                      vertical: 16,
+                    ),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(20),
                     ),
                   ),
                 ),
@@ -368,7 +621,10 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildSectionTitle(String title, ColorScheme colors) {
+  // 🏷 TITLE
+  Widget _buildSectionTitle(
+      String title) {
+
     return Align(
       alignment: Alignment.centerLeft,
 
@@ -376,22 +632,44 @@ class _ProfilePageState extends State<ProfilePage> {
         title,
         style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'PlayfairDisplay',
-          color: colors.primary,
+          fontWeight:
+              FontWeight.bold,
+          fontFamily:
+              'PlayfairDisplay',
+          color:
+              Color(0xFF0A3B2A),
         ),
       ),
     );
   }
 
-  Widget _buildStoreCard(String image, String title, ColorScheme colors) {
+  // 🛍 PRODUCT CARD
+  Widget _buildStoreCard(
+      Map product) {
+
+    final String image =
+        product["image"] ?? "";
+
+    final String title =
+        product["name"] ?? "";
+
+    final imageUrl =
+        image.startsWith("http")
+            ? image
+            : "http://localhost:5000/uploads/$image";
+
     return Container(
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(20),
+
+        color: Colors.white,
+
+        borderRadius:
+            BorderRadius.circular(20),
+
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black
+                .withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -405,97 +683,75 @@ class _ProfilePageState extends State<ProfilePage> {
           borderRadius: BorderRadius.circular(12),
 
           child: image.isNotEmpty
-              ? Image.network(image, width: 60, height: 60, fit: BoxFit.cover)
+
+              ? Image.network(
+                  imageUrl,
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                )
+
               : Container(
                   width: 60,
                   height: 60,
                   color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported),
+                  child: const Icon(
+                    Icons.image_not_supported,
+                  ),
                 ),
         ),
-        title: Text(title, style: TextStyle(color: colors.onSurface)),
-        trailing: Icon(
-          Icons.arrow_forward_ios,
-          size: 18,
-          color: colors.primary,
+
+        title: Text(title),
+
+        trailing: Row(
+
+          mainAxisSize:
+              MainAxisSize.min,
+
+          children: [
+
+            IconButton(
+
+              icon: const Icon(
+                Icons.edit,
+                color: Colors.orange,
+              ),
+
+              onPressed: () async {
+
+                await Navigator.push(
+
+                  context,
+
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        AddProductPage(
+                      product: product,
+                    ),
+                  ),
+                );
+
+                await fetchProducts();
+
+                setState(() {});
+              },
+            ),
+
+            IconButton(
+
+              icon: const Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
+
+              onPressed: () async {
+
+                await deleteProduct(
+                    product["id"]);
+              },
+            ),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCommentCard(String text, ColorScheme colors) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundImage: AssetImage(
-                  role == "store" ? 'assets/how1.png' : 'assets/how4.png',
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.onSurface,
-                      ),
-                    ),
-
-                    Text(
-                      email,
-                      style: TextStyle(
-                        color: colors.onSurface.withOpacity(0.6),
-                      ),
-                    ),
-
-                    Text(
-                      role.toUpperCase(),
-                      style: TextStyle(
-                        color: colors.onSurface.withOpacity(0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          Row(
-            children: [
-              Icon(Icons.comment, color: colors.primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(text, style: TextStyle(color: colors.onSurface)),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

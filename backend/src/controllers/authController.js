@@ -4,6 +4,10 @@ const {
   getUserProfile
 } = require('../services/authService');
 
+const {
+  updateClient,
+  updateStore
+} = require('../models/userModel');
 
 // ================= REGISTER =================
 const register = async (req, res) => {
@@ -121,9 +125,77 @@ const getMe = async (req, res) => {
   }
 };
 
+// ================= UPDATE PROFILE =================
+const updateProfile = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const {
+      id,
+      role,
+      name,
+      email,
+      num,
+      categorie,
+      localisation
+    } = req.body;
+
+    let updatedUser;
+
+    // 👤 CLIENT
+    if (role === "client") {
+
+      updatedUser =
+        await updateClient(
+          id,
+          name,
+          email,
+          num
+        );
+
+    }
+
+    // 🏪 STORE
+    else {
+
+      updatedUser =
+        await updateStore(
+          id,
+          name,
+          email,
+          num,
+          categorie,
+          localisation
+        );
+    }
+
+    return res.status(200).json({
+
+      success: true,
+      user: updatedUser
+    });
+
+  } catch (err) {
+
+    console.log(
+      "UPDATE PROFILE ERROR =",
+      err
+    );
+
+    return res.status(500).json({
+
+      success: false,
+      message: err.message
+    });
+  }
+};
 
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
+  updateProfile
 };

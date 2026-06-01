@@ -66,7 +66,8 @@ const registerUser = async ({
     user = await createClient(
       name,
       email,
-      hashedPassword
+      hashedPassword,
+      phone
     );
   }
 
@@ -81,7 +82,8 @@ const registerUser = async ({
       storeCategory,
       placeName,
       latitude,
-      longitude
+      longitude,
+      false
     );
   }
 
@@ -126,6 +128,17 @@ const loginUser = async ({
     role = "store";
   }
 
+  // ❌ STORE NOT VALIDATED
+  if (
+    user &&
+    user.is_validated === false
+  ) {
+
+    throw new Error(
+      "Store waiting admin validation"
+    );
+  }
+  
   // ❌ USER NOT FOUND
   if (!user) {
 
@@ -167,7 +180,21 @@ const loginUser = async ({
 
       email: user.email,
 
-      role
+      num: user.num,
+
+      role,
+        // STORE ONLY
+  categorie:
+      user.categorie,
+
+  localisation:
+      user.localisation,
+
+  latitude:
+      user.latitude,
+
+  longitude:
+      user.longitude,
     },
 
     token
@@ -194,7 +221,8 @@ const getUserProfile = async (
       SELECT
         id,
         name,
-        email
+        email,
+        num
       FROM clients
       WHERE id = $1
       `,
