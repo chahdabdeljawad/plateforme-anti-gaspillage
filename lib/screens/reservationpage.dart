@@ -4,10 +4,11 @@ import 'package:provider/provider.dart';
 import '../components/footer.dart';
 import '../lang.dart';
 import 'mappage.dart';
+import 'paymentpage.dart';
 
 class ReservationPage extends StatefulWidget {
   final int productId;
-final int clientId;
+  final int clientId;
   final String productName;
   final String price;
   final String oldPrice;
@@ -23,7 +24,7 @@ final int clientId;
   const ReservationPage({
     super.key,
     required this.productId,
-required this.clientId,
+    required this.clientId,
     required this.productName,
     required this.price,
     required this.oldPrice,
@@ -122,23 +123,36 @@ class _ReservationPageState extends State<ReservationPage> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
+                mainAxisSize: MainAxisSize.min,  
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Product image
-                  Image.asset(
-                    widget.image,
-                    height: 250,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  const SizedBox(height: 16),
+                  widget.image.startsWith('http')
+                      ? Image.network(
+                          widget.image,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            height: 250,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image, size: 50),
+                          ),
+                        )
+                      : Image.asset(
+                          widget.image,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                  const SizedBox(height: 20),
 
                   // Price
                   Center(
                     child: Text(
                       widget.price,
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: colors.secondary,
                         fontFamily: 'PlayfairDisplay',
@@ -276,7 +290,7 @@ class _ReservationPageState extends State<ReservationPage> {
                     child: Text(
                       lang.t("reviews"),
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'PlayfairDisplay',
                         color: colors.primary,
@@ -294,8 +308,8 @@ class _ReservationPageState extends State<ReservationPage> {
                   Center(
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onPrimary,
+                        backgroundColor: const Color(0xFF0A3B2A),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 40,
                           vertical: 15,
@@ -316,87 +330,76 @@ class _ReservationPageState extends State<ReservationPage> {
                           'deliveryType': deliveryType,
                         });
                       },
-                      icon: const Icon(Icons.arrow_forward),
+                  icon: const Icon(Icons.arrow_back),
                       label: Text(
-                        lang.t("next"),
+                        lang.t("Précédent"),
                         style: TextStyle(fontSize: 16, color: colors.onPrimary),
                       ),
                     ),
                   ),
 
                   const SizedBox(height: 20),
-            /// BUTTON
-            Center(
-              child: ElevatedButton.icon(
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      const Color(
-                    0xFF0A3B2A,
-                  ),
 
-                  foregroundColor:
-                      Colors.white,
+                  /// BUTTON
+                  Center(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0A3B2A),
 
-                  padding:
-                      const EdgeInsets
-                          .symmetric(
-                    horizontal: 40,
-                    vertical: 15,
-                  ),
+                        foregroundColor: Colors.white,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      30,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 15,
+                        ),
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+
+                        elevation: 0,
+                      ),
+
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+
+                          MaterialPageRoute(
+                            builder: (context) => PaymentPage(
+                              productId: widget.productId,
+                              clientId: widget.clientId,
+
+                              productName: widget.productName,
+                              price: widget.price,
+                              oldPrice: widget.oldPrice,
+                              description: widget.description,
+                              storeName: widget.storeName,
+
+                              pickupTime: selectedTime.format(context),
+
+                              deliveryType: deliveryType,
+                              onBack: () => Navigator.pop(
+                                context,
+                              ), 
+                            ),
+                          ),
+                        );
+                      },
+
+                      icon: const Icon(Icons.arrow_forward),
+
+                      label: const Text(
+                        "Suivant",
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
 
-                  elevation: 0,
-                ),
-
-                onPressed: () {
-
-                  Navigator.push(
-                    context,
-
-                    MaterialPageRoute(
-                      builder:
-                          (context) =>
-PaymentPage(
-  productId: widget.productId,
-  clientId: widget.clientId,
-
-  productName: widget.productName,
-  price: widget.price,
-  storeName: widget.storeName,
-
-  pickupTime: selectedTime.format(context),
-
-  deliveryType: deliveryType,
-),
-                    ),
-                  );
-                },
-
-                icon: const Icon(
-                  Icons.arrow_forward,
-                ),
-
-                label: const Text(
-                  "Suivant",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   // Footer
                   const AppFooter(),
+                   const SizedBox(height: 14), 
                 ],
               ),
             ),

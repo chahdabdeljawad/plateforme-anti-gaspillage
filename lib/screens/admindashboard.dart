@@ -5,6 +5,7 @@ import 'reportspage.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import 'categoriespage.dart';
+import 'dart:convert';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -150,7 +151,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 6),
             Text(
               "Manage your application easily",
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
               style: TextStyle(
                 fontSize: 14,
                 color: colors.onSurface.withOpacity(0.6),
@@ -163,10 +163,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 24),
             Expanded(
               child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 18,
-                mainAxisSpacing: 18,
-                childAspectRatio: 2,
 
                 crossAxisCount: 3,
                 crossAxisSpacing: 12,
@@ -194,91 +190,79 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         webOnlyWindowName: '_blank',
                       );
                     },
-                    "0", // 👈 ADD THIS
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => ClientsPage()),
-                    ),
+                 
                   ),
 
                   // ================= STORES CARD =================
-                  buildCard(
-                    context,
-                    "Stores",
-                    Icons.storefront_rounded,
-                    storesCount.toString(),
-                    "EXPORT STORES CSV",
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => StoresPage()),
-                      );
-                    },
-                    () {
-                      launchUrl(
-                        Uri.parse(
-                          "http://localhost:5000/api/admin/export-stores",
-                        ),
-                        webOnlyWindowName: '_blank',
-                      );
-                    },
-                    "0", // 👈 ADD THIS
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => StoresPage()),
-                    ),
-                  ),
+          buildCard(
+  context,
+  "Stores",
+  Icons.storefront_rounded,
+  storesCount.toString(),
+  "EXPORT STORES CSV",
+  () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const StoresPage()),
+    );
+  },
+  () {
+    launchUrl(
+      Uri.parse(
+        "http://localhost:5000/api/admin/export-stores",
+      ),
+      webOnlyWindowName: '_blank',
+    );
+  },
+),
 
                   // ================= PRODUCTS CARD =================
-                  buildCard(
-                    context,
-                    "Products",
-                    Icons.shopping_bag_rounded,
-                    productsCount.toString(),
-                    "EXPORT PRODUCTS CSV",
-                    "0", // 👈 ADD THIS
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ProductsPage()),
-                      );
-                    },
-                    () {
-                      launchUrl(
-                        Uri.parse(
-                          "http://localhost:5000/api/admin/export-products",
-                        ),
-                        webOnlyWindowName: '_blank',
-                        MaterialPageRoute(builder: (context) => ProductsPage()),
-                      );
-                    },
-                  ),
+         buildCard(
+  context,
+  "Products",
+  Icons.shopping_bag_rounded,
+  productsCount.toString(),
+  "EXPORT PRODUCTS CSV",
+  () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProductsPage()),
+    );
+  },
+  () {
+    launchUrl(
+      Uri.parse(
+        "http://localhost:5000/api/admin/export-products",
+      ),
+      webOnlyWindowName: '_blank',
+    );
+  },
+),
 
                   // ================= RESERVATIONS CARD =================
-                  buildCard(
-                    context,
-                    "Reservations",
-                    Icons.bookmark_rounded,
-                    reservationsCount.toString(),
-                    "EXPORT RESERVATIONS CSV",
-                    "0", // 👈 ADD THIS
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CategoriesPage(),
-                        ),
-                      );
-                    },
-                    () {
-                      launchUrl(
-                        Uri.parse(
-                          "http://localhost:5000/api/admin/export-reservations",
-                        ),
-                        webOnlyWindowName: '_blank',
-                      );
-                    },
-                  ),
+        buildCard(
+  context,
+  "Reservations",
+  Icons.bookmark_rounded,
+  reservationsCount.toString(),
+  "EXPORT RESERVATIONS CSV",
+  () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ReservationsPage(),
+      ),
+    );
+  },
+  () {
+    launchUrl(
+      Uri.parse(
+        "http://localhost:5000/api/admin/export-reservations",
+      ),
+      webOnlyWindowName: '_blank',
+    );
+  },
+),
 
                   // ================= REPORTS CARD =================
                   buildCard(
@@ -397,7 +381,7 @@ GestureDetector(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(14),
+
 
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -406,7 +390,7 @@ GestureDetector(
               ),
 
               child: Icon(icon, size: 32, color: primaryColor),
-              child: Icon(icon, size: 32, color: colors.primary),
+           
             ),
 
             const SizedBox(height: 12),
@@ -415,8 +399,7 @@ GestureDetector(
             Text(
               title,
 
-              style: const TextStyle(
-                fontSize: 20,
+
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -484,8 +467,7 @@ class ClientsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const DetailsPage(
-    return buildSimplePage(
-      context: context, // ✅ Pass context
+
       title: "Clients",
       endpoint: "clients",
       dataKey: "clients",
@@ -501,8 +483,7 @@ class StoresPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const DetailsPage(
-    return buildSimplePage(
-      context: context, // ✅ Pass context
+
       title: "Stores",
       endpoint: "stores",
       dataKey: "stores",
@@ -518,8 +499,7 @@ class ProductsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const DetailsPage(
-    return buildSimplePage(
-      context: context, // ✅ Pass context
+
       title: "Products",
       endpoint: "products",
       dataKey: "products",
@@ -538,8 +518,7 @@ class ReservationsPage extends StatelessWidget {
       title: "Reservations",
       endpoint: "reservations",
       dataKey: "reservations",
-      icon: Icons.shopping_bag_rounded,
-      text: "Liste des catégories",
+
     );
   }
 }
@@ -565,13 +544,7 @@ class StatisticsPage extends StatelessWidget {
 
   static const Color primaryColor = Color(0xFF0A3B2A);
   static const Color backgroundColor = Color(0xFFF5F0E6);
-Widget buildSimplePage({
-  required BuildContext context, // ✅ Accept context
-  required String title,
-  required IconData icon,
-  required String text,
-}) {
-  final colors = Theme.of(context).colorScheme; // ✅ Now context is valid
+
 
   @override
   Widget build(BuildContext context) {
@@ -1155,62 +1128,4 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 }
 
-  return Scaffold(
-    backgroundColor: colors.surface,
-    appBar: AppBar(
-      backgroundColor: colors.surface,
-      elevation: 0,
-      centerTitle: true,
-      iconTheme: IconThemeData(color: colors.primary),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: colors.primary,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'PlayfairDisplay',
-        ),
-      ),
-    ),
-    body: Center(
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.primary.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 44, color: colors.primary),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: colors.primary,
-                fontFamily: 'PlayfairDisplay',
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+ 

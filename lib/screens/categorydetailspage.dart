@@ -5,8 +5,11 @@ import '../components/footer.dart';
 import '../lang.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
+import 'reservationpage.dart';
 
-class CategoryDetailsPage extends StatelessWidget {
+
+class CategoryDetailsPage extends StatefulWidget {
   final String categoryName;
   final VoidCallback onBack;
   final Function(Map<String, dynamic>, Map<String, dynamic>) onReserve;
@@ -17,7 +20,7 @@ class CategoryDetailsPage extends StatelessWidget {
     required this.onBack,
     required this.onReserve,
   });
-  });
+ 
 
   @override
   State<CategoryDetailsPage> createState() =>
@@ -355,7 +358,7 @@ Future<void> loadClientId() async {
       ],
     };
 
-    final staticProducts = data[categoryName] ?? [];
+    final staticProducts = data[widget.categoryName] ?? [];
 
     // ✅ SAFE provider access – works with any provider version
     List<Map<String, dynamic>>? dynamicProducts;
@@ -369,35 +372,12 @@ Future<void> loadClientId() async {
     }
     final safeDynamicProducts = dynamicProducts ?? [];
 
-    final allProducts = [
-      ...staticProducts,
-      ...safeDynamicProducts
-          .where((p) => p["category"] == categoryName)
-          .map<Map<String, String>>(
-            (p) => {
-              "name": p["name"].toString(),
-              "price": "${p["old_price"] ?? p["price"]} DT",
-              "promo": "${p["price"]} DT",
-              "description": p["description"]?.toString() ?? "",
-              "image": p["image"] != null
-                  ? (kIsWeb
-                        ? "http://localhost:5000/uploads/${p["image"]}"
-                        : "http://10.0.2.2:5000/uploads/${p["image"]}")
-                  : "",
-              "storeName": p["store_name"]?.toString() ?? categoryName,
-              "lat": p["latitude"]?.toString() ?? "33.705",
-              "lng": p["longitude"]?.toString() ?? "8.969",
-              "time": "18:00",
-            },
-          )
-          .toList(),
-    ];
 
 final allProducts = [
   ...staticProducts,
 
   ...products
-      .where((p) => p["category"] == categoryName)
+      .where((p) => p["category"] == widget.categoryName)
       .map<Map<String, String>>(
         (p) => {
 
@@ -429,7 +409,7 @@ final allProducts = [
           // STORE NAME
           "storeName":
               p["store_name"]?.toString() ??
-              categoryName,
+              widget.categoryName,
 
           // LOCATION
           "lat":
@@ -443,7 +423,7 @@ final allProducts = [
       )
       .toList(),
 ];
-    final store = stores[categoryName];
+    final store = stores[widget.categoryName];
     if (store == null) {
       return Directionality(
         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -510,11 +490,7 @@ final allProducts = [
     required ColorScheme colors,
   }) {
     return GestureDetector(
-      onTap: () {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          onReserve(item, store);
-        });
-      },
+
     onTap: () {
 
   double lat =
@@ -559,6 +535,8 @@ builder: (context) => ReservationPage(
 
   time:
       item['time'] ?? "18:00",
+                    onBack: () => Navigator.pop(context),   // ✅ إضافة
+              onConfirm: (Map<String, dynamic> data) => Navigator.pop(context), // ✅ إضافة
 ),
     ),
   );
@@ -566,6 +544,7 @@ builder: (context) => ReservationPage(
       child: Container(
         decoration: BoxDecoration(
           color: colors.surface,
+           borderRadius: BorderRadius.circular(12), 
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -577,11 +556,12 @@ builder: (context) => ReservationPage(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             Expanded(
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(0),
-                  topRight: Radius.circular(0),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 child:
                     item['image'] != null &&
@@ -637,7 +617,7 @@ builder: (context) => ReservationPage(
                     style: TextStyle(
                       fontFamily: 'PlayfairDisplay',
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 15,
                       color: colors.primary,
                     ),
                     maxLines: 2,
@@ -650,7 +630,7 @@ builder: (context) => ReservationPage(
                         item['price']!,
                         style: TextStyle(
                           decoration: TextDecoration.lineThrough,
-                          fontSize: 12,
+                          fontSize: 13,
                           color: colors.onSurface.withOpacity(0.5),
                         ),
                       ),
@@ -659,7 +639,7 @@ builder: (context) => ReservationPage(
                         item['promo']!,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 16,
                           color: colors.secondary,
                         ),
                       ),

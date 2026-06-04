@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:zerogaspi/screens/categorydetailspage.dart';
+// ❌ Supprimer l'import inutile : import 'package:zerogaspi/screens/categorydetailspage.dart';
 import 'package:zerogaspi/screens/reservationpage.dart';
-import 'package:zerogaspi/screens/paymentpage.dart'; // ✅ Import PaymentPage
+import 'package:zerogaspi/screens/paymentpage.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 import '../components/footer.dart';
@@ -9,6 +9,7 @@ import '../lang.dart';
 import '../providers/location_provider.dart';
 import 'location_picker_page.dart';
 import 'package:flutter/foundation.dart';
+import 'categorydetailspage.dart';     
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -22,6 +23,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   String? selectedCategory;
   bool _showLocationPicker = false;
 
+  // Stocke toutes les infos du produit sélectionné
   Map<String, dynamic>? _selectedProduct;
 
   void _openReservation(
@@ -30,6 +32,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
   ) {
     setState(() {
       _selectedProduct = {
+        'productId': product['id'] ?? 0,
+        'clientId': 0, // À récupérer depuis SharedPreferences ou provider
         'productName': product['name'],
         'price': product['promo'],
         'oldPrice': product['price'] ?? '',
@@ -46,6 +50,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Map<String, dynamic>? _paymentDetails;
 
   void _openPayment(Map<String, dynamic> details) {
+    // details provient de ReservationPage (contenant toutes les données)
     setState(() {
       _paymentDetails = details;
     });
@@ -144,7 +149,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
         body: SafeArea(
           child: Column(
             children: [
-              // ✅ HIDE CATEGORIES HEADER when LocationPicker, ReservationPage, or PaymentPage is active
+              // Barre de recherche et bouton carte
               if (!_showLocationPicker &&
                   _selectedProduct == null &&
                   _paymentDetails == null) ...[
@@ -161,7 +166,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04), // ✅ withOpacity remplacé
                                 blurRadius: 4,
                                 offset: const Offset(0, 1),
                               ),
@@ -207,21 +212,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 ),
               ],
 
-              // ✅ CONTENT AREA
+              // Zone de contenu : paiement, réservation, localisation, catégories
               Expanded(
                 child: _paymentDetails != null
                     ? PaymentPage(
+                        productId: _paymentDetails!['productId'] ?? 0,
+                        clientId: _paymentDetails!['clientId'] ?? 0,
                         productName: _paymentDetails!['productName'],
                         price: _paymentDetails!['price'],
                         oldPrice: _paymentDetails!['oldPrice'] ?? '',
                         description: _paymentDetails!['description'] ?? '',
                         storeName: _paymentDetails!['storeName'],
-                        pickupTime: _paymentDetails!['pickupTime'],
+                        pickupTime: _paymentDetails!['time'],
                         deliveryType: _paymentDetails!['deliveryType'],
                         onBack: _closePayment,
                       )
                     : _selectedProduct != null
                     ? ReservationPage(
+                        productId: _selectedProduct!['productId'] ?? 0,
+                        clientId: _selectedProduct!['clientId'] ?? 0,
                         productName: _selectedProduct!['productName'],
                         price: _selectedProduct!['price'],
                         oldPrice: _selectedProduct!['oldPrice'],
@@ -232,7 +241,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         storeName: _selectedProduct!['storeName'],
                         time: _selectedProduct!['time'],
                         onBack: () => setState(() => _selectedProduct = null),
-                        onConfirm: _openPayment,
+                        onConfirm: (Map<String, dynamic> data) {
+                          // data est ce que ReservationPage envoie (probablement toutes les données)
+                          _openPayment(data);
+                        },
                       )
                     : _showLocationPicker
                     ? LocationPickerPage(
@@ -389,7 +401,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)], // ✅ withOpacity remplacé
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
