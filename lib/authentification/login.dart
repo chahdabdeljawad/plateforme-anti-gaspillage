@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../lang.dart';
-import 'loginadmin.dart';
+import '../screens/livreurdashboard.dart'; // 🚚
 
 class LoginPage extends StatefulWidget {
   final Function(String) onLoginSuccess;
-  final VoidCallback onSignUp; // ✅ Add this
+  final VoidCallback onSignUp;
 
   const LoginPage({
     super.key,
@@ -46,16 +46,26 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setString("role", data["user"]["role"]);
       await prefs.setString("email", data["user"]["email"]);
 
-await prefs.setInt(
-  "client_id",
-  data["user"]["id"],
-);
-
       String role = data["user"]["role"];
+
+      // 🚚 LIVREUR → dashboard séparé
+      if (role == "livreur") {
+        await prefs.setInt("livreur_id", data["user"]["id"]);
+
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LivreurDashboard()),
+        );
+        return;
+      }
+
+      // 👤 CLIENT / 🏪 STORE
+      await prefs.setInt("client_id", data["user"]["id"]);
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Login Successful ✅")));
+      ).showSnackBar(const SnackBar(content: Text("Login Successful ✅")));
 
       widget.onLoginSuccess(role);
     } else {
@@ -217,31 +227,13 @@ await prefs.setInt(
                             ),
 
                       TextButton(
-                        onPressed: widget
-                            .onSignUp, // ✅ Uses callback (no Navigator.push)
+                        onPressed: widget.onSignUp,
                         child: Text(
                           "Don't have an account? Sign Up",
                           style: TextStyle(color: colors.primary),
                         ),
                       ),
 
-                      const SizedBox(height: 10),
-
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: colors.onPrimary,
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginAdminPage(),
-                            ),
-                          );
-                        },
-                        child: const Text("Login as Admin"),
-                      ),
                       const SizedBox(height: 15),
                     ],
                   ),

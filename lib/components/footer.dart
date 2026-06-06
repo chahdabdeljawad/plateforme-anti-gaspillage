@@ -13,54 +13,70 @@ class AppFooter extends StatelessWidget {
       textDirection: lang.current == "ar"
           ? TextDirection.rtl
           : TextDirection.ltr,
-      child: Container(
+      child: Material(
         color: const Color(0xFF0A3B2A),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "ZEROGASPI",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "ZEROGASPI",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              lang.t("footer_tagline"),
-              style: const TextStyle(fontSize: 14, color: Colors.white70),
-            ),
-            const SizedBox(height: 30),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final isMobile = constraints.maxWidth < 800;
-                return isMobile
-                    ? Column(children: _buildColumns(lang))
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: _buildColumns(lang),
-                      );
-              },
-            ),
-            const SizedBox(height: 40),
-            const Divider(color: Colors.white24),
-            const SizedBox(height: 20),
-            Text(
-              lang.t("footer_mission"),
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white70,
-                height: 1.4,
+              const SizedBox(height: 10),
+              Text(
+                lang.t("footer_tagline"),
+                style: const TextStyle(fontSize: 14, color: Colors.white70),
               ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "© 2026 Zerogaspi. All rights reserved.",
-              style: TextStyle(fontSize: 12, color: Colors.white70),
-            ),
-          ],
+              const SizedBox(height: 30),
+
+              // ✅ Colonnes sur toute la largeur (Row+Expanded) / Wrap si étroit
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = _buildColumns(lang);
+                  final isWide = constraints.maxWidth >= 600;
+                  if (isWide) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: columns
+                          .map((c) => Expanded(child: c))
+                          .toList(),
+                    );
+                  }
+                  return Wrap(
+                    spacing: 40,
+                    runSpacing: 24,
+                    children: columns
+                        .map((c) => SizedBox(width: 150, child: c))
+                        .toList(),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 40),
+              const Divider(color: Colors.white24),
+              const SizedBox(height: 20),
+              Text(
+                lang.t("footer_mission"),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white70,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "© 2026 Zerogaspi. All rights reserved.",
+                style: TextStyle(fontSize: 12, color: Colors.white70),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -94,30 +110,28 @@ class AppFooter extends StatelessWidget {
   }
 
   Widget _col(Lang lang, String title, List<String> itemKeys) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20, right: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ...itemKeys.map(
+          (key) => Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              lang.t(key),
+              style: const TextStyle(fontSize: 13, color: Colors.white70),
             ),
           ),
-          const SizedBox(height: 10),
-          ...itemKeys.map(
-            (key) => Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                lang.t(key),
-                style: const TextStyle(color: Colors.white70),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

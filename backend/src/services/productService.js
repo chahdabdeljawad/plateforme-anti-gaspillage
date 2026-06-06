@@ -20,7 +20,9 @@ const addProduct = async (data, file, user) => {
     data.description,
     data.category,
     file ? file.filename : null,
-    Number(user.userId)
+    Number(user.userId),
+    data.expirationDate || null,                 // 🆕
+    data.quantity ? Number(data.quantity) : 1    // 🆕
   );
 };
 
@@ -39,7 +41,9 @@ const update = async (id, data, user) => {
     data.description,
     data.category,
     data.image,
-    Number(user.userId)
+    Number(user.userId),
+    data.expirationDate || null,                  // 🆕
+    data.quantity ? Number(data.quantity) : null  // 🆕
   );
 };
 

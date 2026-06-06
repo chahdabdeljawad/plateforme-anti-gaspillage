@@ -220,136 +220,155 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     final isDark = themeProvider.isDarkMode;
     final isRtl = lang.current == "ar";
 
-    return Directionality(
-      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-      child: Column(
-        children: [
-          // Search Bar + Location Button (FIXED HEIGHT)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: lang.t("search_city_placeholder"),
-                        hintStyle: TextStyle(
-                          color: colors.onSurface.withOpacity(0.5),
-                        ),
-                        prefixIcon: Icon(Icons.search, color: colors.primary),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                        ),
-                      ),
-                      style: TextStyle(color: colors.onSurface),
-                      onSubmitted: (_) => _searchPlace(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(
-                    height: 42,
-                    child: ElevatedButton.icon(
-                      onPressed: _getCurrentLocation,
-                      icon: const Icon(Icons.my_location, size: 16),
-                      label: Text(lang.t("use_current_location")),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onPrimary,
-                        shape: RoundedRectangleBorder(
+    // ✅ Scaffold = fournit un Material ancestor (corrige l'erreur TextField)
+    return Scaffold(
+      backgroundColor: colors.surface,
+      appBar: AppBar(
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onCancel,
+        ),
+        title: Text(
+          lang.t("select_location"),
+          style: const TextStyle(fontFamily: 'PlayfairDisplay'),
+        ),
+      ),
+      body: SafeArea(
+        child: Directionality(
+          textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+          child: Column(
+            children: [
+              // Search Bar + Location Button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: colors.surface,
                           borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                         ),
-                        elevation: 0,
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: lang.t("search_city_placeholder"),
+                            hintStyle: TextStyle(
+                              color: colors.onSurface.withOpacity(0.5),
+                            ),
+                            prefixIcon:
+                                Icon(Icons.search, color: colors.primary),
+                            border: InputBorder.none,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                          style: TextStyle(color: colors.onSurface),
+                          onSubmitted: (_) => _searchPlace(),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // ✅ MAP (TAKES ALL REMAINING SPACE)
-          Expanded(
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                initialCenter: _currentCenter,
-                initialZoom: 13,
-                backgroundColor: isDark
-                    ? const Color(0xFF121212)
-                    : const Color(0xFFF5F0E6),
-                onTap: (_, latLng) {
-                  setState(() {
-                    _currentCenter = latLng;
-                  });
-                },
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: isDark
-                      ? "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
-                      : "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: _currentCenter,
-                      width: 40,
-                      height: 40,
-                      child: const Icon(
-                        Icons.location_pin,
-                        color: Colors.red,
-                        size: 40,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 42,
+                        child: ElevatedButton.icon(
+                          onPressed: _getCurrentLocation,
+                          icon: const Icon(Icons.my_location, size: 16),
+                          label: Text(lang.t("use_current_location")),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            foregroundColor: colors.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
 
-          // ✅ Confirm Button (FIXED HEIGHT)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _confirmLocation,
-                    icon: const Icon(Icons.check_circle),
-                    label: Text(lang.t("confirm_location")),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primary,
-                      foregroundColor: colors.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+              // MAP
+              Expanded(
+                child: FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: _currentCenter,
+                    initialZoom: 13,
+                    backgroundColor: isDark
+                        ? const Color(0xFF121212)
+                        : const Color(0xFFF5F0E6),
+                    onTap: (_, latLng) {
+                      setState(() {
+                        _currentCenter = latLng;
+                      });
+                    },
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: isDark
+                          ? "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
+                          : "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: _currentCenter,
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.location_pin,
+                            color: Colors.red,
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Confirm Button
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _confirmLocation,
+                        icon: const Icon(Icons.check_circle),
+                        label: Text(lang.t("confirm_location")),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

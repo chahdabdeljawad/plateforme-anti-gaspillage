@@ -4,10 +4,10 @@ import 'package:latlong2/latlong.dart';
 import '../services/api_service.dart';
 import '../lang.dart';
 import '../screens/location_picker_page.dart';
-import '../components/footer.dart'; // ✅ Add footer import
+
 
 class RegistrePage extends StatefulWidget {
-  final VoidCallback onBack; // ✅ Add this
+  final VoidCallback onBack;
 
   const RegistrePage({super.key, required this.onBack});
 
@@ -42,8 +42,13 @@ class _RegistrePageState extends State<RegistrePage> {
   String customCategory = "";
   bool isOtherCategory = false;
 
+  // Localisation (store + livreur)
   LatLng? storeLocation;
   String? storePlaceName;
+
+  // Livreur-specific fields
+  final List<String> vehicles = ["Moto", "Voiture", "Vélo"];
+  String vehicle = "Moto";
 
   Future<void> _openLocationPicker() async {
     final result = await Navigator.push<Map<String, dynamic>>(
@@ -94,8 +99,19 @@ class _RegistrePageState extends State<RegistrePage> {
       }
     }
 
+    // 🚚 Livreur location validation
+    if (role == "livreur") {
+      if (storeLocation == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please select your location")),
+        );
+        return;
+      }
+    }
+
     setState(() => isLoading = true);
 
+    // Register unifié (client / store / livreur)
     final result = await ApiService.register(
       nameController.text.trim(),
       emailController.text.trim().toLowerCase(),
@@ -105,9 +121,14 @@ class _RegistrePageState extends State<RegistrePage> {
       storeCategory: role == "store"
           ? (isOtherCategory ? customCategory : storeCategory)
           : null,
-      latitude: role == "store" ? storeLocation?.latitude : null,
-      longitude: role == "store" ? storeLocation?.longitude : null,
+      latitude: (role == "store" || role == "livreur")
+          ? storeLocation?.latitude
+          : null,
+      longitude: (role == "store" || role == "livreur")
+          ? storeLocation?.longitude
+          : null,
       placeName: role == "store" ? storePlaceName : null,
+      vehicle: role == "livreur" ? vehicle : null,
     );
 
     setState(() => isLoading = false);
@@ -116,7 +137,7 @@ class _RegistrePageState extends State<RegistrePage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Signup Successful ✅")));
-      widget.onBack(); // ✅ Return to LoginPage
+      widget.onBack();
     } else {
       ScaffoldMessenger.of(
         context,
@@ -144,7 +165,7 @@ class _RegistrePageState extends State<RegistrePage> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: colors.onPrimary),
-          onPressed: widget.onBack, // ✅ Return to Login
+          onPressed: widget.onBack,
         ),
         title: Text(
           lang.t("create_account"),
@@ -274,11 +295,83 @@ class _RegistrePageState extends State<RegistrePage> {
                           style: TextStyle(color: colors.onSurface),
                         ),
                       ),
+                      DropdownMenuItem(
+                        value: "livreur",
+                        child: Text(
+                          "Livreur",
+                          style: TextStyle(color: colors.onSurface),
+                        ),
+                      ),
                     ],
                     onChanged: (val) => setState(() => role = val!),
                     decoration: _inputDecoration(lang.t("role"), colors),
                     style: TextStyle(color: colors.onSurface),
                   ),
+
+                  // 🚚 Livreur-specific fields
+                  if (role == "livreur") ...[
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: vehicle,
+                      items: vehicles
+                          .map(
+                            (v) => DropdownMenuItem(
+                              value: v,
+                              child: Text(
+                                v,
+                                style: TextStyle(color: colors.onSurface),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (val) => setState(() => vehicle = val!),
+                      decoration: _inputDecoration("Véhicule", colors),
+                      style: TextStyle(color: colors.onSurface),
+                    ),
+
+                    // 🆕 Localisation livreur
+                    const SizedBox(height: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Localisation",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: colors.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton.icon(
+                          onPressed: _openLocationPicker,
+                          icon: const Icon(Icons.map),
+                          label: Text(
+                            storePlaceName == null
+                                ? lang.t("select_location")
+                                : storePlaceName!,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            foregroundColor: colors.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                        if (storeLocation == null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              lang.t("location_required"),
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
 
                   // Store-specific fields
                   if (role == "store") ...[
@@ -415,10 +508,11 @@ class _RegistrePageState extends State<RegistrePage> {
                           child: Text(lang.t("signup")),
                         ),
 
-                  // ✅ Add the footer at the bottom of the form
+
                   const SizedBox(height: 40),
-                  const AppFooter(),
+
                 ],
+                
               ),
             ),
           ),

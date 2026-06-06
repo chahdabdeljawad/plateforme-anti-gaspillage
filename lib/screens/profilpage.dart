@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../services/api_service.dart';
 import '../screens/addproductpage.dart';
+import '../screens/scanqrpage.dart'; // 📷 store scanne
+import '../screens/qrpage.dart';     // 📷 client affiche son QR
 import '../lang.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -179,6 +181,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   List products = [];
 
+  // 🏪 commandes reçues (store)
+  List storeReservations = [];
+
   @override
   void initState() {
     super.initState();
@@ -217,6 +222,10 @@ class _ProfilePageState extends State<ProfilePage> {
         longitude = user["longitude"]?.toString() ?? "";
         isLoading = false;
       });
+
+      if (role == "store") {
+        fetchStoreReservations();
+      }
     } else {
       setState(() => isLoading = false);
     }
@@ -241,6 +250,35 @@ class _ProfilePageState extends State<ProfilePage> {
         }).toList();
       });
     }
+  }
+
+  // 📋 GET STORE RESERVATIONS
+  Future<void> fetchStoreReservations() async {
+    final res = await ApiService.getStoreReservations(clientId);
+    if (!mounted) return;
+    setState(() => storeReservations = res);
+  }
+
+  // ✅ VALIDER RESERVATION (pending → confirmed)
+  Future<void> validateReservation(int id) async {
+    final ok = await ApiService.updateReservationStatus(id, "confirmed");
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(ok ? "Commande validée ✅" : "Erreur")),
+      );
+    }
+    await fetchStoreReservations();
+  }
+
+  // ✅ MARQUER LIVRÉ / RÉCUPÉRÉ (confirmed → completed)
+  Future<void> markCompleted(int id) async {
+    final ok = await ApiService.updateReservationStatus(id, "completed");
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(ok ? "Commande terminée ✅" : "Erreur")),
+      );
+    }
+    await fetchStoreReservations();
   }
 
   // 🗑 DELETE PRODUCT
@@ -278,7 +316,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               const SizedBox(height: 20),
 
-              // 👤 PROFILE CARD
+              // 👤 PROFILE CARD (sans photo)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
@@ -295,16 +333,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 55,
-                      backgroundColor: const Color(0xFF0A3B2A),
-                      backgroundImage: AssetImage(
-                        safeRole == "store"
-                            ? 'assets/how1.png'
-                            : 'assets/how4.png',
-                      ),
-                    ),
-                    const SizedBox(height: 20),
                     Text(
                       name,
                       style: const TextStyle(
@@ -322,38 +350,32 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 15),
 
                     if (safeRole == "store") ...[
-                      Text(
-                        "Num : $num",
-                        style: const TextStyle(fontSize: 15, color: Colors.black87),
-                      ),
+                      Text("Num : $num",
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black87)),
                       const SizedBox(height: 8),
-                      Text(
-                        "Catégorie : $categorie",
-                        style: const TextStyle(fontSize: 15, color: Colors.black87),
-                      ),
+                      Text("Catégorie : $categorie",
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black87)),
                       const SizedBox(height: 8),
-                      Text(
-                        "Localisation : $localisation",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 15, color: Colors.black87),
-                      ),
+                      Text("Localisation : $localisation",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black87)),
                       const SizedBox(height: 8),
-                      Text(
-                        "Latitude : $latitude",
-                        style: const TextStyle(fontSize: 15, color: Colors.black87),
-                      ),
+                      Text("Latitude : $latitude",
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black87)),
                       const SizedBox(height: 8),
-                      Text(
-                        "Longitude : $longitude",
-                        style: const TextStyle(fontSize: 15, color: Colors.black87),
-                      ),
+                      Text("Longitude : $longitude",
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black87)),
                     ],
 
                     if (safeRole == "client") ...[
-                      Text(
-                        "Num : $num",
-                        style: const TextStyle(fontSize: 15, color: Colors.black87),
-                      ),
+                      Text("Num : $num",
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black87)),
                     ],
 
                     const SizedBox(height: 16),
@@ -364,7 +386,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0A3B2A),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -388,9 +411,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Text(
                           safeRole == "store" ? "STORE" : "CLIENT",
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
+                              fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ),
                     ),
@@ -400,8 +421,57 @@ class _ProfilePageState extends State<ProfilePage> {
 
               const SizedBox(height: 30),
 
-              // 🏪 PRODUCTS (pour store)
+              // 🏪 STORE SECTION
               if (safeRole == "store") ...[
+                // 📊 SUIVI DES VENTES
+                _buildSalesSummary(),
+                const SizedBox(height: 24),
+
+                // 📋 COMMANDES REÇUES
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSectionTitle("Commandes reçues"),
+                    IconButton(
+                      icon: const Icon(Icons.refresh, color: Color(0xFF0A3B2A)),
+                      onPressed: fetchStoreReservations,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                // 📷 SCANNER QR
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final done = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ScanQrPage()),
+                    );
+                    if (done == true) fetchStoreReservations();
+                  },
+                  icon: const Icon(Icons.qr_code_scanner),
+                  label: const Text("Scanner QR client"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A3B2A),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                if (storeReservations.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text("Aucune commande pour le moment"),
+                  )
+                else
+                  ...storeReservations.map((r) => _buildReservationCard(r)),
+                const SizedBox(height: 30),
+
+                // 🛍 PRODUITS
                 _buildSectionTitle(lang.t("my_store")),
                 const SizedBox(height: 16),
                 ...products.map((product) => Padding(
@@ -471,14 +541,43 @@ class _ProfilePageState extends State<ProfilePage> {
                               Text(
                                 "Product : ${reservation["product_name"]}",
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                                    fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               const SizedBox(height: 8),
                               Text("Store : ${reservation["store_name"]}"),
                               const SizedBox(height: 8),
                               Text("Date : ${reservation["reservation_date"]}"),
+                              const SizedBox(height: 8),
+                              Text("Statut : ${reservation["status"] ?? "-"}"),
+                              const SizedBox(height: 10),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => QrPage(
+                                        qrCode: reservation["qr_code"]
+                                                ?.toString() ??
+                                            "",
+                                        productName: reservation["product_name"]
+                                            ?.toString(),
+                                        storeName: reservation["store_name"]
+                                            ?.toString(),
+                                        status:
+                                            reservation["status"]?.toString(),
+                                        quantity: reservation["quantity"]
+                                            ?.toString(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.qr_code_2),
+                                label: const Text("Voir mon QR"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0A3B2A),
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
                             ],
                           ),
                         );
@@ -489,7 +588,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 30),
               ],
 
-              // 🚪 LOGOUT BUTTON
+              // 🚪 LOGOUT
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -530,6 +629,216 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // 📊 SUIVI DES VENTES
+  Widget _buildSalesSummary() {
+    final total = storeReservations.length;
+    final completed = storeReservations
+        .where((r) => (r["status"] ?? "") == "completed")
+        .length;
+    final pending = storeReservations
+        .where((r) => (r["status"] ?? "") == "pending")
+        .length;
+
+    double revenu = 0;
+    for (final r in storeReservations) {
+      if ((r["status"] ?? "") == "completed") {
+        final price =
+            double.tryParse((r["product_price"] ?? "0").toString()) ?? 0;
+        final qty = int.tryParse((r["quantity"] ?? "0").toString()) ?? 0;
+        revenu += price * qty;
+      }
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A3B2A),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "📊 Suivi des ventes",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'PlayfairDisplay',
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _statBox("Total", "$total"),
+              _statBox("Récupérées", "$completed"),
+              _statBox("En attente", "$pending"),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Text(
+              "💰 Revenu : ${revenu.toStringAsFixed(2)} DT",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statBox(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
+      ],
+    );
+  }
+
+  // 📋 RESERVATION CARD (store)
+  Widget _buildReservationCard(Map r) {
+    final status = (r["status"] ?? "").toString();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  "🛍 ${r["product_name"] ?? ""}",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+              _statusChip(status),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text("👤 Client : ${r["client_name"] ?? "-"}"),
+          Text("📞 Tél : ${r["client_num"] ?? "-"}"),
+          Text("📦 Quantité : ${r["quantity"] ?? "-"}"),
+
+          // pending → Valider
+          if (status == "pending") ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () => validateReservation(r["id"]),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0A3B2A),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text("Valider"),
+              ),
+            ),
+          ],
+
+// confirmed + sur place → le STORE marque livré
+          if (status == "confirmed" &&
+              (r["delivery_type"] ?? "sur_place") == "sur_place") ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton.icon(
+                onPressed: () => markCompleted(r["id"]),
+                icon: const Icon(Icons.check_circle, size: 18),
+                label: const Text("Marquer livré"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ],
+
+          // confirmed + livraison → c'est le LIVREUR qui scanne
+          if (status == "confirmed" &&
+              (r["delivery_type"] ?? "sur_place") == "livraison") ...[
+            const SizedBox(height: 10),
+            const Text(
+              " En livraison — le livreur scannera le QR",
+              style: TextStyle(color: Colors.blueGrey, fontSize: 13),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // 🎨 STATUS CHIP
+  Widget _statusChip(String status) {
+    Color c;
+    switch (status) {
+      case "pending":
+        c = Colors.orange;
+        break;
+      case "confirmed":
+        c = Colors.blue;
+        break;
+      case "completed":
+        c = Colors.green;
+        break;
+      case "cancelled":
+        c = Colors.red;
+        break;
+      default:
+        c = Colors.grey;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: c.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(color: c, fontWeight: FontWeight.bold, fontSize: 12),
+      ),
+    );
+  }
+
   // 🛍 PRODUCT CARD
   Widget _buildStoreCard(Map product) {
     final String image = product["image"] ?? "";
@@ -555,12 +864,8 @@ class _ProfilePageState extends State<ProfilePage> {
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: image.isNotEmpty
-              ? Image.network(
-                  imageUrl,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                )
+              ? Image.network(imageUrl,
+                  width: 60, height: 60, fit: BoxFit.cover)
               : Container(
                   width: 60,
                   height: 60,

@@ -6,31 +6,24 @@ const {
 
 const {
   updateClient,
-  updateStore
+  updateStore,
+  updateLivreur
 } = require('../models/userModel');
+
 
 // ================= REGISTER =================
 const register = async (req, res) => {
-
   try {
+    console.log("REGISTER BODY =", req.body);
 
-    console.log(
-      "REGISTER BODY =",
-      req.body
-    );
-
-    const data =
-      await registerUser(req.body);
+    const data = await registerUser(req.body);
 
     return res.status(201).json({
       success: true,
       ...data
     });
-
   } catch (err) {
-
     console.log("REGISTER ERROR =", err);
-
     return res.status(400).json({
       success: false,
       message: err.message
@@ -41,21 +34,15 @@ const register = async (req, res) => {
 
 // ================= LOGIN =================
 const login = async (req, res) => {
-
   try {
-
-    const data =
-      await loginUser(req.body);
+    const data = await loginUser(req.body);
 
     return res.status(200).json({
       success: true,
       ...data
     });
-
   } catch (err) {
-
     console.log("LOGIN ERROR =", err);
-
     return res.status(400).json({
       success: false,
       message: err.message
@@ -66,58 +53,36 @@ const login = async (req, res) => {
 
 // ================= GET PROFILE =================
 const getMe = async (req, res) => {
-
   try {
+    console.log("REQ.USER =", req.user);
 
-    // ✅ DEBUG TOKEN USER
-    console.log(
-      "REQ.USER =",
-      req.user
-    );
-
-    // ✅ CHECK TOKEN ID
     if (!req.user || !req.user.userId) {
-
       return res.status(400).json({
         success: false,
         message: "ID missing from token"
       });
     }
 
-    // ✅ GET USER FROM DB
-    const user =
-      await getUserProfile(
-        req.user.userId,
-        req.user.role
-      );
-
-    console.log(
-      "USER FROM DB =",
-      user
+    const user = await getUserProfile(
+      req.user.userId,
+      req.user.role
     );
 
-    // ❌ USER NOT FOUND
-    if (!user) {
+    console.log("USER FROM DB =", user);
 
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found"
       });
     }
 
-    // ✅ SUCCESS
     return res.status(200).json({
       success: true,
       user
     });
-
   } catch (err) {
-
-    console.log(
-      "GET ME ERROR =",
-      err
-    );
-
+    console.log("GET ME ERROR =", err);
     return res.status(500).json({
       success: false,
       message: err.message
@@ -125,14 +90,10 @@ const getMe = async (req, res) => {
   }
 };
 
+
 // ================= UPDATE PROFILE =================
-const updateProfile = async (
-  req,
-  res
-) => {
-
+const updateProfile = async (req, res) => {
   try {
-
     const {
       id,
       role,
@@ -140,58 +101,39 @@ const updateProfile = async (
       email,
       num,
       categorie,
-      localisation
+      localisation,
+      phone,      // 🚚
+      vehicle     // 🚚
     } = req.body;
 
     let updatedUser;
 
     // 👤 CLIENT
     if (role === "client") {
-
-      updatedUser =
-        await updateClient(
-          id,
-          name,
-          email,
-          num
-        );
-
+      updatedUser = await updateClient(id, name, email, num);
     }
-
     // 🏪 STORE
-    else {
-
-      updatedUser =
-        await updateStore(
-          id,
-          name,
-          email,
-          num,
-          categorie,
-          localisation
-        );
+    else if (role === "store") {
+      updatedUser = await updateStore(id, name, email, num, categorie, localisation);
+    }
+    // 🚚 LIVREUR
+    else if (role === "livreur") {
+      updatedUser = await updateLivreur(id, name, email, phone, vehicle);
     }
 
     return res.status(200).json({
-
       success: true,
       user: updatedUser
     });
-
   } catch (err) {
-
-    console.log(
-      "UPDATE PROFILE ERROR =",
-      err
-    );
-
+    console.log("UPDATE PROFILE ERROR =", err);
     return res.status(500).json({
-
       success: false,
       message: err.message
     });
   }
 };
+
 
 module.exports = {
   register,

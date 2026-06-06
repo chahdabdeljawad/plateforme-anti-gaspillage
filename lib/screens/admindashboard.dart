@@ -35,61 +35,38 @@ class _AdminDashboardState extends State<AdminDashboard> {
       final clientsResponse = await http.get(
         Uri.parse('http://localhost:5000/api/clients'),
       );
-
       final storesResponse = await http.get(
         Uri.parse('http://localhost:5000/api/stores'),
       );
-
       final productsResponse = await http.get(
         Uri.parse('http://localhost:5000/api/products'),
       );
-
       final reservationsResponse = await http.get(
         Uri.parse('http://localhost:5000/api/reservations'),
       );
-
       final reportsResponse = await http.get(
         Uri.parse('http://localhost:5000/api/admin/reports'),
       );
 
       if (clientsResponse.statusCode == 200) {
         final clients = jsonDecode(clientsResponse.body);
-
-        setState(() {
-          clientsCount = clients.length;
-        });
+        setState(() => clientsCount = clients.length);
       }
-
       if (storesResponse.statusCode == 200) {
         final stores = jsonDecode(storesResponse.body);
-
-        setState(() {
-          storesCount = stores.length;
-        });
+        setState(() => storesCount = stores.length);
       }
-
       if (productsResponse.statusCode == 200) {
         final products = jsonDecode(productsResponse.body);
-
-        setState(() {
-          productsCount = products.length;
-        });
+        setState(() => productsCount = products.length);
       }
-
       if (reservationsResponse.statusCode == 200) {
         final reservations = jsonDecode(reservationsResponse.body);
-
-        setState(() {
-          reservationsCount = reservations.length;
-        });
+        setState(() => reservationsCount = reservations.length);
       }
-
       if (reportsResponse.statusCode == 200) {
         final reports = jsonDecode(reportsResponse.body);
-
-        setState(() {
-          reportsCount = reports.length;
-        });
+        setState(() => reportsCount = reports.length);
       }
     } catch (e) {
       print("ERROR: $e");
@@ -156,20 +133,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 color: colors.onSurface.withOpacity(0.6),
               ),
             ),
-
             const SizedBox(height: 30),
-
-            // ================= DASHBOARD CARDS =================
             const SizedBox(height: 24),
             Expanded(
               child: GridView.count(
-
                 crossAxisCount: 3,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 childAspectRatio: 0.85,
                 children: [
-                  // ================= CLIENTS CARD =================
+                  // CLIENTS
                   buildCard(
                     context,
                     "Clients",
@@ -184,87 +157,76 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     },
                     () {
                       launchUrl(
-                        Uri.parse(
-                          "http://localhost:5000/api/admin/export-clients",
-                        ),
+                        Uri.parse("http://localhost:5000/api/admin/export-clients"),
                         webOnlyWindowName: '_blank',
                       );
                     },
-                 
                   ),
 
-                  // ================= STORES CARD =================
-          buildCard(
-  context,
-  "Stores",
-  Icons.storefront_rounded,
-  storesCount.toString(),
-  "EXPORT STORES CSV",
-  () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const StoresPage()),
-    );
-  },
-  () {
-    launchUrl(
-      Uri.parse(
-        "http://localhost:5000/api/admin/export-stores",
-      ),
-      webOnlyWindowName: '_blank',
-    );
-  },
-),
+                  // STORES
+                  buildCard(
+                    context,
+                    "Stores",
+                    Icons.storefront_rounded,
+                    storesCount.toString(),
+                    "EXPORT STORES CSV",
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const StoresPage()),
+                      );
+                    },
+                    () {
+                      launchUrl(
+                        Uri.parse("http://localhost:5000/api/admin/export-stores"),
+                        webOnlyWindowName: '_blank',
+                      );
+                    },
+                  ),
 
-                  // ================= PRODUCTS CARD =================
-         buildCard(
-  context,
-  "Products",
-  Icons.shopping_bag_rounded,
-  productsCount.toString(),
-  "EXPORT PRODUCTS CSV",
-  () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ProductsPage()),
-    );
-  },
-  () {
-    launchUrl(
-      Uri.parse(
-        "http://localhost:5000/api/admin/export-products",
-      ),
-      webOnlyWindowName: '_blank',
-    );
-  },
-),
+                  // PRODUCTS
+                  buildCard(
+                    context,
+                    "Products",
+                    Icons.shopping_bag_rounded,
+                    productsCount.toString(),
+                    "EXPORT PRODUCTS CSV",
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ProductsPage()),
+                      );
+                    },
+                    () {
+                      launchUrl(
+                        Uri.parse("http://localhost:5000/api/admin/export-products"),
+                        webOnlyWindowName: '_blank',
+                      );
+                    },
+                  ),
 
-                  // ================= RESERVATIONS CARD =================
-        buildCard(
-  context,
-  "Reservations",
-  Icons.bookmark_rounded,
-  reservationsCount.toString(),
-  "EXPORT RESERVATIONS CSV",
-  () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ReservationsPage(),
-      ),
-    );
-  },
-  () {
-    launchUrl(
-      Uri.parse(
-        "http://localhost:5000/api/admin/export-reservations",
-      ),
-      webOnlyWindowName: '_blank',
-    );
-  },
-),
+                  // RESERVATIONS
+                  buildCard(
+                    context,
+                    "Reservations",
+                    Icons.bookmark_rounded,
+                    reservationsCount.toString(),
+                    "EXPORT RESERVATIONS CSV",
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ReservationsPage()),
+                      );
+                    },
+                    () {
+                      launchUrl(
+                        Uri.parse("http://localhost:5000/api/admin/export-reservations"),
+                        webOnlyWindowName: '_blank',
+                      );
+                    },
+                  ),
 
-                  // ================= REPORTS CARD =================
+                  // REPORTS
                   buildCard(
                     context,
                     "Reports",
@@ -274,72 +236,59 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const ReportsPage(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const ReportsPage()),
                       );
                     },
                     null,
                   ),
-                  
-                  // ================= STATISTICS CARD =================
-GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => StatisticsPage(
-          clients: clientsCount,
-          stores: storesCount,
-          products: productsCount,
-          reservations: reservationsCount,
-          reports: reportsCount,
-        ),
-      ),
-    );
-  },
 
-  child: Container(
-    padding: const EdgeInsets.all(16),
-
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(28),
-
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-
-      children: [
-        Icon(
-          Icons.bar_chart_rounded,
-          size: 38,
-          color: primaryColor,
-        ),
-
-        const SizedBox(height: 12),
-
-        const Text(
-          "Statistics",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: primaryColor,
-            fontFamily: 'PlayfairDisplay',
-          ),
-        ),
-      ],
-    ),
-  ),
-),
+                  // STATISTICS
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StatisticsPage(
+                            clients: clientsCount,
+                            stores: storesCount,
+                            products: productsCount,
+                            reservations: reservationsCount,
+                            reports: reportsCount,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.bar_chart_rounded, size: 38, color: primaryColor),
+                          const SizedBox(height: 12),
+                          const Text(
+                            "Statistics",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: primaryColor,
+                              fontFamily: 'PlayfairDisplay',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -365,7 +314,6 @@ GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
-
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(20),
@@ -381,25 +329,17 @@ GestureDetector(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-
-
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: colors.primary.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
-
               child: Icon(icon, size: 32, color: primaryColor),
-           
             ),
-
             const SizedBox(height: 12),
-
             const SizedBox(height: 14),
             Text(
               title,
-
-
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -407,48 +347,34 @@ GestureDetector(
                 fontFamily: 'PlayfairDisplay',
               ),
             ),
-
             const SizedBox(height: 8),
-
             if (count.isNotEmpty)
               Text(
                 count,
-
                 style: const TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
               ),
-
             const SizedBox(height: 14),
-
             if (onExport != null && exportText.isNotEmpty)
               SizedBox(
                 width: double.infinity,
                 height: 38,
-
                 child: ElevatedButton.icon(
                   onPressed: onExport,
-
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
-
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-
                   icon: const Icon(Icons.download, size: 16),
-
                   label: Text(
                     exportText,
-
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -460,72 +386,42 @@ GestureDetector(
 }
 
 // ================= CLIENTS PAGE =================
-
 class ClientsPage extends StatelessWidget {
   const ClientsPage({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const DetailsPage(
-
-      title: "Clients",
-      endpoint: "clients",
-      dataKey: "clients",
-    );
+    return const DetailsPage(title: "Clients", endpoint: "clients", dataKey: "clients");
   }
 }
 
 // ================= STORES PAGE =================
-
 class StoresPage extends StatelessWidget {
   const StoresPage({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const DetailsPage(
-
-      title: "Stores",
-      endpoint: "stores",
-      dataKey: "stores",
-    );
+    return const DetailsPage(title: "Stores", endpoint: "stores", dataKey: "stores");
   }
 }
 
 // ================= PRODUCTS PAGE =================
-
 class ProductsPage extends StatelessWidget {
   const ProductsPage({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const DetailsPage(
-
-      title: "Products",
-      endpoint: "products",
-      dataKey: "products",
-    );
+    return const DetailsPage(title: "Products", endpoint: "products", dataKey: "products");
   }
 }
 
 // ================= RESERVATIONS PAGE =================
-
 class ReservationsPage extends StatelessWidget {
   const ReservationsPage({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const DetailsPage(
-      title: "Reservations",
-      endpoint: "reservations",
-      dataKey: "reservations",
-
-    );
+    return const DetailsPage(title: "Reservations", endpoint: "reservations", dataKey: "reservations");
   }
 }
 
 // ================= STATISTICS PAGE =================
-// ================= REUSABLE PAGE (Fixed) =================
-
 class StatisticsPage extends StatelessWidget {
   final int clients;
   final int stores;
@@ -545,19 +441,15 @@ class StatisticsPage extends StatelessWidget {
   static const Color primaryColor = Color(0xFF0A3B2A);
   static const Color backgroundColor = Color(0xFFF5F0E6);
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
         centerTitle: true,
-
         iconTheme: const IconThemeData(color: primaryColor),
-
         title: const Text(
           "Statistics",
           style: TextStyle(
@@ -567,156 +459,47 @@ class StatisticsPage extends StatelessWidget {
           ),
         ),
       ),
-
-body: Padding(
-  padding: const EdgeInsets.all(20),
-
-  child: ListView(
-    children: [
-      ListTile(
-        title: const Text("Clients"),
-        trailing: Text(
-          clients.toString(),
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-
-      const Divider(),
-
-      ListTile(
-        title: const Text("Stores"),
-        trailing: Text(
-          stores.toString(),
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-
-      const Divider(),
-
-      ListTile(
-        title: const Text("Products"),
-        trailing: Text(
-          products.toString(),
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-
-      const Divider(),
-
-      ListTile(
-        title: const Text("Reservations"),
-        trailing: Text(
-          reservations.toString(),
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-
-      const Divider(),
-
-      ListTile(
-        title: const Text("Reports"),
-        trailing: Text(
-          reports.toString(),
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ],
-  ),
-),
-    );
-  }
-
-  Widget buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-  ) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-
-            decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: ListView(
+          children: [
+            ListTile(
+              title: const Text("Clients"),
+              trailing: Text(clients.toString(),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             ),
-
-            child: Icon(
-              icon,
-              color: primaryColor,
-              size: 30,
+            const Divider(),
+            ListTile(
+              title: const Text("Stores"),
+              trailing: Text(stores.toString(),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             ),
-          ),
-
-          const SizedBox(width: 18),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor,
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
+            const Divider(),
+            ListTile(
+              title: const Text("Products"),
+              trailing: Text(products.toString(),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             ),
-          ),
-        ],
+            const Divider(),
+            ListTile(
+              title: const Text("Reservations"),
+              trailing: Text(reservations.toString(),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            ),
+            const Divider(),
+            ListTile(
+              title: const Text("Reports"),
+              trailing: Text(reports.toString(),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 // ================= DETAILS PAGE =================
-
 class DetailsPage extends StatefulWidget {
   final String title;
   final String endpoint;
@@ -735,17 +518,14 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   static const Color primaryColor = Color(0xFF0A3B2A);
-
   static const Color backgroundColor = Color(0xFFF5F0E6);
 
   List items = [];
-
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-
     fetchData();
   }
 
@@ -754,37 +534,23 @@ class _DetailsPageState extends State<DetailsPage> {
       final response = await http.get(
         Uri.parse("http://localhost:5000/api/${widget.endpoint}"),
       );
-
       print(response.body);
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         setState(() {
-          // CASE 1
-          // backend يرجع مباشرة List
           if (data is List) {
             items = data;
-          }
-          // CASE 2
-          // backend يرجع Map فيه key
-          else if (data is Map) {
+          } else if (data is Map) {
             items = data[widget.dataKey] ?? [];
           }
-
           isLoading = false;
         });
       } else {
-        setState(() {
-          isLoading = false;
-        });
+        setState(() => isLoading = false);
       }
     } catch (e) {
       print("ERROR = $e");
-
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
@@ -792,19 +558,13 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-
       appBar: AppBar(
         backgroundColor: backgroundColor,
-
         elevation: 0,
-
         centerTitle: true,
-
         iconTheme: const IconThemeData(color: primaryColor),
-
         title: Text(
           widget.title,
-
           style: const TextStyle(
             color: primaryColor,
             fontWeight: FontWeight.bold,
@@ -812,320 +572,298 @@ class _DetailsPageState extends State<DetailsPage> {
           ),
         ),
       ),
-
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : items.isEmpty
-          ? const Center(child: Text("No data found"))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-
-              itemCount: items.length,
-
-              itemBuilder: (context, index) {
-                final item = items[index];
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 14),
-
+              ? const Center(child: Text("No data found"))
+              : ListView.builder(
                   padding: const EdgeInsets.all(16),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
 
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-
-                    borderRadius: BorderRadius.circular(22),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-
-                    children: [
-                      Text(
-                        item["name"]?.toString() ??
-                            item["product_name"]?.toString() ??
-                            item["client_name"]?.toString() ??
-                            item["store_name"]?.toString() ??
-                            "No Name",
-
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: primaryColor,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      if (item["email"] != null) Text("📧 ${item["email"]}"),
-
-                      if (item["phone"] != null) Text("📞 ${item["phone"]}"),
-
-                      if (item["category"] != null)
-                        Text("🏪 ${item["category"]}"),
-
-                      if (item["price"] != null) Text("💰 ${item["price"]}"),
-
-                      if (item["reservation_date"] != null)
-                        Text("📅 ${item["reservation_date"]}"),
-
-                      // ================= DELETE CLIENT =================
-                      if (widget.endpoint == "clients") ...[
-                        const SizedBox(height: 10),
-
-                        SizedBox(
-                          width: double.infinity,
-
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-
-                              foregroundColor: Colors.white,
-                            ),
-
-                            onPressed: () async {
-                              final response = await http.delete(
-                                Uri.parse(
-                                  "http://localhost:5000/api/admin/delete-client/${item["id"]}",
-                                ),
-                              );
-
-                              if (response.statusCode == 200) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Client deleted ❌"),
-                                  ),
-                                );
-
-                                fetchData();
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Delete failed"),
-                                  ),
-                                );
-                              }
-                            },
-
-                            child: const Text("DELETE CLIENT"),
-                          ),
-                        ),
-                      ],
-
-                      // ================= DELETE PRODUCT =================
-                      if (widget.endpoint == "products") ...[
-                        const SizedBox(height: 10),
-
-                        SizedBox(
-                          width: double.infinity,
-
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-
-                              foregroundColor: Colors.white,
-                            ),
-
-                            onPressed: () async {
-                              final response = await http.delete(
-                                Uri.parse(
-                                  "http://localhost:5000/api/admin/delete-product/${item["id"]}",
-                                ),
-                              );
-
-                              if (response.statusCode == 200) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Product deleted ❌"),
-                                  ),
-                                );
-
-                                fetchData();
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Delete failed"),
-                                  ),
-                                );
-                              }
-                            },
-
-                            child: const Text("DELETE PRODUCT"),
-                          ),
-                        ),
-                      ],
-
-                      // ================= DELETE RESERVATION =================
-                      if (widget.endpoint == "reservations") ...[
-                        const SizedBox(height: 10),
-
-                        SizedBox(
-                          width: double.infinity,
-
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-
-                              foregroundColor: Colors.white,
-                            ),
-
-                            onPressed: () async {
-                              final response = await http.delete(
-                                Uri.parse(
-                                  "http://localhost:5000/api/admin/delete-reservation/${item["id"]}",
-                                ),
-                              );
-
-                              if (response.statusCode == 200) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Reservation deleted ❌"),
-                                  ),
-                                );
-
-                                fetchData();
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Delete failed"),
-                                  ),
-                                );
-                              }
-                            },
-
-                            child: const Text("DELETE RESERVATION"),
-                          ),
-                        ),
-                      ],
-
-                      // ================= VALIDATION STORE =================
-                      if (widget.endpoint == "stores" &&
-                          item["is_validated"] == false) ...[
-                        const SizedBox(height: 15),
-
-                        SizedBox(
-                          width: double.infinity,
-
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-
-                              foregroundColor: Colors.white,
-                            ),
-
-                            onPressed: () async {
-                              final response = await http.put(
-                                Uri.parse(
-                                  "http://localhost:5000/api/admin/validate-store/${item["id"]}",
-                                ),
-                              );
-
-                              if (response.statusCode == 200) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Store validated ✅"),
-                                  ),
-                                );
-
-                                fetchData();
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Validation failed"),
-                                  ),
-                                );
-                              }
-                            },
-
-                            child: const Text("VALIDATE STORE"),
-                          ),
-                        ),
-                      ],
-
-                      // ================= DELETE BUTTON =================
-                      if (widget.endpoint == "stores") ...[
-                        const SizedBox(height: 10),
-
-                        SizedBox(
-                          width: double.infinity,
-
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-
-                              foregroundColor: Colors.white,
-                            ),
-
-                            onPressed: () async {
-                              final response = await http.delete(
-                                Uri.parse(
-                                  "http://localhost:5000/api/admin/delete-store/${item["id"]}",
-                                ),
-                              );
-
-                              if (response.statusCode == 200) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Store deleted ❌"),
-                                  ),
-                                );
-
-                                fetchData();
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Delete failed"),
-                                  ),
-                                );
-                              }
-                            },
-
-                            child: const Text("DELETE STORE"),
-                          ),
-                        ),
-                      ],
-
-                      // ================= VALIDATED =================
-                      if (widget.endpoint == "stores" &&
-                          item["is_validated"] == true) ...[
-                        const SizedBox(height: 15),
-
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-
-                          decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.15),
-
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-
-                          child: const Text(
-                            "✅ VALIDATED",
-
-                            style: TextStyle(
-                              color: Colors.green,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item["name"]?.toString() ??
+                                item["product_name"]?.toString() ??
+                                item["client_name"]?.toString() ??
+                                item["store_name"]?.toString() ??
+                                "No Name",
+                            style: const TextStyle(
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: primaryColor,
                             ),
                           ),
-                        ),
-                      ],
-                    ],
-                  ),
-                );
-              },
-            ),
+                          const SizedBox(height: 8),
+
+                          if (item["email"] != null) Text("📧 ${item["email"]}"),
+                          if (item["phone"] != null) Text("📞 ${item["phone"]}"),
+                          if (item["category"] != null) Text("🏪 ${item["category"]}"),
+                          if (item["price"] != null) Text("💰 ${item["price"]}"),
+                          if (item["reservation_date"] != null)
+                            Text("📅 ${item["reservation_date"]}"),
+
+                          // ================= DELETE CLIENT =================
+                          if (widget.endpoint == "clients") ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  final response = await http.delete(
+                                    Uri.parse(
+                                      "http://localhost:5000/api/admin/delete-client/${item["id"]}",
+                                    ),
+                                  );
+                                  if (response.statusCode == 200) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Client deleted ❌")),
+                                    );
+                                    fetchData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Delete failed")),
+                                    );
+                                  }
+                                },
+                                child: const Text("DELETE CLIENT"),
+                              ),
+                            ),
+                          ],
+
+                          // ================= DELETE PRODUCT =================
+                          if (widget.endpoint == "products") ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  final response = await http.delete(
+                                    Uri.parse(
+                                      "http://localhost:5000/api/admin/delete-product/${item["id"]}",
+                                    ),
+                                  );
+                                  if (response.statusCode == 200) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Product deleted ❌")),
+                                    );
+                                    fetchData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Delete failed")),
+                                    );
+                                  }
+                                },
+                                child: const Text("DELETE PRODUCT"),
+                              ),
+                            ),
+                          ],
+
+                          // ================= VALIDATE PRODUCT ================= 🆕
+                          if (widget.endpoint == "products" &&
+                              item["is_validated"] == false) ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  final response = await http.put(
+                                    Uri.parse(
+                                      "http://localhost:5000/api/admin/validate-product/${item["id"]}",
+                                    ),
+                                  );
+                                  if (response.statusCode == 200) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Product validated ✅")),
+                                    );
+                                    fetchData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Validation failed")),
+                                    );
+                                  }
+                                },
+                                child: const Text("VALIDATE PRODUCT"),
+                              ),
+                            ),
+                          ],
+
+                          // ================= PRODUCT VALIDATED ================= 🆕
+                          if (widget.endpoint == "products" &&
+                              item["is_validated"] == true) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                "✅ VALIDATED",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+
+                          // ================= DELETE RESERVATION =================
+                          if (widget.endpoint == "reservations") ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  final response = await http.delete(
+                                    Uri.parse(
+                                      "http://localhost:5000/api/admin/delete-reservation/${item["id"]}",
+                                    ),
+                                  );
+                                  if (response.statusCode == 200) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Reservation deleted ❌")),
+                                    );
+                                    fetchData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Delete failed")),
+                                    );
+                                  }
+                                },
+                                child: const Text("DELETE RESERVATION"),
+                              ),
+                            ),
+                          ],
+
+                          // ================= VALIDATE STORE =================
+                          if (widget.endpoint == "stores" &&
+                              item["is_validated"] == false) ...[
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  final response = await http.put(
+                                    Uri.parse(
+                                      "http://localhost:5000/api/admin/validate-store/${item["id"]}",
+                                    ),
+                                  );
+                                  if (response.statusCode == 200) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Store validated ✅")),
+                                    );
+                                    fetchData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Validation failed")),
+                                    );
+                                  }
+                                },
+                                child: const Text("VALIDATE STORE"),
+                              ),
+                            ),
+                          ],
+
+                          // ================= DELETE STORE =================
+                          if (widget.endpoint == "stores") ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  final response = await http.delete(
+                                    Uri.parse(
+                                      "http://localhost:5000/api/admin/delete-store/${item["id"]}",
+                                    ),
+                                  );
+                                  if (response.statusCode == 200) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Store deleted ❌")),
+                                    );
+                                    fetchData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Delete failed")),
+                                    );
+                                  }
+                                },
+                                child: const Text("DELETE STORE"),
+                              ),
+                            ),
+                          ],
+
+                          // ================= STORE VALIDATED =================
+                          if (widget.endpoint == "stores" &&
+                              item["is_validated"] == true) ...[
+                            const SizedBox(height: 15),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                "✅ VALIDATED",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }
-
- 

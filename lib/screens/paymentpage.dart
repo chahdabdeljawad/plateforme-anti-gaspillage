@@ -1,14 +1,12 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-import 'package:qr_flutter/qr_flutter.dart';
-
 import '../lang.dart';
-import 'categorydetailspage.dart';
+import '../services/api_service.dart'; // 🚚
+import 'qrpage.dart'; // 📷
 
 class PaymentPage extends StatefulWidget {
   final int productId;
@@ -42,42 +40,72 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
- 
+
   final cardController = TextEditingController();
   final dateController = TextEditingController();
   final cvvController = TextEditingController();
-  String _paymentMethod = "sur_place"; // 'sur_place' or 'en_ligne'
+  String _paymentMethod = "sur_place";
 
   // ----------------------------- CREATE RESERVATION --------------------------
-  Future<void> createReservation() async {
+  // 🆕 retourne la réservation créée (ou null)
+  Future<Map<String, dynamic>?> createReservation() async {
     try {
       final response = await http.post(
         Uri.parse('http://localhost:5000/api/reservations'),
-        // For Android emulator: Uri.parse('http://10.0.2.2:5000/api/reservations'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "client_id": widget.clientId,
           "product_id": widget.productId,
-          "product_name": widget.productName,
-          "store_name": widget.storeName,
-          "pickup_time": widget.pickupTime,
-          "delivery_type": widget.deliveryType,
           "quantity": 1,
         }),
       );
 
       final data = jsonDecode(response.body);
-    
       print("STATUS = ${response.statusCode}");
       print("DATA = $data");
 
-      if (response.statusCode == 200) {
-        print("✅ Reservation added");
-      } else {
-        print("❌ Reservation error");
+      if (response.statusCode == 200 && data["success"] == true) {
+        final reservation = data["reservation"];
+
+        // 🚚 Si "Livraison à domicile" → créer une delivery
+        if (widget.deliveryType == "livraison") {
+          await ApiService.createDelivery(reservation["id"]);
+        }
+
+        return reservation;
       }
+      return null;
     } catch (e) {
       print("❌ ERROR = $e");
+      return null;
+    }
+  }
+
+  // 📷 aller vers le QR réel
+  void _goToQr(Map<String, dynamic> reservation) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => QrPage(
+          qrCode: reservation["qr_code"]?.toString() ?? "",
+          productName: reservation["product_name"]?.toString(),
+          storeName: reservation["store_name"]?.toString(),
+          status: reservation["status"]?.toString(),
+          quantity: reservation["quantity"]?.toString(),
+        ),
+      ),
+    );
+  }
+
+  // 🆕 confirme + va vers le QR
+  Future<void> _confirmAndShowQr() async {
+    final reservation = await createReservation();
+    if (!mounted) return;
+    if (reservation != null) {
+      _goToQr(reservation);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Erreur de réservation ❌")),
+      );
     }
   }
 
@@ -85,21 +113,17 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     final lang = Provider.of<Lang>(context);
     final colors = Theme.of(context).colorScheme;
-   
     final isRtl = lang.current == "ar";
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-    
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F0E6),
-     
         appBar: AppBar(
           title: Text(
             lang.t("payment_title"),
             style: const TextStyle(fontFamily: 'PlayfairDisplay'),
           ),
-        
           backgroundColor: const Color(0xFF0A3B2A),
           foregroundColor: Colors.white,
           elevation: 0,
@@ -108,7 +132,6 @@ class _PaymentPageState extends State<PaymentPage> {
             onPressed: widget.onBack,
           ),
         ),
-       
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -148,7 +171,7 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
               const SizedBox(height: 20),
 
-              // ---------- Dynamic content based on payment method ----------
+
               if (_paymentMethod == "sur_place")
                 _buildOnSitePayment(lang, colors),
               if (_paymentMethod == "en_ligne")
@@ -170,22 +193,22 @@ class _PaymentPageState extends State<PaymentPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
-       
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-       
+         
           children: [
             Text(
               lang.t("order_summary"),
               style: TextStyle(
-           
+              
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'PlayfairDisplay',
                 color: colors.primary,
               ),
             ),
-         
+
             const SizedBox(height: 16),
             _buildDetailRow(lang.t("product_label"), widget.productName, lang, colors),
             _buildDetailRow(lang.t("price_label"), widget.price, lang, colors),
@@ -197,9 +220,9 @@ class _PaymentPageState extends State<PaymentPage> {
               lang,
               colors,
             ),
-         
+
             const Divider(height: 24),
-         
+            
             _buildDetailRow(
               lang.t("total_label"),
               widget.price,
@@ -207,56 +230,47 @@ class _PaymentPageState extends State<PaymentPage> {
               colors,
               isTotal: true,
             ),
-         
+
             const SizedBox(height: 20),
 
-            // ---------- QR Code placeholder ----------
+            // note (le QR réel est généré après confirmation)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
-         
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: colors.onSurface.withOpacity(0.12), width: 2),
+                color: colors.primary.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(12),
               ),
-            
-              child: Column(
+              child: Row(
                 children: [
-                  const Icon(Icons.qr_code_scanner, size: 60),
-                  const SizedBox(height: 8),
-                  QrImageView(
-                    data:
-                        "${widget.productName}-${widget.storeName}-${widget.price}-${Random().nextInt(999999)}",
-                 
-                    version: QrVersions.auto,
-                    size: 200,
+                  Icon(Icons.qr_code_2, color: colors.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "Votre QR code sera généré après confirmation.",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colors.onSurface.withOpacity(0.7),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    lang.t("qr_code_placeholder"),
-                    style: TextStyle(color: colors.onSurface.withOpacity(0.5)),
-                  ),
-             
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
 
             // ---------- Confirm button ----------
             ElevatedButton(
-           
-              onPressed: () async {
-                await createReservation();
-                _showSuccessDialog(lang, colors);
-              },
-          
+              onPressed: _confirmAndShowQr, // 🆕 confirme → QrPage réel
               style: ElevatedButton.styleFrom(
-           
+               
                 backgroundColor: const Color(0xFF0A3B2A),
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
                 elevation: 0,
               ),
               child: Text(lang.t("confirm_reservation")),
@@ -271,34 +285,34 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget _buildOnlinePayment(Lang lang, ColorScheme colors) {
     return Form(
       key: _formKey,
-    
+
       child: Card(
         color: colors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(20),
-       
+
           child: Column(
             children: [
               Text(
                 lang.t("card_title"),
                 style: TextStyle(
-             
+
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'PlayfairDisplay',
                   color: colors.primary,
                 ),
               ),
-          
+
               const SizedBox(height: 30),
 
-              // Card number
+
               TextFormField(
                 controller: cardController,
                 keyboardType: TextInputType.number,
-              
+               
                 decoration: InputDecoration(
                   labelText: lang.t("card_number"),
                   labelStyle: TextStyle(color: colors.onSurface.withOpacity(0.6)),
@@ -306,7 +320,7 @@ class _PaymentPageState extends State<PaymentPage> {
                
                   filled: true,
                   fillColor: colors.surface,
-               
+                
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
@@ -317,31 +331,30 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ),
                 style: TextStyle(color: colors.onSurface),
-              
+                
                 validator: (value) {
                   if (value == null || value.isEmpty) return lang.t("required_field");
                   if (value.length < 16) return lang.t("invalid_card");
                   return null;
                 },
               ),
-             
+
               const SizedBox(height: 15),
 
-              // Expiry date & CVV row
+
               Row(
                 children: [
-             
+
                   Expanded(
                     child: TextFormField(
                       controller: dateController,
-                
+                  
                       decoration: InputDecoration(
                         labelText: lang.t("expiry_date"),
                         labelStyle: TextStyle(color: colors.onSurface.withOpacity(0.6)),
                         filled: true,
                         fillColor: colors.surface,
-                  
-                       border: OutlineInputBorder(
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
@@ -355,21 +368,21 @@ class _PaymentPageState extends State<PaymentPage> {
                           (value == null || value.isEmpty) ? lang.t("required_field") : null,
                     ),
                   ),
-                
+
                   const SizedBox(width: 10),
-                 
+                  
                   Expanded(
                     child: TextFormField(
                       controller: cvvController,
                       keyboardType: TextInputType.number,
                       obscureText: true,
-                    
+                  
                       decoration: InputDecoration(
                         labelText: lang.t("cvv"),
                         labelStyle: TextStyle(color: colors.onSurface.withOpacity(0.6)),
                         filled: true,
                         fillColor: colors.surface,
-                  
+                     
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
@@ -386,18 +399,18 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ],
               ),
-           
+
               const SizedBox(height: 40),
 
-              // Pay button
+
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _showOnlinePaymentConfirmation(lang, colors);
-               
+                
                   }
                 },
-              
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.onPrimary,
@@ -420,15 +433,11 @@ class _PaymentPageState extends State<PaymentPage> {
   void _showOnlinePaymentConfirmation(Lang lang, ColorScheme colors) {
     showDialog(
       context: context,
-      
+
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: colors.surface,
-        title: Text(
-          lang.t("order_summary"),
-          style: TextStyle(color: colors.onSurface),
-        ),
-       
+        title: Text(lang.t("order_summary"), style: TextStyle(color: colors.onSurface)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -445,9 +454,9 @@ class _PaymentPageState extends State<PaymentPage> {
                 lang,
                 colors,
               ),
-             
+
               const Divider(),
-              
+
               _buildDetailRow(
                 lang.t("total_paid_label"),
                 widget.price,
@@ -460,22 +469,20 @@ class _PaymentPageState extends State<PaymentPage> {
             ],
           ),
         ),
-       
+
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(lang.t("cancel"), style: TextStyle(color: colors.onSurface)),
-        
+         
           ),
-        
+
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
-              await createReservation();
-              _showSuccessDialog(lang, colors);
-            
+              Navigator.pop(context); // ferme le dialog
+              await _confirmAndShowQr(); // 🆕 confirme → QrPage réel
             },
-            
+
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: colors.onPrimary,
@@ -504,18 +511,19 @@ class _PaymentPageState extends State<PaymentPage> {
         children: [
           Text(
             label,
-         
+            
             style: TextStyle(
               fontSize: isTotal ? 16 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
               color: isTotal ? colors.primary : colors.onSurface,
-            
+          
             ),
+            
           ),
-        
+
           Text(
             value,
-        
+
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
@@ -527,43 +535,5 @@ class _PaymentPageState extends State<PaymentPage> {
       ),
     );
   }
-
-  // ----------------------------- SUCCESS DIALOG -----------------------------
-  void _showSuccessDialog(Lang lang, ColorScheme colors) {
-    showDialog(
-      context: context,
-     
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: colors.surface,
-        title: Text(
-          lang.t("reservation_success_title"),
-          style: TextStyle(color: colors.onSurface),
-        ),
-        content: Text(
-          lang.t("reservation_success_msg"),
-          style: TextStyle(color: colors.onSurface),
-        ),
-       
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (_) => CategoryDetailsPage(
-                    categoryName: widget.storeName,
-                    onBack: () => Navigator.pop(context),
-                    onReserve: (product, data) {},
-                  ),
-                ),
-                (route) => false,
-              );
-            },
-            child: Text(lang.t("ok"), style: TextStyle(color: colors.primary)),
-         
-          ),
-        ],
-      ),
-    );
-  }
+  
 }

@@ -438,6 +438,8 @@ final allProducts = [
 
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+       child: Material(
+        type: MaterialType.transparency,
       child: Column(
         children: [
           Expanded(
@@ -480,6 +482,7 @@ final allProducts = [
           ),
         ],
       ),
+       ),
     );
   }
 

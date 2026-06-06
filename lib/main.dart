@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'authentification/login.dart';
 import 'authentification/registre.dart';
+import 'authentification/loginadmin.dart'; // 🔐 admin
 import 'components/navbar.dart';
 import 'lang.dart';
 import 'providers/location_provider.dart';
@@ -97,19 +98,19 @@ class MyApp extends StatelessWidget {
       initialRoute: '/home',
 
       routes: {
-        // ✅ UPDATED: Added the required 'onSignUp' callback.
-        // Since this is a standalone route, we use an empty function.
         '/login': (context) => LoginPage(
           onLoginSuccess: (role) {},
-          onSignUp: () {}, // ✅ Added missing required parameter
+          onSignUp: () {},
         ),
 
-        // ✅ UPDATED: Added the required 'onBack' callback.
         '/register': (context) => RegistrePage(
-          onBack: () {}, // ✅ Added missing required parameter
+          onBack: () {},
         ),
 
         '/home': (context) => const CustomNavbar(),
+
+        // 🔐 ADMIN — accessible seulement via l'URL
+        '/admin': (context) => const LoginAdminPage(),
       },
     );
   }

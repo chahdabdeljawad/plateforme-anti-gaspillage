@@ -9,7 +9,6 @@ import '../services/api_service.dart';
 
 class AddProductPage extends StatefulWidget {
   final Map? product;
-
   const AddProductPage({super.key, this.product});
 
   @override
@@ -18,17 +17,15 @@ class AddProductPage extends StatefulWidget {
 
 class _AddProductPageState extends State<AddProductPage> {
   final nameController = TextEditingController();
-
   final priceController = TextEditingController();
-
   final oldPriceController = TextEditingController();
-
   final descController = TextEditingController();
+  final quantityController = TextEditingController(); // 🆕
+
+  DateTime? expirationDate; // 🆕
 
   File? selectedImage;
-
   Uint8List? webImage;
-
   String? imageName;
 
   bool isLoading = false;
@@ -55,25 +52,20 @@ class _AddProductPageState extends State<AddProductPage> {
   void initState() {
     super.initState();
 
-    // ✅ EDIT MODE
     if (isEdit) {
       final product = widget.product!;
-
       nameController.text = product["name"] ?? "";
-
       priceController.text = product["price"].toString();
-
       oldPriceController.text = product["old_price"].toString();
-
       descController.text = product["description"] ?? "";
+      quantityController.text = (product["quantity"] ?? "").toString();
 
-      // ✅ FIX CATEGORY ERROR
       final category = product["category"]?.toString() ?? "";
+      selectedCategory = categories.contains(category) ? category : null;
 
-      if (categories.contains(category)) {
-        selectedCategory = category;
-      } else {
-        selectedCategory = null;
+      final exp = product["expiration_date"]?.toString();
+      if (exp != null && exp.isNotEmpty) {
+        expirationDate = DateTime.tryParse(exp);
       }
     }
   }
@@ -81,28 +73,37 @@ class _AddProductPageState extends State<AddProductPage> {
   // 📸 PICK IMAGE
   Future<void> pickImage() async {
     final picker = ImagePicker();
-
     final picked = await picker.pickImage(source: ImageSource.gallery);
-
     if (picked != null) {
       imageName = picked.name;
-
       if (kIsWeb) {
         webImage = await picked.readAsBytes();
       } else {
         selectedImage = File(picked.path);
       }
-
       setState(() {});
     }
   }
 
+  // 📅 PICK EXPIRATION DATE 🆕
+  Future<void> pickExpirationDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: expirationDate ?? now.add(const Duration(days: 1)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+    );
+    if (picked != null) setState(() => expirationDate = picked);
+  }
+
+  String _fmtDate(DateTime d) =>
+      "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+
   // ➕ ADD / ✏ UPDATE
   Future<void> saveProduct() async {
     final prefs = await SharedPreferences.getInstance();
-
     final token = prefs.getString("token");
-
     if (token == null) return;
 
     if (nameController.text.isEmpty ||
@@ -110,16 +111,25 @@ class _AddProductPageState extends State<AddProductPage> {
         oldPriceController.text.isEmpty ||
         descController.text.isEmpty ||
         selectedCategory == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Fill all fields")));
-
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Fill all fields")));
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    if (!isEdit) {
+      if (quantityController.text.isEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Entrez la quantité")));
+        return;
+      }
+      if (expirationDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Choisissez la date d'expiration")));
+        return;
+      }
+    }
+
+    setState(() => isLoading = true);
 
     Map<String, dynamic> result;
 
@@ -127,73 +137,52 @@ class _AddProductPageState extends State<AddProductPage> {
     if (isEdit) {
       result = await ApiService.updateProduct(
         token,
-
         widget.product!["id"],
-
         nameController.text,
-
         priceController.text,
-
         oldPriceController.text,
-
         descController.text,
-
         selectedCategory!,
+        expirationDate:
+            expirationDate != null ? _fmtDate(expirationDate!) : null, // 🆕
+        quantity: quantityController.text.isNotEmpty
+            ? quantityController.text
+            : null, // 🆕
       );
     }
     // ✅ ADD
     else {
       if ((kIsWeb && webImage == null) || (!kIsWeb && selectedImage == null)) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Choose image")));
-
-        setState(() {
-          isLoading = false;
-        });
-
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Choose image")));
+        setState(() => isLoading = false);
         return;
       }
 
       result = await ApiService.addProduct(
         token,
-
         nameController.text,
-
         priceController.text,
-
         oldPriceController.text,
-
         descController.text,
-
         selectedCategory!,
-
         kIsWeb ? webImage! : selectedImage!,
-
         imageName!,
+        expirationDate: _fmtDate(expirationDate!), // 🆕
+        quantity: quantityController.text,         // 🆕
       );
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    setState(() => isLoading = false);
 
-    // ✅ SUCCESS
     if (result["success"] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isEdit ? "Product updated ✅" : "Product added ✅"),
-        ),
+        SnackBar(content: Text(isEdit ? "Product updated ✅" : "Product added ✅")),
       );
-
-      // ✅ AUTO REFRESH
       Navigator.pop(context, true);
-    }
-    // ❌ ERROR
-    else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(result["message"] ?? "Error")));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result["message"] ?? "Error")));
     }
   }
 
@@ -205,12 +194,11 @@ class _AddProductPageState extends State<AddProductPage> {
       backgroundColor: colors.surface,
       appBar: AppBar(
         elevation: 0,
-
         centerTitle: true,
         backgroundColor: colors.surface,
         iconTheme: IconThemeData(color: colors.onSurface),
         title: Text(
-          "Add Product",
+          isEdit ? "Edit Product" : "Add Product",
           style: TextStyle(
             color: colors.primary,
             fontWeight: FontWeight.bold,
@@ -251,7 +239,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 const SizedBox(height: 25),
                 Center(
                   child: Text(
-                    "Create New Product",
+                    isEdit ? "Edit Product" : "Create New Product",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -262,7 +250,6 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
                 const SizedBox(height: 35),
 
-                // PRODUCT NAME
                 buildTextField(
                   controller: nameController,
                   label: "Product Name",
@@ -285,7 +272,15 @@ class _AddProductPageState extends State<AddProductPage> {
                   icon: Icons.local_offer,
                   colors: colors,
                 ),
+                const SizedBox(height: 20),
 
+                // 🆕 QUANTITÉ
+                buildTextField(
+                  controller: quantityController,
+                  label: "Quantité disponible",
+                  icon: Icons.numbers,
+                  colors: colors,
+                ),
                 const SizedBox(height: 20),
 
                 buildTextField(
@@ -302,13 +297,8 @@ class _AddProductPageState extends State<AddProductPage> {
                   value: selectedCategory,
                   decoration: InputDecoration(
                     labelText: "Category",
-                    labelStyle: TextStyle(
-                      color: colors.onSurface.withOpacity(0.6),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.category_outlined,
-                      color: colors.primary,
-                    ),
+                    labelStyle: TextStyle(color: colors.onSurface.withOpacity(0.6)),
+                    prefixIcon: Icon(Icons.category_outlined, color: colors.primary),
                     filled: true,
                     fillColor: colors.surface,
                     border: OutlineInputBorder(
@@ -324,17 +314,35 @@ class _AddProductPageState extends State<AddProductPage> {
                   items: categories.map((cat) {
                     return DropdownMenuItem(
                       value: cat,
-                      child: Text(
-                        cat,
-                        style: TextStyle(color: colors.onSurface),
-                      ),
+                      child: Text(cat, style: TextStyle(color: colors.onSurface)),
                     );
                   }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value;
-                    });
-                  },
+                  onChanged: (value) => setState(() => selectedCategory = value),
+                ),
+                const SizedBox(height: 20),
+
+                // 🆕 DATE D'EXPIRATION
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: pickExpirationDate,
+                    icon: const Icon(Icons.event),
+                    label: Text(
+                      expirationDate == null
+                          ? "Date d'expiration"
+                          : "Expire le : ${_fmtDate(expirationDate!)}",
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colors.surface,
+                      foregroundColor: colors.primary,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: colors.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 25),
 
@@ -358,7 +366,6 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // IMAGE PREVIEW
                 if (selectedImage != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
@@ -371,15 +378,11 @@ class _AddProductPageState extends State<AddProductPage> {
                   ),
                 const SizedBox(height: 35),
 
-                // ADD BUTTON
+                // SAVE
                 SizedBox(
                   width: double.infinity,
                   child: isLoading
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            color: colors.primary,
-                          ),
-                        )
+                      ? Center(child: CircularProgressIndicator(color: colors.primary))
                       : ElevatedButton(
                           onPressed: saveProduct,
                           style: ElevatedButton.styleFrom(
@@ -390,9 +393,9 @@ class _AddProductPageState extends State<AddProductPage> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text(
-                            "Add Product",
-                            style: TextStyle(
+                          child: Text(
+                            isEdit ? "Update Product" : "Add Product",
+                            style: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
                             ),
@@ -407,19 +410,15 @@ class _AddProductPageState extends State<AddProductPage> {
     );
   }
 
-  // 📝 TEXTFIELD
   Widget buildTextField({
     required TextEditingController controller,
-
     required String label,
-
     required IconData icon,
     required ColorScheme colors,
     int maxLines = 1,
   }) {
     return TextField(
       controller: controller,
-
       maxLines: maxLines,
       style: TextStyle(color: colors.onSurface),
       decoration: InputDecoration(
