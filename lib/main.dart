@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'authentification/login.dart';
 import 'authentification/registre.dart';
 import 'authentification/loginadmin.dart'; // 🔐 admin
+import 'screens/onboarding_page.dart'; // 🆕 onboarding
 import 'components/navbar.dart';
 import 'lang.dart';
 import 'providers/location_provider.dart';
@@ -95,17 +96,24 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      initialRoute: '/home',
+      // 🆕 يبدا بالـ onboarding
+      initialRoute: '/onboarding',
 
       routes: {
+        // 🆕 ONBOARDING — أول صفحة
+        '/onboarding': (context) => OnboardingPage(
+              onStart: () =>
+                  Navigator.pushReplacementNamed(context, '/home'),
+            ),
+
         '/login': (context) => LoginPage(
-          onLoginSuccess: (role) {},
-          onSignUp: () {},
-        ),
+              onLoginSuccess: (role) {},
+              onSignUp: () {},
+            ),
 
         '/register': (context) => RegistrePage(
-          onBack: () {},
-        ),
+              onBack: () {},
+            ),
 
         '/home': (context) => const CustomNavbar(),
 

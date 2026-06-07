@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import '../lang.dart';
-import '../services/api_service.dart'; // 🚚
-import 'qrpage.dart'; // 📷
+import '../services/api_service.dart'; 
+import 'qrpage.dart'; 
 
 class PaymentPage extends StatefulWidget {
   final int productId;
@@ -535,5 +535,5 @@ class _PaymentPageState extends State<PaymentPage> {
       ),
     );
   }
-  
+
 }

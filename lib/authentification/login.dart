@@ -112,7 +112,10 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                     GestureDetector(
+                        onLongPress: () =>
+                            Navigator.pushNamed(context, '/admin'),
+                        child: Text(
                         lang.t("welcome_back"),
                         style: TextStyle(
                           fontSize: 28,
@@ -121,6 +124,8 @@ class _LoginPageState extends State<LoginPage> {
                           color: colors.primary,
                         ),
                       ),
+                     ),
+                     
 
                       const SizedBox(height: 6),
 
