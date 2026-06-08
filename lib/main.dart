@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'authentification/login.dart';
 import 'authentification/registre.dart';
 import 'authentification/loginadmin.dart'; // 🔐 admin
@@ -15,6 +15,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final locationProvider = LocationProvider();
+
+  setUrlStrategy(PathUrlStrategy());
 
   // Load saved location
   await locationProvider.loadSavedLocation();
@@ -102,23 +104,18 @@ class MyApp extends StatelessWidget {
       routes: {
         // 🆕 ONBOARDING — أول صفحة
         '/onboarding': (context) => OnboardingPage(
-              onStart: () =>
-                  Navigator.pushReplacementNamed(context, '/home'),
-            ),
+          onStart: () => Navigator.pushReplacementNamed(context, '/home'),
+        ),
 
-        '/login': (context) => LoginPage(
-              onLoginSuccess: (role) {},
-              onSignUp: () {},
-            ),
+        '/login': (context) =>
+            LoginPage(onLoginSuccess: (role) {}, onSignUp: () {}),
 
-        '/register': (context) => RegistrePage(
-              onBack: () {},
-            ),
+        '/register': (context) => RegistrePage(onBack: () {}),
 
         '/home': (context) => const CustomNavbar(),
 
         // 🔐 ADMIN — accessible seulement via l'URL
-        '/admin': (context) => const LoginAdminPage(),
+        '/loginadmin': (context) => const LoginAdminPage(),
       },
     );
   }
