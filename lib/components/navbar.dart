@@ -9,6 +9,8 @@ import '../screens/categoriespage.dart';
 import '../authentification/login.dart';
 import '../providers/theme_provider.dart';
 import '../authentification/registre.dart';
+import '../services/cart_service.dart';
+import '../screens/panierpage.dart';
 
 class CustomNavbar extends StatefulWidget {
   const CustomNavbar({super.key});
@@ -70,6 +72,52 @@ class _CustomNavbarState extends State<CustomNavbar> {
                   ),
                 ),
                 actions: [
+                  // 🛒 PANIER + badge
+                  Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.shopping_cart_outlined,
+                            color: colors.onSurface),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const PanierPage()),
+                          );
+                          setState(() {}); // refresh badge
+                        },
+                      ),
+                      if (CartService.count > 0)
+                        Positioned(
+                          right: 6,
+                          top: 6,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              "${CartService.count}",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  // (يكمّل: زرّ الـ theme + اللغة كيف ما هم)
                   IconButton(
                     icon: Icon(
                       themeProvider.isDarkMode

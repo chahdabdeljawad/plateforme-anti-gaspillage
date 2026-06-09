@@ -244,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
           return {
             ...p,
             "image": p["image"] != null
-                ? "http://localhost:5000/uploads/${p["image"]}"
+                ? "${ApiService.imageBaseUrl}/uploads/${p["image"]}"
                 : "",
           };
         }).toList();
@@ -845,7 +845,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final String title = product["name"] ?? "";
     final String imageUrl = image.startsWith("http")
         ? image
-        : "http://localhost:5000/uploads/$image";
+        : "${ApiService.imageBaseUrl}/uploads/$image";
 
     return Container(
       decoration: BoxDecoration(

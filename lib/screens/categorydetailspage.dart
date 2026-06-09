@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../components/footer.dart';
 import '../lang.dart';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'reservationpage.dart';
@@ -105,7 +104,7 @@ Future<void> loadClientId() async {
           'time': '18:00',
         },
         {
-          'name': 'Huile Cristal 1L',
+          'name': 'Huile de maïs olina 1L',
           'price': '8.500 DT',
           'promo': '4.200 DT',
           'image': 'images/products/huile.png',
@@ -137,10 +136,10 @@ Future<void> loadClientId() async {
       ],
       'Monoprix': [
         {
-          'name': 'Sandwich Thon',
-          'price': '5 DT',
-          'promo': '3.5 DT',
-          'image': 'images/products/sandwich.png',
+          'name': 'Thon entié el manar 400 g',
+          'price': '24 DT',
+          'promo': '10.990 DT',
+          'image': 'images/products/thon.png',
           'time': '12:00',
         },
         {
@@ -161,8 +160,8 @@ Future<void> loadClientId() async {
         },
         {
           'name': 'Chocolat Said',
-          'price': '2.500 DT',
-          'promo': '1.000 DT',
+          'price': '4.500 DT',
+          'promo': '1.990 DT',
           'image': 'images/products/choco.png',
           'time': '16:30',
         },
@@ -342,17 +341,17 @@ Future<void> loadClientId() async {
       ],
       'Petits commerces': [
         {
-          'name': 'Café Express',
-          'price': '1.200 DT',
-          'promo': '1 DT',
-          'image': 'images/products/cafe.png',
+          'name': '1kg salé',
+          'price': '45.000 DT',
+          'promo': '15.000 DT',
+          'image': 'images/products/salé.png',
           'time': '19:30',
         },
         {
-          'name': 'Œufs (6)',
-          'price': '3.5 DT',
-          'promo': '2.8 DT',
-          'image': 'images/products/oeufs.png',
+          'name': 'Granola 200g',
+          'price': '25.000 DT',
+          'promo': '10.000 DT',
+          'image': 'images/products/granola.png',
           'time': '17:30',
         },
       ],
@@ -401,9 +400,7 @@ final allProducts = [
 
           // IMAGE
           "image": p["image"] != null
-              ? (kIsWeb
-                  ? "http://localhost:5000/uploads/${p["image"]}"
-                  : "http://10.0.2.2:5000/uploads/${p["image"]}")
+              ? "${ApiService.imageBaseUrl}/uploads/${p["image"]}"
               : "",
 
           // STORE NAME
@@ -442,6 +439,30 @@ final allProducts = [
         type: MaterialType.transparency,
       child: Column(
         children: [
+          // 🔙 Header avec bouton retour
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_back_ios, color: colors.primary),
+                  onPressed: widget.onBack,
+                ),
+                Expanded(
+                  child: Text(
+                    widget.categoryName,
+                    style: TextStyle(
+                      fontFamily: 'PlayfairDisplay',
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: colors.primary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: allProducts.isEmpty
                 ? Center(

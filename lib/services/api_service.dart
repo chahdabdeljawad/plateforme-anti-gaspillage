@@ -6,13 +6,21 @@ import 'dart:typed_data';
 
 class ApiService {
 
-  //  BASE URL
+  // BASE URL (API)
   static String get baseUrl {
-
     if (kIsWeb) {
       return "http://localhost:5000/api";
     } else {
       return "http://10.0.2.2:5000/api";
+    }
+  }
+
+  // 🆕 BASE URL للصور / uploads (بلا /api)
+  static String get imageBaseUrl {
+    if (kIsWeb) {
+      return "http://localhost:5000";
+    } else {
+      return "http://10.0.2.2:5000";
     }
   }
 
@@ -77,7 +85,7 @@ class ApiService {
 
   if (latitude != null) body["latitude"] = latitude;
       if (longitude != null) body["longitude"] = longitude;
-      
+
       final response = await http.post(
         Uri.parse("$baseUrl/auth/register"),
         headers: {"Content-Type": "application/json"},

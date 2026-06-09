@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'reportspage.dart';
@@ -33,19 +34,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<void> fetchDashboardData() async {
     try {
       final clientsResponse = await http.get(
-        Uri.parse('http://localhost:5000/api/clients'),
+        Uri.parse('${ApiService.baseUrl}/clients'),
       );
       final storesResponse = await http.get(
-        Uri.parse('http://localhost:5000/api/stores'),
+        Uri.parse('${ApiService.baseUrl}/stores'),
       );
       final productsResponse = await http.get(
-        Uri.parse('http://localhost:5000/api/products'),
+        Uri.parse('${ApiService.baseUrl}/products'),
       );
       final reservationsResponse = await http.get(
-        Uri.parse('http://localhost:5000/api/reservations'),
+        Uri.parse('${ApiService.baseUrl}/reservations'),
       );
       final reportsResponse = await http.get(
-        Uri.parse('http://localhost:5000/api/admin/reports'),
+        Uri.parse('${ApiService.baseUrl}/admin/reports'),
       );
 
       if (clientsResponse.statusCode == 200) {
@@ -157,7 +158,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     },
                     () {
                       launchUrl(
-                        Uri.parse("http://localhost:5000/api/admin/export-clients"),
+                        Uri.parse("${ApiService.baseUrl}/admin/export-clients"),
                         webOnlyWindowName: '_blank',
                       );
                     },
@@ -178,7 +179,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     },
                     () {
                       launchUrl(
-                        Uri.parse("http://localhost:5000/api/admin/export-stores"),
+                        Uri.parse("${ApiService.baseUrl}/admin/export-stores"),
                         webOnlyWindowName: '_blank',
                       );
                     },
@@ -199,7 +200,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     },
                     () {
                       launchUrl(
-                        Uri.parse("http://localhost:5000/api/admin/export-products"),
+                        Uri.parse("${ApiService.baseUrl}/admin/export-products"),
                         webOnlyWindowName: '_blank',
                       );
                     },
@@ -220,7 +221,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     },
                     () {
                       launchUrl(
-                        Uri.parse("http://localhost:5000/api/admin/export-reservations"),
+                        Uri.parse("${ApiService.baseUrl}/admin/export-reservations"),
                         webOnlyWindowName: '_blank',
                       );
                     },
@@ -532,7 +533,7 @@ class _DetailsPageState extends State<DetailsPage> {
   Future<void> fetchData() async {
     try {
       final response = await http.get(
-        Uri.parse("http://localhost:5000/api/${widget.endpoint}"),
+        Uri.parse("${ApiService.baseUrl}/${widget.endpoint}"),
       );
       print(response.body);
       if (response.statusCode == 200) {
@@ -633,7 +634,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 onPressed: () async {
                                   final response = await http.delete(
                                     Uri.parse(
-                                      "http://localhost:5000/api/admin/delete-client/${item["id"]}",
+                                      "${ApiService.baseUrl}/admin/delete-client/${item["id"]}",
                                     ),
                                   );
                                   if (response.statusCode == 200) {
@@ -665,7 +666,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 onPressed: () async {
                                   final response = await http.delete(
                                     Uri.parse(
-                                      "http://localhost:5000/api/admin/delete-product/${item["id"]}",
+                                      "${ApiService.baseUrl}/admin/delete-product/${item["id"]}",
                                     ),
                                   );
                                   if (response.statusCode == 200) {
@@ -698,7 +699,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 onPressed: () async {
                                   final response = await http.put(
                                     Uri.parse(
-                                      "http://localhost:5000/api/admin/validate-product/${item["id"]}",
+                                      "${ApiService.baseUrl}/admin/validate-product/${item["id"]}",
                                     ),
                                   );
                                   if (response.statusCode == 200) {
@@ -753,7 +754,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 onPressed: () async {
                                   final response = await http.delete(
                                     Uri.parse(
-                                      "http://localhost:5000/api/admin/delete-reservation/${item["id"]}",
+                                      "${ApiService.baseUrl}/admin/delete-reservation/${item["id"]}",
                                     ),
                                   );
                                   if (response.statusCode == 200) {
@@ -786,7 +787,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 onPressed: () async {
                                   final response = await http.put(
                                     Uri.parse(
-                                      "http://localhost:5000/api/admin/validate-store/${item["id"]}",
+                                      "${ApiService.baseUrl}/admin/validate-store/${item["id"]}",
                                     ),
                                   );
                                   if (response.statusCode == 200) {
@@ -818,7 +819,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 onPressed: () async {
                                   final response = await http.delete(
                                     Uri.parse(
-                                      "http://localhost:5000/api/admin/delete-store/${item["id"]}",
+                                      "${ApiService.baseUrl}/admin/delete-store/${item["id"]}",
                                     ),
                                   );
                                   if (response.statusCode == 200) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:http/http.dart' as http;
 
 class ReportsPage extends StatefulWidget {
@@ -30,7 +31,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
       final response = await http.get(
         Uri.parse(
-          "http://localhost:5000/api/admin/reports",
+          "${ApiService.baseUrl}/admin/reports",
         ),
       );
 
@@ -177,7 +178,7 @@ class _ReportsPageState extends State<ReportsPage> {
                                     await http.delete(
 
                                   Uri.parse(
-                                    "http://localhost:5000/api/admin/delete-report/${report["id"]}",
+                                    "${ApiService.baseUrl}/admin/delete-report/${report["id"]}",
                                   ),
                                 );
 

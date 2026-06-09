@@ -201,8 +201,8 @@ class _MapPageState extends State<MapPage> {
             ),
           ),
 
-          // ✅ Footer
-          const AppFooter(),
+         
+          
         ],
       ),
     );
